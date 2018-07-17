@@ -1,7 +1,16 @@
 <template>
   <div class="app-wrapper" :class="classObj">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
-    <div style="background: #1262aa;width: 100%;height: 100px"></div>
+    <div style="background: #1262aa;width: 100%;height: 10%;">
+      <img src="./../../assets/img/title.jpg" style="margin-top: 20px;margin-left: 20px">
+      <img src="./../../assets/img/logo.jpg" style="position: absolute;height: 50px;right: 16px;top: 10px">
+      <div class="button">
+        <svg-icon icon-class="user"></svg-icon>
+        admin</div>
+      <div class="button" style="right: 30px">
+        <svg-icon icon-class="set"></svg-icon>
+        设置</div>
+    </div>
     <sidebar class="sidebar-container"></sidebar>
     <div class="main-container">
       <app-main></app-main>
@@ -60,5 +69,11 @@ export default {
     height: 100%;
     position: absolute;
     z-index: 999;
+  }
+  .button {
+    cursor: pointer;
+    color: #fff;
+    position: absolute;
+    right: 100px;
   }
 </style>
