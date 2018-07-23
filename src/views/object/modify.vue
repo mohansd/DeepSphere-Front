@@ -1,13 +1,31 @@
 <template>
-  <span>modify</span>
+  <div class="container">
+    <span style="padding-left: 30px">端口号： </span>
+    <input placeholder="输入端口号"/>
+    <br/>
+    <i-button type="primary" text="确定" style="padding-top: 20px;padding-left: 100px"></i-button>
+    <i-button type="primary" text="重置" ></i-button>
+  </div>
 </template>
 
 <script>
-    export default {
-      name: 'modify'
+  import iButton from './../../components/Button/iButton'
+  export default {
+    name: 'modify',
+    components: {
+      iButton
     }
+  }
 </script>
 
-<style scoped>
-
+<style scoped lang="stylus">
+.container
+  border: 0.5px solid rgba(190, 190, 190, 0.5)
+  margin-top 1%
+  margin-left 1%
+  width 80%
+  height: 150px
+  background-color #fff
+  position absolute
+  padding-top 50px
 </style>

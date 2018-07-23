@@ -1,7 +1,7 @@
 <template>
   <div class="app-wrapper" :class="classObj">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
-    <div style="background: #1262aa;width: 100%;height: 10%;">
+    <div style="background: #1062aa;width: 100%;height: 10%;">
       <img src="./../../assets/img/title.jpg" style="margin-top: 20px;margin-left: 20px">
       <img src="./../../assets/img/logo.jpg" style="position: absolute;height: 50px;right: 16px;top: 10px">
       <div class="button">

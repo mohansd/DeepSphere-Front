@@ -1,6 +1,7 @@
 <template>
       <div class="wrapper">
         <el-table class="my-table" :data="tabledata"
+                  @row-click="rowClick"
                   stripe
                   border
                   style="width: 100%">
@@ -41,6 +42,10 @@
         }
       },
       methods: {
+        rowClick(row, event, column) {
+          const val = JSON.stringify(column)
+          console.log('clicked: ' + val)
+        },
         handleSizeChange() {
           console.log('sizechanged')
         },
@@ -48,7 +53,7 @@
           console.log('currentchanged')
         },
         handleEdit(index, row) {
-          console.log(index, row)
+          this.$emit('clickEdit', index, row)
         }
       }
     }

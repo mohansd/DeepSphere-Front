@@ -51,10 +51,10 @@
 <style scoped lang="stylus">
   .modal
     left: 40%
+    top: 30%
     position absolute
-    margin auto
     z-index 999
-    width: 389px
+    width: 450px
     min-height 200px
     border-radius 10px
     border 2px solid #1262aa
