@@ -69,11 +69,7 @@
         tabledata: [
           {
             name: 'Adam',
-            email: '123@qq.com'
-          },
-          {
-            name: 'Bob',
-            email: 'adwdqwda@qq.com'
+            email: 'gushenxingq@163.com'
           }
         ],
         labels: [

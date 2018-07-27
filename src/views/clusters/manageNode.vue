@@ -1,55 +1,21 @@
 <template>
   <div class="container">
     <i-button icon="el-icon-plus" text="新增管理节点" @click.native="dialogVisible1=true"></i-button>
-    <i-button type="refresh"></i-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"
-              style="height: 35%"></i-table>
-    <div style="font-size:18px;font-weight: 900;margin-top: 22%">模板</div>
+    <i-button type="refresh" @click.native="fetchData"></i-button>
+    <i-table :tabledata="tabledata" :labels="labels" edit="配置"
+             @clickEdit="EditClicked"
+             @clickRow="rowClicked"></i-table>
+    <div style="font-size:18px;font-weight: 900;margin-top: 20px">模板</div>
     <div class="templatebox">
-      <el-row style="margin-top: 25px">
-        <el-col :span="3" style="margin-left: 30px">
-          <input type="radio">
-          <div class="label">Balancer</div>
-        </el-col>
-        <el-col :span="3">
-          <input type="radio">
-          <div class="label">Restful</div>
-        </el-col>
-        <el-col :span="3">
-          <input type="radio">
-          <div class="label">Balancer</div>
-        </el-col>
-      </el-row>
-      <el-row style="margin-top: 25px">
-        <el-col :span="3" style="margin-left: 30px">
-          <input type="radio">
-          <div class="label">Dashboard</div>
-        </el-col>
-        <el-col :span="3">
-          <input type="radio">
-          <div class="label">Restful</div>
-        </el-col>
-        <el-col :span="3">
-          <input type="radio">
-          <div class="label">Balancer</div>
-        </el-col>
-      </el-row>
-      <el-row style="margin-top: 25px">
-        <el-col :span="3" style="margin-left: 30px">
-          <input type="radio">
-          <div class="label">Balancer</div>
-        </el-col>
-        <el-col :span="3">
-          <input type="radio">
-          <div class="label">Restful</div>
-        </el-col>
-        <el-col :span="3">
-          <input type="radio">
-          <div class="label">Balancer</div>
-        </el-col>
+      <el-row style="margin-top: 25px;width: 600px;margin-left: 30px">
+        <el-checkbox-group v-model="enabled_modules">
+          <el-col :span="8" v-for="module in modulesList" :key="module" style="margin-top: 10px">
+            <el-checkbox :label="module" style="color: #333"></el-checkbox>
+          </el-col>
+        </el-checkbox-group>
       </el-row>
       <div style="margin-top: 50px;margin-left: 15%">
-        <el-button type="primary" size="mini">确定</el-button>
+        <el-button type="primary" size="mini" @click="moduleChange">确定</el-button>
         <el-button type="info" size="mini" style="margin-left: 30px">取消</el-button>
       </div>
     </div>
@@ -58,11 +24,11 @@
               @cancelClicked="cancelClicked1">
       <div class="form">
         <div class="label">节点名： </div>
-        <input placeholder="输入节点名"/>
+        <input v-model="newNode.hostname" placeholder="输入节点名"/>
       </div>
       <div class="form">
         <div class="label">IP： </div>
-        <input placeholder="输入IP"/>
+        <input v-model="newNode.ip" placeholder="输入IP"/>
       </div>
     </i-dialog>
     <i-dialog title="配置管理节点" :show="dialogVisible2"
@@ -77,15 +43,16 @@
         <div class="label">IP： </div>
         <input placeholder="输入IP"/>
       </div>
-      <div class="form" >
-        <input type="radio" style="margin-left: 30%;">开启
-        <input type="radio" style="margin-left: 30px;">关闭
+      <div class="form"  style="text-align: center">
+        <el-radio v-model="state" label="sandby" >开启</el-radio>
+        <el-radio v-model="state" label="stop" >关闭</el-radio>
       </div>
     </i-dialog>
   </div>
 </template>
 
 <script>
+  import { getList, addmgrNode, getModules, updateModules, changeState } from '@/api/clusters/mgrNode'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -96,42 +63,81 @@
     },
     data() {
       return {
+        state: 'sandby',
+        ip: '192.168.3.12',
+        enabled_modules: [],
+        modulesList: ['balancer',
+          'dashboard',
+          'prometheus',
+          'restful',
+          'status',
+          'influx',
+          'localpool',
+          'selftest',
+          'zabbix'],
+        newNode: {
+          hostname: '',
+          ip: ''
+        },
         edit: '编辑',
         dialogVisible1: false,
         dialogVisible2: false,
-        tabledata: [
-          {
-            name: 'data_node1',
-            ip: '192.168.3.12',
-            status: '工作'
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            status: '准备'
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            status: '停止'
-          }
-        ],
+        tabledata: [],
         labels: [
           {
             label: '节点名',
-            prop: 'name'
+            prop: 'hostname'
           }, {
             label: 'IP',
             prop: 'ip'
           }, {
             label: '状态',
-            prop: 'status'
+            prop: 'state'
           }]
       }
     },
     methods: {
+      getModule() {
+        getModules(this.ip).then(res => {
+          this.enabled_modules = res.data.data.enabled_modules
+        })
+      },
+      rowClicked(row) {
+        this.ip = row.ip
+        this.getModule()
+      },
+      moduleChange() {
+        this.modulesList.forEach(item => {
+          updateModules(this.ip, item, 'disable').then(res => {
+          })
+        })
+        this.enabled_modules.forEach(item => {
+          updateModules(this.ip, item, 'enable').then(res => {
+            this.$message({
+              message: '模块修改成功！',
+              type: 'success'
+            })
+          })
+        })
+        this.getModule()
+      },
+      fetchData() {
+        getList().then(response => {
+          const data = response.data.data
+          this.tabledata = data
+        })
+          .catch(err => {
+            console.log(err)
+          })
+      },
       confirmClicked1() {
         this.dialogVisible1 = false
+        addmgrNode(this.newNode).then(res => {
+          this.$message({
+            message: '添加管理节点成功！',
+            type: 'success'
+          })
+        })
       },
       cancelClicked1() {
         this.dialogVisible1 = false
@@ -141,11 +147,21 @@
         console.log(index, row)
       },
       confirmClicked2() {
+        changeState(this.ip, this.state).then(res => {
+          this.$message({
+            message: '节点配置成功！',
+            type: 'success'
+          })
+        })
         this.dialogVisible2 = false
       },
       cancelClicked2() {
         this.dialogVisible2 = false
       }
+    },
+    mounted() {
+      this.fetchData()
+      this.getModule()
     }
   }
 </script>
@@ -163,10 +179,9 @@
         width: 120px
         text-align: right
     .templatebox
-      position: absolute
       margin-top 10px
       height:300px
-      width: 80%
+      width: 90%
       border: 0.5px solid rgba(190, 190, 190, 0.5)
       background-color: #fff
       .label

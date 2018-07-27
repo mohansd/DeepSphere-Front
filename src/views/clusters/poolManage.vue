@@ -59,34 +59,37 @@
         dialogVisible2: false,
         tabledata: [
           {
-            name: 'data_node1',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: '.rgw.root',
+            used: '1.11k',
+            object: '4',
+            copy: 4
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'default.rgw.control',
+            used: '0k',
+            object: '8',
+            copy: 0
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'default.rgw.meta',
+            used: '0.38k',
+            object: '2',
+            copy: 3
           }
         ],
         labels: [
           {
-            label: '机架',
+            label: 'Pool名',
             prop: 'name'
           }, {
-            label: '机房',
-            prop: 'ip'
+            label: '已用空间',
+            prop: 'used'
           }, {
-            label: '服务器',
-            prop: 'osd'
+            label: '对象数',
+            prop: 'object'
+          }, {
+            label: '副本',
+            prop: 'copy'
           }]
       }
     },

@@ -47,34 +47,17 @@
         dialogVisible2: false,
         tabledata: [
           {
-            name: 'data_node1',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'www.gushenxing.com',
+            ip: '180.76.155.88'
           }
         ],
         labels: [
           {
-            label: '节点名',
+            label: '域名',
             prop: 'name'
           }, {
-            label: 'IP',
+            label: 'DNS IP',
             prop: 'ip'
-          }, {
-            label: 'OSDs',
-            prop: 'osd'
           }]
       }
     },

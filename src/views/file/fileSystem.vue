@@ -55,34 +55,49 @@
         dialogVisible2: false,
         tabledata: [
           {
-            name: 'data_node1',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'DSFS1',
+            usage: '1123k',
+            capacity: '63.1G',
+            object: 30,
+            metapool: 'meta',
+            datapool: '.rgw.root'
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'DSFS2',
+            usage: '0',
+            capacity: '16.0T',
+            object: 0,
+            metapool: 'meta',
+            datapool: 'rbd_node7'
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'DSFS3',
+            usage: '103m',
+            capacity: '764G',
+            object: 30,
+            metapool: 'meta',
+            datapool: 'fast-mds'
           }
         ],
         labels: [
           {
-            label: '机架',
+            label: '文件系统名',
             prop: 'name'
           }, {
-            label: '机房',
-            prop: 'ip'
+            label: '已用空间',
+            prop: 'usage'
           }, {
-            label: '服务器',
-            prop: 'osd'
+            label: '最大空间',
+            prop: 'capacity'
+          }, {
+            label: '对象数',
+            prop: 'object'
+          }, {
+            label: '元数据池',
+            prop: 'metapool'
+          }, {
+            label: '存储数据池',
+            prop: 'datapool'
           }]
       }
     },

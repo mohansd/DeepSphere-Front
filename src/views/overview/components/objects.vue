@@ -11,25 +11,11 @@
         <th>current</th>
       </tr>
       <tr>
-        <td ><div class="legend" style="background: #b9dfb8;"></div>可用容量</td>
-        <td>{{(minval1-minval2).toFixed(1)}}Tib</td>
-        <td>{{(maxval1-maxval2).toFixed(1)}}Tib</td>
-        <td>{{(avgval1-avgval2).toFixed(1)}}Tib</td>
-        <td>{{(curval1-curval2).toFixed(1)}}Tib</td>
-      </tr>
-      <tr>
-        <td ><div class="legend" style="background: #f29b76;"></div>已用容量</td>
-        <td>{{minval2}}Tib</td>
-        <td>{{maxval2}}Tib</td>
-        <td>{{avgval2}}Tib</td>
-        <td>{{curval2}}Tib</td>
-      </tr>
-      <tr>
-        <td ><div class="legend" style="background: #6795f8;"></div>&ensp;&ensp;总容量</td>
-        <td>{{minval1}}Tib</td>
-        <td>{{maxval1}}Tib</td>
-        <td>{{avgval1}}Tib</td>
-        <td>{{curval1}}Tib</td>
+        <td ><div class="legend" style="background: #6795f8;"></div>总量</td>
+        <td>{{minval1}}k</td>
+        <td>{{maxval1}}k</td>
+        <td>{{avgval1}}k</td>
+        <td>{{curval1}}k</td>
       </tr>
     </table>
   </div>
@@ -38,7 +24,7 @@
 <script>
   import echarts from 'echarts'
   export default {
-    name: 'chart-table',
+    name: 'objects',
     props: {
       id: String,
       title: String,
@@ -93,7 +79,7 @@
         this.data2.forEach(item => {
           sum = sum + Number(item)
         })
-        return (sum / this.data2.length).toFixed(3)
+        return (sum / this.data2.length).toFixed(1)
       },
       curval2() {
         return this.data2[this.data2.length - 1]
@@ -111,7 +97,7 @@
           tooltip: {
             trigger: 'axis'
           },
-          color: ['#c5d7fc', '#f29b76'],
+          color: ['#c5d7fc', '#b9dfb8'],
           xAxis: {
             type: 'category',
             boundaryGap: false,
@@ -121,13 +107,13 @@
             type: 'value'
           },
           series: [{
-            name: '总容量',
+            name: '提交',
             data: [86.5, 86.5, 86.5, 86.5, 86.5, 86.5, 86.5],
             type: 'line',
             areaStyle: {}
           },
           {
-            name: '已用',
+            name: '应用',
             data: [20, 20, 20, 20, 20, 20, 20],
             type: 'line',
             areaStyle: {}

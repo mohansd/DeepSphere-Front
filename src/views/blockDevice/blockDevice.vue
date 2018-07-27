@@ -75,22 +75,22 @@
             device: 'DS_block_1',
             usedspace: '1123k',
             capacity: '50G',
-            objectNum: 30,
-            datapool: 'rdb_pool_1'
+            objectNum: 8,
+            datapool: 'rdb_pool'
           },
           {
             device: 'DS_block_2',
-            usedspace: '1123k',
-            capacity: '50G',
-            objectNum: 30,
-            datapool: 'rdb_pool_2'
+            usedspace: '745m',
+            capacity: '65G',
+            objectNum: 60,
+            datapool: 'rdb_root'
           },
           {
             device: 'DS_block_3',
-            usedspace: '1123k',
-            capacity: '50G',
+            usedspace: '54732k',
+            capacity: '0.8T',
             objectNum: 30,
-            datapool: 'rdb_pool_3'
+            datapool: 'rgw'
           }
         ],
         labels: [

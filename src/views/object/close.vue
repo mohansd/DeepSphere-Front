@@ -33,34 +33,31 @@
         dialogVisible2: false,
         tabledata: [
           {
-            name: 'data_node1',
+            name: 'rgw_root',
             ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            states: '工作'
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'mgr_node',
+            ip: '192.168.3.11',
+            states: '准备'
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'rgw_row',
+            ip: '192.168.3.16',
+            states: '停止'
           }
         ],
         labels: [
           {
-            label: '机架',
+            label: '节点名',
             prop: 'name'
           }, {
-            label: '机房',
+            label: 'IP',
             prop: 'ip'
           }, {
-            label: '服务器',
-            prop: 'osd'
+            label: '状态',
+            prop: 'state'
           }]
       }
     },

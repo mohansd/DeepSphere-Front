@@ -1,12 +1,12 @@
 <template>
   <i-tabs :labels="labels">
     <template slot="NFS设置">
-      <el-button style="margin-left: 20px">保存</el-button>
-      <el-button>重设</el-button>
+      <el-button style="margin-left: 20px" type="primary">保存</el-button>
+      <el-button type="primary">重设</el-button>
       <div class="container" >
         <span style="padding-right: 20px">启用</span>
         <el-switch
-          v-model="value2"
+          v-model="value1"
           active-color="#13ce66"
           inactive-color="#ff4949">
         </el-switch>
@@ -17,8 +17,8 @@
       </div>
     </template>
     <template slot="SAMBA设置">
-      <el-button style="margin-left: 20px">保存</el-button>
-      <el-button>重设</el-button>
+      <el-button style="margin-left: 20px" type="primary">保存</el-button>
+      <el-button type="primary">重设</el-button>
       <div class="title">常规设置</div>
       <div class="container" >
         <div class="label">启用</div>
@@ -40,7 +40,7 @@
         <div style="padding-top: 10px">
         <div class="label">本地主机浏览</div>
         <el-switch
-          v-model="value2"
+          v-model="value3"
           active-color="#13ce66"
           inactive-color="#ff4949">
         </el-switch>
@@ -49,7 +49,7 @@
         <div style="padding-top: 10px">
           <div class="label">时间服务器</div>
           <el-switch
-            v-model="value2"
+            v-model="value4"
             active-color="#13ce66"
             inactive-color="#ff4949">
           </el-switch>
@@ -61,7 +61,7 @@
         <div >
           <div class="label">启用</div>
           <el-switch
-            v-model="value2"
+            v-model="value5"
             active-color="#13ce66"
             inactive-color="#ff4949">
           </el-switch>
@@ -70,7 +70,7 @@
         <div style="padding-top: 10px">
           <div class="label">可浏览</div>
           <el-switch
-            v-model="value2"
+            v-model="value6"
             active-color="#13ce66"
             inactive-color="#ff4949">
           </el-switch>
@@ -84,7 +84,7 @@
         <div >
           <div class="label">WINS支持</div>
           <el-switch
-            v-model="value2"
+            v-model="value7"
             active-color="#13ce66"
             inactive-color="#ff4949">
           </el-switch>
@@ -114,7 +114,12 @@
       return {
         labels: ['NFS设置', 'SAMBA设置'],
         value1: true,
-        value2: true
+        value2: true,
+        value3: true,
+        value4: false,
+        value5: true,
+        value6: true,
+        value7: true
       }
     }
   }
