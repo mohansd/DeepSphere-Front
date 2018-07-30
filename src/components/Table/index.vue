@@ -4,6 +4,8 @@
                   @row-click="rowClick"
                   :span-method="objectSpanMethod"
                   stripe
+                  highlight-current-row
+                  @current-change="handleCurrentChange"
                   border
                   style="width: 100%">
           <el-table-column v-for="(item, index) in labels" :key="index"
@@ -79,8 +81,8 @@
         handleSizeChange() {
           console.log('sizechanged')
         },
-        handleCurrentChange() {
-          console.log('currentchanged')
+        handleCurrentChange(val) {
+          this.$emit('currentchange', val)
         },
         handleEdit(index, row) {
           this.$emit('clickEdit', index, row)

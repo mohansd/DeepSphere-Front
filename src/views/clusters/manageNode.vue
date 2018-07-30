@@ -3,20 +3,17 @@
     <i-button icon="el-icon-plus" text="新增管理节点" @click.native="dialogVisible1=true"></i-button>
     <i-button type="refresh" @click.native="fetchData"></i-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
-             @clickEdit="EditClicked"
-             @clickRow="rowClicked"></i-table>
+             @clickEdit="EditClicked"></i-table>
     <div style="font-size:18px;font-weight: 900;margin-top: 20px">模板</div>
     <div class="templatebox">
       <el-row style="margin-top: 25px;width: 600px;margin-left: 30px">
-        <el-checkbox-group v-model="enabled_modules">
+        <el-checkbox-group v-model="enabled_modules" @change="changemodule">
           <el-col :span="8" v-for="module in modulesList" :key="module" style="margin-top: 10px">
-            <el-checkbox :label="module" style="color: #333"></el-checkbox>
+            <el-checkbox :label="module" style="color: #333" ></el-checkbox>
           </el-col>
         </el-checkbox-group>
       </el-row>
       <div style="margin-top: 50px;margin-left: 15%">
-        <el-button type="primary" size="mini" @click="moduleChange">确定</el-button>
-        <el-button type="info" size="mini" style="margin-left: 30px">取消</el-button>
       </div>
     </div>
     <i-dialog title="新增管理节点" :show="dialogVisible1"
@@ -55,11 +52,13 @@
   import { getList, addmgrNode, getModules, updateModules, changeState } from '@/api/clusters/mgrNode'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
+  import lodash from 'lodash'
   export default {
     name: 'manageNode',
     components: {
       iTable,
-      iButton
+      iButton,
+      lodash
     },
     data() {
       return {
@@ -97,17 +96,11 @@
       }
     },
     methods: {
-      getModule() {
-        getModules(this.ip).then(res => {
-          this.enabled_modules = res.data.data.enabled_modules
-        })
-      },
-      rowClicked(row) {
-        this.ip = row.ip
-        this.getModule()
-      },
-      moduleChange() {
-        this.modulesList.forEach(item => {
+      changemodule(index) {
+        console.log(index)
+        console.log(this.modulesList)
+        let diasabled = lodash.difference(this.modulesList, index)
+        diasabled.forEach(item => {
           updateModules(this.ip, item, 'disable').then(res => {
           })
         })
@@ -119,12 +112,40 @@
             })
           })
         })
+      },
+      getModule() {
+        getModules(this.ip).then(res => {
+          this.enabled_modules = res.data.data.enabled_modules
+        })
+      },
+      rowClicked(row) {
+        this.ip = row.ip
+        this.getModule()
+      },
+      moduleChange() {
+        // this.modulesList.forEach(item => {
+        //   updateModules(this.ip, item, 'disable').then(res => {
+        //   })
+        // })
+        // this.enabled_modules.forEach(item => {
+        //   updateModules(this.ip, item, 'enable').then(res => {
+        //     this.$message({
+        //       message: '模块修改成功！',
+        //       type: 'success'
+        //     })
+        //   })
+        // })
         this.getModule()
       },
       fetchData() {
         getList().then(response => {
           const data = response.data.data
           this.tabledata = data
+          this.tabledata.forEach(item => {
+            if (item.state === 'running') {
+              this.ip = item.ip
+            }
+          })
         })
           .catch(err => {
             console.log(err)
