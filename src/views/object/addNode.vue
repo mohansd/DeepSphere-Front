@@ -2,7 +2,7 @@
   <div class="container">
     <i-button icon="el-icon-plus" text="新增对象网关" @click.native="dialogVisible1=true"></i-button>
     <i-button type="refresh"></i-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
+    <i-table :tabledata="tabledata" :labels="labels" edit="修改" @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增对象网关" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
@@ -46,34 +46,31 @@
         dialogVisible2: false,
         tabledata: [
           {
-            name: 'data_node1',
+            name: 'rgw_root',
             ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            states: '工作'
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'mgr_node',
+            ip: '192.168.3.11',
+            states: '准备'
           },
           {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
+            name: 'rgw_row',
+            ip: '192.168.3.16',
+            states: '停止'
           }
         ],
         labels: [
           {
-            label: '机架',
+            label: '节点名',
             prop: 'name'
           }, {
-            label: '机房',
+            label: 'IP',
             prop: 'ip'
           }, {
-            label: '服务器',
-            prop: 'osd'
+            label: '状态',
+            prop: 'state'
           }]
       }
     },

@@ -2,7 +2,7 @@
   <div class="container">
     <i-button icon="el-icon-plus" text="新增数据节点" @click.native="dialogVisible1=true"></i-button>
     <i-button type="refresh"></i-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
+    <i-table :osd="isosd" :osdlabels="osdlabels" :osdData="osdData" :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增数据节点" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
@@ -63,6 +63,7 @@
 </template>
 
 <script>
+  import { getList } from '@/api/clusters/dataNode'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -73,43 +74,75 @@
     },
     data() {
       return {
+        time: null,
+        isosd: true,
+        osdData: [],
         edit: '编辑',
         dialogVisible1: false,
         dialogVisible2: false,
-        tabledata: [
-          {
-            name: 'data_node1',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          }
-        ],
+        tabledata: [],
+        osdlabels: [{
+          label: 'ID',
+          prop: 'id'
+        }, {
+          label: '状态',
+          prop: 'id'
+        }, {
+          label: 'PGs',
+          prop: 'numpg'
+        }, {
+          label: '使用',
+          prop: 'stat'
+        }, {
+          label: 'Read bytes',
+          prop: 'op_out_bytes'
+        }, {
+          label: 'Write bytes',
+          prop: 'op_in_bytes'
+        }, {
+          label: 'Read ops',
+          prop: 'op_r'
+        }, {
+          label: 'Write ops',
+          prop: 'op_w'
+        }],
         labels: [
           {
             label: '节点名',
-            prop: 'name'
+            prop: 'hostname'
           }, {
             label: 'IP',
             prop: 'ip'
-          }, {
-            label: 'OSDs',
-            prop: 'osd'
           }]
       }
     },
     methods: {
+      fetchData() {
+        getList().then(response => {
+          const data = response.data.data
+          this.tabledata = data
+          data.forEach(item => {
+            this.osdData.push(item.osds)
+          })
+          console.log(this.tabledata)
+        })
+          .catch(err => {
+            console.log(err)
+          })
+        this.time = setInterval(() => {
+          getList().then(response => {
+            const data = response.data.data
+            this.tabledata = data
+            data.forEach(item => {
+              this.osdData.push(item.osds)
+            })
+            console.log(this.tabledata)
+          })
+            .catch(err => {
+              console.log(err)
+            })
+        }, 1000)
+      },
       confirmClicked1() {
         this.dialogVisible1 = false
       },
@@ -126,6 +159,12 @@
       cancelClicked2() {
         this.dialogVisible2 = false
       }
+    },
+    mounted() {
+      this.fetchData()
+    },
+    beforeDestroy() {
+      clearInterval(this.time)
     }
   }
 </script>

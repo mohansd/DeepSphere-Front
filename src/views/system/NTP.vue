@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <span style="padding-left: 30px">NTP服务器设置:</span>
+    <br/>
+    <br/>
     <span style="padding-left: 30px;width: 150px;text-align: right;display: inline-block">NTP服务器： </span>
     <input />
     <br/>
@@ -27,7 +30,7 @@
     margin-top 1%
     margin-left 1%
     width 80%
-    height: 150px
+    height: 200px
     background-color #fff
     position absolute
     padding-top 30px

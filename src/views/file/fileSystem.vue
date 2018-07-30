@@ -3,7 +3,7 @@
     <i-button icon="el-icon-plus" text="新增文件系统" @click.native="dialogVisible1=true"></i-button>
     <i-button type="refresh"></i-button>
     <i-button type="delete"></i-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
+    <i-table :tabledata="tabledata" :labels="labels" @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增文件系统" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
@@ -40,6 +40,7 @@
 </template>
 
 <script>
+  import { getfs } from '@/api/file/filesystem'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -54,39 +55,46 @@
         dialogVisible1: false,
         dialogVisible2: false,
         tabledata: [
-          {
-            name: 'data_node1',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          },
-          {
-            name: 'data_node2',
-            ip: '192.168.3.12',
-            capacity: '50G',
-            osd: 3
-          }
         ],
         labels: [
           {
-            label: '机架',
+            label: '文件系统名',
             prop: 'name'
           }, {
-            label: '机房',
-            prop: 'ip'
+            label: '已用空间',
+            prop: 'used'
           }, {
-            label: '服务器',
-            prop: 'osd'
+            label: '最大空间',
+            prop: 'avail'
+          }, {
+            label: '状态',
+            prop: 'state'
+          }, {
+            label: '元数据池',
+            prop: 'metapool'
+          }, {
+            label: '存储数据池',
+            prop: 'datapool'
           }]
       }
     },
     methods: {
+      fetchData() {
+        getfs().then(res => {
+          let data = res.data.data
+          console.log(data)
+          data.forEach(item => {
+            this.tabledata.push({
+              name: item.filesystem.name,
+              used: (item.filesystem.pools[1].used / (1000000000)).toFixed(1) + 'G',
+              avail: (item.filesystem.pools[1].avail / (100000000000)).toFixed(1) + 'T',
+              state: item.filesystem.ranks[0].state,
+              metapool: item.filesystem.pools[0].pool,
+              datapool: item.filesystem.pools[1].pool
+            })
+          })
+        })
+      },
       confirmClicked1() {
         this.dialogVisible1 = false
       },
@@ -103,6 +111,9 @@
       cancelClicked2() {
         this.dialogVisible2 = false
       }
+    },
+    mounted() {
+      this.fetchData()
     }
   }
 </script>

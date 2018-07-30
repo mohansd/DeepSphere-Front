@@ -56,6 +56,7 @@
     z-index 999
     width: 450px
     min-height 200px
+    max-height 500px
     border-radius 10px
     border 2px solid #1262aa
     padding-bottom 20px

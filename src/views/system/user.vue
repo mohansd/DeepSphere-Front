@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <span style="padding-left: 30px">修改用户密码：</span>
+    <br/>
+    <br/>
     <span style="padding-left: 30px;width: 150px;text-align: right;display: inline-block">原密码： </span>
     <input />
     <br/>
@@ -30,7 +33,7 @@
     margin-top 1%
     margin-left 1%
     width 80%
-    height: 200px
+    height: 220px
     background-color #fff
     position absolute
     padding-top 30px

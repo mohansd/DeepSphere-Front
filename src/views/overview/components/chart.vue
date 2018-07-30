@@ -1,11 +1,11 @@
 <template>
   <div class="box">
     <div class="title">{{title}}</div>
-    <div style="position: absolute;Z-index: 100;padding-left: 11%;
+    <div style="position: absolute;Z-index: 100;padding-left: 10%;
       height: 60px;
       line-height: 60px;
       font-size: 25px;
-      font-weight: 900">10</div>
+      font-weight: 900">{{showData}}</div>
     <div :id="id" style="position: relative;width: 100%;height: 90%;Z-index: 90"></div>
   </div>
 </template>
@@ -16,13 +16,27 @@
     name: 'chart',
     props: {
       title: String,
-      id: String
+      id: String,
+      datas: Object
     },
     components: {
       echarts
     },
+    computed: {
+      showData() {
+        return this.datas.showData
+      },
+      chartData() {
+        let arr = []
+        this.datas.chartData.forEach(item => {
+          arr.push(item)
+        })
+        return arr
+      }
+    },
     data() {
       return {
+        interval: null,
         mychart: null,
         option: {
           grid: {
@@ -53,7 +67,7 @@
             axisTick: {
               show: false
             },
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
           },
           yAxis: {
             show: true,
@@ -71,7 +85,7 @@
             type: 'value'
           },
           series: [{
-            data: [86.5, 86.5, 86.5, 86.5, 86.5, 86.5, 86.5],
+            data: [],
             type: 'line',
             showSymbol: false,
             lineStyle: {
@@ -87,10 +101,16 @@
     mounted() {
       this.initChart()
     },
+    beforeDestroy() {
+      clearInterval(this.interval)
+    },
     methods: {
       initChart() {
         this.myChart = echarts.init(document.getElementById(this.id))
-        this.myChart.setOption(this.option)
+        this.interval = setInterval(() => {
+          this.option.series[0].data = this.chartData
+          this.myChart.setOption(this.option)
+        }, 1000)
       }
     }
   }

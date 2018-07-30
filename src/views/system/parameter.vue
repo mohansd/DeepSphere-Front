@@ -3,9 +3,26 @@
     <template slot="数据校验配置">
       <div class="container" >
         <div class="label">校验周期： </div>
-        <select value="zhouqi"></select>
+        <el-select v-model="value" placeholder="请选择">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
         <br/>
-        <div class="label" style="padding-top: 20px">开始结束时间： </div>
+        <div class="label" style="padding-top: 20px">开始结束时间：</div>
+        <el-time-picker
+          v-model="value2"
+          :picker-options="{selectableRange: '18:30:00 - 20:30:00'}">
+        </el-time-picker>
+        至
+        <el-time-picker
+          arrow-control
+          v-model="value3"
+          :picker-options="{selectableRange: '18:30:00 - 20:30:00'}">
+        </el-time-picker>
       </div>
     </template>
     <template slot="管理页面超时">
@@ -44,6 +61,20 @@
     },
     data() {
       return {
+        value: 'week',
+        options: [{
+          value: 'week',
+          label: '一周'
+        }, {
+          value: 'day',
+          label: '一天'
+        }, {
+          value: 'hour',
+          label: '一月'
+        }, {
+          value: 'halfanhour',
+          label: '10天'
+        }],
         labels: ['数据校验配置', '管理页面超时', 'DSFS预读配置', '告警管理'],
         value1: true,
         value2: true
