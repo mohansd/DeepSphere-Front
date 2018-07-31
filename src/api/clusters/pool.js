@@ -2,15 +2,15 @@ import request from '@/utils/request'
 
 export function getList() {
   return request({
-    url: '/api/ceph/dataNode',
+    url: 'api/healthData',
     method: 'get'
   })
 }
 
-export function getDisk(ip) {
+export function createPool(params) {
   return request({
-    url: '/api/ceph/disks/' + ip,
-    method: 'get'
+    url: 'api/ceph/pool',
+    method: 'post',
+    data: params
   })
 }
-

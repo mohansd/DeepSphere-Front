@@ -4,7 +4,9 @@
     <i-button icon="el-icon-view" text="权限" @click.native="dialogVisible3=true"></i-button>
     <i-button type="refresh" @click.native="refresh"></i-button>
     <i-button type="delete"></i-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
+    <i-table :tabledata="tabledata" :labels="labels" edit="配置"
+             @currentchange="currentchange"
+             @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增用户" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
@@ -118,15 +120,46 @@
     <i-dialog title="共享文件夹权限" :show="dialogVisible3"
               @confirmClicked="confirmClicked3"
               @cancelClicked="cancelClicked3">
-      <table style="margin-top: -20px">
-        <tr>
-          <th width="30%">类型</th>
-          <th width="30%">名称</th>
-          <th>读/写</th>
-          <th>只读</th>
-          <th>禁止读写</th>
-        </tr>
-      </table>
+      <div style="max-height: 200px;overflow: auto;width: 100%;margin-top: -20px">
+        <table cellspacing="0px">
+          <tr>
+            <th style="width: 30%">名称</th>
+            <th style="width: 20%">读/写</th>
+            <th style="width: 20%">只读</th>
+            <th style="width: 30%">禁止读写</th>
+          </tr>
+          <tr style="text-align: center">
+            <td>gushenxing</td>
+            <td><input type="radio" value="0" name="gushenxing"/></td>
+            <td><input type="radio" value="1" name="gushenxing"/></td>
+            <td><input type="radio" value="2" name="gushenxing"/></td>
+          </tr>
+          <tr style="text-align: center">
+            <td>gushenxing</td>
+            <td><input type="radio" value="0" name="gushenxin"/></td>
+            <td><input type="radio" value="1" name="gushenxin"/></td>
+            <td><input type="radio" value="2" name="gushenxin"/></td>
+          </tr>
+          <tr style="text-align: center">
+            <td>gushenxing</td>
+            <td><input type="radio" value="0" name="gushenxin"/></td>
+            <td><input type="radio" value="1" name="gushenxin"/></td>
+            <td><input type="radio" value="2" name="gushenxin"/></td>
+          </tr>
+          <tr style="text-align: center">
+            <td>gushenxing</td>
+            <td><input type="radio" value="0" name="gushenxin"/></td>
+            <td><input type="radio" value="1" name="gushenxin"/></td>
+            <td><input type="radio" value="2" name="gushenxin"/></td>
+          </tr>
+          <tr style="text-align: center">
+            <td>gushenxing</td>
+            <td><input type="radio" value="0" name="gushenxin"/></td>
+            <td><input type="radio" value="1" name="gushenxin"/></td>
+            <td><input type="radio" value="2" name="gushenxin"/></td>
+          </tr>
+        </table>
+      </div>
     </i-dialog>
   </div>
 </template>
@@ -143,6 +176,10 @@
     },
     data() {
       return {
+        privileges: {
+          role: 'user',
+          name: ''
+        },
         shells: [],
         activeName: 'first',
         data: [{
@@ -286,6 +323,9 @@
       },
       handleClick(tab, event) {
         console.log(tab, event)
+      },
+      currentchange(val) {
+        console.log(val)
       }
     },
     mounted() {
@@ -301,6 +341,15 @@
     margin-right 48px
     width 80%
     height: 800px
+    table
+      width: 100%
+      max-height 200px
+      overflow auto
+      th
+      td
+        border-top 1px solid rgba(170, 170, 170, 0.5)
+        height: 30px
+        line-height 30px
     .form
       margin-top  10px
       margin-left 5%
@@ -326,9 +375,6 @@
   .user-tabs.el-tabs--card>.el-tabs__header .el-tabs__item.is-active
     background-color #f3f3f3
     color #333
-</style>
-
-<style lang="stylus">
   .el-input__inner
     height: 30px
 </style>
