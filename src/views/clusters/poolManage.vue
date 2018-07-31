@@ -9,11 +9,11 @@
               @cancelClicked="cancelClicked1">
       <div class="form">
         <div class="label">Pool名： </div>
-        <input placeholder="输入Pool名"/>
+        <input v-model="newPool.name" placeholder="输入Pool名"/>
       </div>
       <div class="form">
         <div class="label">pg： </div>
-        <input placeholder="输入pg"/>
+        <input v-model="newPool.pg_num" placeholder="输入pg"/>
       </div>
     </i-dialog>
     <i-dialog title="配置Pool" :show="dialogVisible2"
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+  import { getList, createPool } from '@/api/clusters/pool'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -57,26 +58,14 @@
         edit: '编辑',
         dialogVisible1: false,
         dialogVisible2: false,
-        tabledata: [
-          {
-            name: '.rgw.root',
-            used: '1.11k',
-            object: '4',
-            copy: 4
-          },
-          {
-            name: 'default.rgw.control',
-            used: '0k',
-            object: '8',
-            copy: 0
-          },
-          {
-            name: 'default.rgw.meta',
-            used: '0.38k',
-            object: '2',
-            copy: 3
-          }
-        ],
+        newPool: {
+          name: '',
+          pg_num: 20
+        },
+        currentPool: {
+          poolName: ''
+        },
+        tabledata: [],
         labels: [
           {
             label: 'Pool名',
@@ -89,13 +78,31 @@
             prop: 'object'
           }, {
             label: '副本',
-            prop: 'copy'
+            prop: 'max_avail'
           }]
       }
     },
     methods: {
+      fetchData() {
+        this.tabledata = []
+        getList().then(res => {
+          let data = res.data.data.pools
+          console.log(data)
+          data.forEach(item => {
+            this.tabledata.push({
+              name: item.name,
+              used: item.stats.bytes_used,
+              object: item.stats.objects,
+              max_avail: item.stats.max_avail
+            })
+          })
+        })
+      },
       confirmClicked1() {
         this.dialogVisible1 = false
+        createPool(this.newPool).then(res => {
+          console.log(res)
+        })
       },
       cancelClicked1() {
         this.dialogVisible1 = false
@@ -110,6 +117,9 @@
       cancelClicked2() {
         this.dialogVisible2 = false
       }
+    },
+    mounted() {
+      this.fetchData()
     }
   }
 </script>

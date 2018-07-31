@@ -69,6 +69,12 @@ export const constantRouterMap = [
     meta: { title: '集群管理', icon: 'cluster' },
     children: [
       {
+        path: 'node',
+        name: 'node',
+        component: () => import('@/views/clusters/nodeMgr'),
+        meta: { title: '节点管理' }
+      },
+      {
         path: 'storage',
         name: 'Storage',
         component: () => import('@/views/clusters/storageNode'),
