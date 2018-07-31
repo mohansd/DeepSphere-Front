@@ -33,12 +33,12 @@
               @cancelClicked="cancelClicked2">
       <div class="form">
         <div class="label">节点名： </div>
-        <input placeholder="输入节点名"/>
+        <input v-model="currentnode.hostname"/>
         <el-button type="danger" size="mini">删除</el-button>
       </div>
       <div class="form">
         <div class="label">IP： </div>
-        <input placeholder="输入IP"/>
+        <input v-model="currentnode.ip"/>
       </div>
       <div class="form"  style="text-align: center">
         <el-radio v-model="state" label="sandby" >开启</el-radio>
@@ -62,6 +62,10 @@
     },
     data() {
       return {
+        currentnode: {
+          hostname: '',
+          ip: ''
+        },
         state: 'sandby',
         ip: '192.168.3.12',
         enabled_modules: [],
@@ -122,21 +126,6 @@
         this.ip = row.ip
         this.getModule()
       },
-      moduleChange() {
-        // this.modulesList.forEach(item => {
-        //   updateModules(this.ip, item, 'disable').then(res => {
-        //   })
-        // })
-        // this.enabled_modules.forEach(item => {
-        //   updateModules(this.ip, item, 'enable').then(res => {
-        //     this.$message({
-        //       message: '模块修改成功！',
-        //       type: 'success'
-        //     })
-        //   })
-        // })
-        this.getModule()
-      },
       fetchData() {
         getList().then(response => {
           const data = response.data.data
@@ -166,9 +155,13 @@
       EditClicked(index, row) {
         this.dialogVisible2 = true
         console.log(index, row)
+        this.state = row.state
+        this.currentnode.hostname = row.hostname
+        this.currentnode.ip = row.ip
       },
       confirmClicked2() {
-        changeState(this.ip, this.state).then(res => {
+        console.log(this.state)
+        changeState(this.currentnode.ip, this.state).then(res => {
           this.$message({
             message: '节点配置成功！',
             type: 'success'

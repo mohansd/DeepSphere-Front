@@ -61,6 +61,19 @@ export function getAllUsers(params) {
     }
   })
 }
+// 获取用户、用户组共享文件夹权限
+export function getPrivileges(params) {
+  return request({
+    url: '/api/nas/transport/admin',
+    method: 'post',
+    data: {
+      service: 'ShareMgmt',
+      method: 'getPrivilegesByRole',
+      params: params,
+      options: null
+    }
+  })
+}
 
 export function setUser(params) {
   return request({
