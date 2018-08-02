@@ -24,7 +24,6 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
-
   // {
   //   path: '/',
   //   component: Layout,
@@ -51,13 +50,13 @@ export const constantRouterMap = [
       {
         path: 'overview',
         name: 'Overview',
-        component: () => import('@/views/overview/overview'),
+        component: () => import('@/views/overview/monitor'),
         meta: { title: '概览' }
       },
       {
         path: 'monitor',
         name: 'Monitor',
-        component: () => import('@/views/overview/monitor'),
+        component: () => import('@/views/overview/overview'),
         meta: { title: '运行监控' }
       }
     ]
@@ -69,6 +68,12 @@ export const constantRouterMap = [
     name: 'clusters',
     meta: { title: '集群管理', icon: 'cluster' },
     children: [
+      {
+        path: 'node',
+        name: 'node',
+        component: () => import('@/views/clusters/nodeMgr'),
+        meta: { title: '节点管理' }
+      },
       {
         path: 'storage',
         name: 'Storage',
