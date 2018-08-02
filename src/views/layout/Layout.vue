@@ -1,66 +1,63 @@
 <template>
-  <div class="app-wrapper" :class="classObj">
-    <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
-    <div style="background: #1062aa;width: 100%;height: 10%;">
-      <img src="./../../assets/img/title.jpg" style="margin-top: 20px;margin-left: 20px">
-      <img src="./../../assets/img/logo.jpg" style="position: absolute;height: 50px;right: 16px;top: 10px">
+  <div class="app-wrapper">
+    <header>
+      <img :src="titleImg" style="margin-top: 20px;margin-left: 20px">
+      <img :src="logoImg" style="position: absolute;height: 50px;right: 16px;top: 10px">
       <div class="button">
         <svg-icon icon-class="user"></svg-icon>
-        admin</div>
+        admin
+      </div>
       <div class="button" style="right: 30px">
         <svg-icon icon-class="set"></svg-icon>
-        设置</div>
-    </div>
-    <sidebar class="sidebar-container"></sidebar>
-    <div class="main-container">
-      <app-main></app-main>
+        设置
+      </div>
+    </header>
+    <div class="container">
+      <sidebar class="sidebar-container"></sidebar>
+      <div class="main-container">
+        <app-main></app-main>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { Navbar, Sidebar, AppMain } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
-
-export default {
-  name: 'layout',
-  components: {
-    Navbar,
-    Sidebar,
-    AppMain
-  },
-  mixins: [ResizeMixin],
-  computed: {
-    sidebar() {
-      return this.$store.state.app.sidebar
+  import { Navbar, Sidebar, AppMain } from './components'
+  import ResizeMixin from './mixin/ResizeHandler'
+  import titleImg from '../../assets/img/title.jpg'
+  import logoImg from '../../assets/img/logo.jpg'
+  export default {
+    name: 'layout',
+    components: {
+      Navbar,
+      Sidebar,
+      AppMain
     },
-    device() {
-      return this.$store.state.app.device
-    },
-    classObj() {
+    mixins: [ResizeMixin],
+    data() {
       return {
-        hideSidebar: !this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
+        titleImg,
+        logoImg
       }
     }
-  },
-  methods: {
-    handleClickOutside() {
-      this.$store.dispatch('CloseSideBar', { withoutAnimation: false })
-    }
   }
-}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "src/styles/mixin.scss";
+
   .app-wrapper {
     @include clearfix;
-    position: relative;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     width: 100%;
     background: #f2f2f2;
+  }
+  header {
+    background: #1062aa;
+    width: 100%;
+    height: 100px;
   }
   .drawer-bg {
     background: #000;
@@ -71,6 +68,7 @@ export default {
     position: absolute;
     z-index: 999;
   }
+
   .button {
     cursor: pointer;
     color: #fff;

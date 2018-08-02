@@ -9,10 +9,9 @@
   .sidebar-container {
     transition: width 0.28s;
     width: 180px !important;
-    height: 90%;
     position: absolute;
     font-size: 0px;
-    top: 10%;
+    top: 100px;
     bottom: 0;
     left: 0;
     z-index: 1001;
@@ -91,28 +90,5 @@
   }
   .el-menu--collapse .el-menu .el-submenu {
     min-width: 180px !important;
-  }
-
-  //适配移动端
-  .mobile {
-    .main-container {
-      margin-left: 0px;
-    }
-    .sidebar-container {
-      transition: transform .28s;
-      width: 180px !important;
-    }
-    &.hideSidebar {
-      .sidebar-container {
-        transition-duration: 0.3s;
-        transform: translate3d(-180px, 0, 0);
-      }
-    }
-  }
-  .withoutAnimation {
-    .main-container,
-    .sidebar-container {
-      transition: none;
-    }
   }
 }
