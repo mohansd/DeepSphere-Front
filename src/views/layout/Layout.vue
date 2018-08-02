@@ -43,36 +43,30 @@
   }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
-  @import "src/styles/mixin.scss";
-
-  .app-wrapper {
-    @include clearfix;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    background: #f2f2f2;
-  }
-  header {
-    background: #1062aa;
-    width: 100%;
-    height: 100px;
-  }
-  .drawer-bg {
-    background: #000;
-    opacity: 0.3;
-    width: 100%;
-    top: 0;
-    height: 100%;
-    position: absolute;
-    z-index: 999;
-  }
-
-  .button {
-    cursor: pointer;
-    color: #fff;
-    position: absolute;
-    right: 100px;
-  }
+<style scoped lang="stylus" rel="stylesheet/stylus">
+  @import "~common/stylus/mixin"
+  .app-wrapper
+    @include clearfix
+    display: flex
+    flex-direction: column
+    height: 100%
+    width: 100%
+    background: #f2f2f2
+  header
+    background: #1062aa
+    width: 100%
+    height: 100px
+  .drawer-bg
+    background: #000
+    opacity: 0.3
+    width: 100%
+    top: 0
+    height: 100%
+    position: absolute
+    z-index: 999
+  .button
+    cursor: pointer
+    color: #fff
+    position: absolute
+    right: 100px
 </style>

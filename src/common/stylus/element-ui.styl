@@ -1,0 +1,27 @@
+@import "variable.styl"
+
+.el-table
+  th
+    color: $color-theme-r
+    background: $color-theme
+    font-size: $font-size-medium-x
+    font-weight: bold
+  tr
+    color: #000
+  tr:nth-child(odd)
+    background: #fff;
+  tr:nth-child(even)
+    background: #f2f2f2;
+.app-breadcrumb.el-breadcrumb
+  display: inline-block
+  line-height: 50px
+  margin-left: 10px
+  .no-redirect
+    color: #fff
+    cursor: text
+    font-size: 20px
+    font-weight: 700
+  .icon-location:before
+    color: #fff
+    font-size: 28px
+    margin-right: 5px

@@ -232,7 +232,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
 .container
   .box
     margin-top 20px

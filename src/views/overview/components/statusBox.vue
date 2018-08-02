@@ -25,7 +25,7 @@
     }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .box
     background: #fff;
     width:100%;

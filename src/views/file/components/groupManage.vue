@@ -173,7 +173,7 @@ import iTable from './../../../components/Table/index'
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .table-container
     padding-top 20px
     margin-left 51px

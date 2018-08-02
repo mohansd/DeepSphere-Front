@@ -116,7 +116,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
 .box
   width 100%
   height: 100px

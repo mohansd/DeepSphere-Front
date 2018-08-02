@@ -145,16 +145,16 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .container
-    padding-top 20px
-    margin-left 51px
-    margin-right 48px
+    padding-top: 20px
+    margin-left: 51px
+    margin-right: 48px
     .form
-      margin-top  10px
-      margin-left 5%
+      margin-top: 10px
+      margin-left: 5%
       .label
-        display: inline-block;
-        width: 120px;
+        display: inline-block
+        width: 120px
         text-align: right
 </style>

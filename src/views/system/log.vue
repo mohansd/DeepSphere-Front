@@ -34,7 +34,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .title
     padding-top 20px
     margin-left: 20px
