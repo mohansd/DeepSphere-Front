@@ -65,7 +65,7 @@
 </template>
 
 <script>
-  import { getList, getDisk } from '@/api/clusters/dataNode'
+  import { getList, getDisk, createOSD } from '@/api/clusters/dataNode'
   import iTable from './../../components/Table/nodeTable'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -128,26 +128,32 @@
         this.fetchData()
       },
       fetchData() {
-        getList().then(response => {
-          const data = response.data.data
-          console.log(data)
+        getList().then(res => {
+          const data = res.data.data
           data.forEach(osd => {
-            osd.osds.forEach(item => {
+            if (osd.osds.length === 0) {
               this.tabledata.push({
                 hostname: osd.hostname,
-                ip: osd.ip,
-                id: item.id,
-                state: this.translatein(item.in) + ',' + this.translateup(item.up),
-                numpg: item.stats.numpg,
-                usage: (item.stats.stat_bytes_used / (1024 * 1024 * 1024)).toFixed(1) +
-                'GiB/' + (item.stats.stat_bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1) +
-                'TiB',
-                op_out_bytes: item.stats.op_out_bytes,
-                op_in_bytes: item.stats.op_in_bytes,
-                op_r: item.stats.op_r,
-                op_w: item.stats.op_w
+                ip: osd.ip
               })
-            })
+            } else {
+              osd.osds.forEach(item => {
+                this.tabledata.push({
+                  hostname: osd.hostname,
+                  ip: osd.ip,
+                  id: item.id,
+                  state: this.translatein(item.in) + ',' + this.translateup(item.up),
+                  numpg: item.stats.numpg,
+                  usage: (item.stats.stat_bytes_used / (1024 * 1024 * 1024)).toFixed(1) +
+                  'GiB/' + (item.stats.stat_bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1) +
+                  'TiB',
+                  op_out_bytes: item.stats.op_out_bytes,
+                  op_in_bytes: item.stats.op_in_bytes,
+                  op_r: item.stats.op_r,
+                  op_w: item.stats.op_w
+                })
+              })
+            }
           })
         })
           .catch(err => {
@@ -176,6 +182,9 @@
       },
       confirmClicked1() {
         this.dialogVisible1 = false
+        createOSD().then(res => {
+          console.log(res)
+        })
       },
       cancelClicked1() {
         this.dialogVisible1 = false

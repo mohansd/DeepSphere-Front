@@ -29,8 +29,12 @@
 </template>
 
 <script>
+  import lodash from 'lodash'
   export default {
     name: 'index',
+    components: {
+      lodash
+    },
     props: {
       tabledata: Array,
       labels: Array,
@@ -45,27 +49,26 @@
     },
     data() {
       return {
-        currentPage: 1
+        currentPage: 1,
+        objectspan: [],
+        row: [0],
+        tem: 0
       }
     },
+    mounted() {
+      this.rowspan()
+    },
     methods: {
-      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-        if (this.objectspan === 'true') {
-          console.log(this.objectspan)
-          if (columnIndex === 2) {
-            if (rowIndex % 2 === 0) {
-              return {
-                rowspan: 2,
-                colspan: 1
-              }
-            } else {
-              return {
-                rowspan: 0,
-                colspan: 0
-              }
+      rowspan() {
+        this.tabledata.forEach((item, index) => {
+          if (this.tabledata[index + 1]) {
+            if (this.tabledata[index].hostname !== this.tabledata[index + 1].hostname) {
+              this.row.push(index + 1)
             }
           }
-        }
+        })
+      },
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       },
       rowClick(row, event, column) {
         // const val = JSON.stringify(column)

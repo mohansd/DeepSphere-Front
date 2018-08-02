@@ -2,7 +2,6 @@
       <div class="wrapper">
         <el-table class="my-table" :data="tabledata"
                   @row-click="rowClick"
-                  :span-method="objectSpanMethod"
                   stripe
                   highlight-current-row
                   @current-change="handleCurrentChange"
@@ -61,24 +60,6 @@
         }
       },
       methods: {
-        objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-          if (this.objectspan === 'true') {
-            console.log(this.objectspan)
-            if (columnIndex === 2) {
-              if (rowIndex % 2 === 0) {
-                return {
-                  rowspan: 2,
-                  colspan: 1
-                }
-              } else {
-                return {
-                  rowspan: 0,
-                  colspan: 0
-                }
-              }
-            }
-          }
-        },
         rowClick(row, event, column) {
           // const val = JSON.stringify(column)
           this.$emit('clickRow', row)

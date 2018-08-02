@@ -14,3 +14,9 @@ export function getDisk(ip) {
   })
 }
 
+export function createOSD(params) {
+  return request({
+    url: '/api/ceph/disks/' + params.nodename,
+    method: 'put'
+  })
+}
