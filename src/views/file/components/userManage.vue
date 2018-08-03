@@ -1,9 +1,9 @@
 <template>
   <div class="table-container">
     <i-button icon="el-icon-plus" text="新增用户" @click.native="dialogVisible1=true"></i-button>
-    <i-button icon="el-icon-view" text="权限" @click.native="dialogVisible3=true"></i-button>
+    <i-button icon="el-icon-view" text="权限" @click.native="setPrivileges"></i-button>
     <i-button type="refresh" @click.native="refresh"></i-button>
-    <i-button type="delete"></i-button>
+    <i-button type="delete" @click.native="deleteUser"></i-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
              @clickEdit="EditClicked"></i-table>
@@ -69,19 +69,19 @@
       <el-tab-pane label="常规" name="first">
         <div class="form">
           <div class="label">名称： </div>
-          <input v-model="thisuser.name"/>
+          <input v-model="currentuser.name"/>
         </div>
         <div class="form">
           <div class="label">注释： </div>
-          <input v-model="thisuser.comment"/>
+          <input v-model="currentuser.comment"/>
         </div>
         <div class="form">
           <div class="label">Email： </div>
-          <input v-model="thisuser.email"/>
+          <input v-model="currentuser.email"/>
         </div>
         <div class="form">
           <div class="label">密码： </div>
-          <input v-model="thisuser.password"/>
+          <input v-model="currentuser.password"/>
         </div>
         <div class="form">
           <div class="label">确认密码： </div>
@@ -97,7 +97,7 @@
         <div class="form">
           <div class="label">修改账户： </div>
           <el-switch
-            v-model="thisuser.disallowusermod"
+            v-model="currentuser.disallowusermod"
             active-color="#13ce66"
             inactive-color="#ff4949">
           </el-switch>
@@ -128,35 +128,17 @@
             <th style="width: 20%">只读</th>
             <th style="width: 30%">禁止读写</th>
           </tr>
-          <tr style="text-align: center">
+          <tr v-for="item in privilegestable" :key="item.uuid">
+            <td>{{item.name}}</td>
+            <td><input type="radio" value="7" :name="item.name"/></td>
+            <td><input type="radio" value="5" :name="item.name"/></td>
+            <td><input type="radio" value="0" :name="item.name"/></td>
+          </tr>
+          <tr>
             <td>gushenxing</td>
             <td><input type="radio" value="0" name="gushenxing"/></td>
             <td><input type="radio" value="1" name="gushenxing"/></td>
             <td><input type="radio" value="2" name="gushenxing"/></td>
-          </tr>
-          <tr style="text-align: center">
-            <td>gushenxing</td>
-            <td><input type="radio" value="0" name="gushenxin"/></td>
-            <td><input type="radio" value="1" name="gushenxin"/></td>
-            <td><input type="radio" value="2" name="gushenxin"/></td>
-          </tr>
-          <tr style="text-align: center">
-            <td>gushenxing</td>
-            <td><input type="radio" value="0" name="gushenxin"/></td>
-            <td><input type="radio" value="1" name="gushenxin"/></td>
-            <td><input type="radio" value="2" name="gushenxin"/></td>
-          </tr>
-          <tr style="text-align: center">
-            <td>gushenxing</td>
-            <td><input type="radio" value="0" name="gushenxin"/></td>
-            <td><input type="radio" value="1" name="gushenxin"/></td>
-            <td><input type="radio" value="2" name="gushenxin"/></td>
-          </tr>
-          <tr style="text-align: center">
-            <td>gushenxing</td>
-            <td><input type="radio" value="0" name="gushenxin"/></td>
-            <td><input type="radio" value="1" name="gushenxin"/></td>
-            <td><input type="radio" value="2" name="gushenxin"/></td>
           </tr>
         </table>
       </div>
@@ -165,7 +147,7 @@
 </template>
 
 <script>
-  import { getList, setUser, getShells, getAllGroup } from '@/api/file/user'
+  import { getList, setUser, getShells, getAllGroup, getPrivileges, setPrivileges } from '@/api/file/user'
   import iTable from './../../../components/Table/index'
   import iButton from './../../../components/Button/iButton'
   export default {
@@ -176,9 +158,11 @@
     },
     data() {
       return {
+        privilegestable: [],
         privileges: {
-          role: 'user',
-          name: ''
+          uuid: '',
+          name: '',
+          perms: null
         },
         shells: [],
         activeName: 'first',
@@ -207,7 +191,7 @@
           groups: [],
           sshpubkeys: []
         },
-        thisuser: {
+        currentuser: {
           name: '',
           comment: '',
           email: '',
@@ -239,10 +223,15 @@
       refresh() {
         this.fetchData()
       },
+      deleteUser() {
+      },
       getCheckedKeys(value1, value2) {
         this.newuser.groups = []
+        this.currentuser.groups = []
+        console.log(value2)
         value2.checkedNodes.forEach(item => {
           this.newuser.groups.push(item.label)
+          this.currentuser.groups.push(item.label)
         })
       },
       selected(value) {
@@ -252,13 +241,14 @@
         this.tabledata = []
         getList().then(res => {
           console.log(res.data.data)
-          res.data.data.forEach(item => {
-            this.tabledata.push({
-              name: item.name,
-              email: item.email,
-              comment: item.comment
-            })
-          })
+          this.tabledata = res.data.data
+          // res.data.data.forEach(item => {
+          //   this.tabledata.push({
+          //     name: item.name,
+          //     email: item.email,
+          //     comment: item.comment
+          //   })
+          // })
         })
         getShells().then(res => {
           this.shells = res.data
@@ -284,6 +274,17 @@
           })
         })
       },
+      setPrivileges() {
+        this.dialogVisible3 = true
+        let params = {
+          role: 'user',
+          name: this.currentuser.name
+        }
+        getPrivileges(params).then(res => {
+          console.log(res.data)
+          this.privilegestable = res.data
+        })
+      },
       confirmClicked1() {
         this.dialogVisible1 = false
         console.log(this.newuser)
@@ -304,7 +305,8 @@
       },
       confirmClicked2() {
         this.dialogVisible2 = false
-        setUser(this.thisuser).then(res => {
+        console.log(this.currentuser)
+        setUser(this.currentuser).then(res => {
           this.$message({
             message: '修改用户成功！',
             type: 'success'
@@ -317,6 +319,32 @@
       },
       confirmClicked3() {
         this.dialogVisible3 = false
+        this.privilegestable.forEach(item => {
+          let params = {
+            role: 'user',
+            name: item.name,
+            privileges: [
+              {
+                uuid: item.uuid,
+                perms: item.perms
+              }
+            ]
+          }
+          let radio = document.getElementsByName(item.name)
+          radio.forEach(item => {
+            if (item.checked === true) {
+              params.privileges.perms = item.value
+            }
+          })
+          setPrivileges(params).then(res => {
+            if (!res.data) {
+              this.$message({
+                message: '出现错误！',
+                type: 'error'
+              })
+            }
+          })
+        })
       },
       cancelClicked3() {
         this.dialogVisible3 = false
@@ -325,7 +353,11 @@
         console.log(tab, event)
       },
       currentchange(val) {
-        console.log(val)
+        if (val) {
+          this.currentuser.name = val.name
+          this.currentuser.comment = val.comment
+          this.currentuser.email = val.email
+        }
       }
     },
     mounted() {
@@ -350,6 +382,7 @@
         border-top 1px solid rgba(170, 170, 170, 0.5)
         height: 30px
         line-height 30px
+        text-align center
     .form
       margin-top  10px
       margin-left 5%

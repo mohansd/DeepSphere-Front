@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" v-show="dialogVisible">
+  <div class="modal" v-show="dialogVisible" id="dialog" @mousedown="mousedown">
     <div class="header">
       <span class="title">{{title}}</span>
     </div>
@@ -28,6 +28,7 @@
     },
     data() {
       return {
+        selectElement: ''
       }
     },
     computed: {
@@ -42,6 +43,24 @@
       },
       handleClose() {
         this.$emit('cancelClicked', false)
+      },
+      mousedown(event) {
+        this.selectElement = document.getElementById('dialog')
+        var div1 = this.selectElement
+        this.selectElement.style.cursor = 'move'
+        this.isDowm = true
+        var distanceX = event.clientX - this.selectElement.offsetLeft
+        var distanceY = event.clientY - this.selectElement.offsetTop
+        document.onmousemove = function(ev) {
+          var oevent = ev || event
+          div1.style.left = oevent.clientX - distanceX + 'px'
+          div1.style.top = oevent.clientY - distanceY + 'px'
+        }
+        document.onmouseup = function() {
+          document.onmousemove = null
+          document.onmouseup = null
+          div1.style.cursor = 'default'
+        }
       }
     }
 

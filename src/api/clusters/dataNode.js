@@ -14,3 +14,23 @@ export function getDisk(ip) {
   })
 }
 
+export function createOSD(params) {
+  return request({
+    url: '/api/ceph/dataNode/' + params.hostname,
+    method: 'put',
+    data: {
+      disk: params.disk
+    }
+  })
+}
+
+export function deleteOSD(params) {
+  return request({
+    url: '/api/ceph/dataNode/' + params.name,
+    method: 'delete',
+    data: {
+      ip: params.ip
+    }
+  })
+}
+

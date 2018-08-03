@@ -151,19 +151,32 @@
       setnfs() {
         console.log(this.nfs)
         setNFS(this.nfs).then(res => {
-          this.$message({
-            message: '设置成功！',
-            type: 'success'
-          })
-          console.log(res)
+          if (res) {
+            this.$message({
+              message: '设置成功！',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '出现错误！',
+              type: 'error'
+            })
+          }
         })
       },
       setsmba() {
         setSMB(this.smba).then(res => {
-          this.$message({
-            message: '设置成功！',
-            type: 'success'
-          })
+          if (res) {
+            this.$message({
+              message: '设置成功！',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '出现错误！',
+              type: 'error'
+            })
+          }
         })
       },
       reset() {

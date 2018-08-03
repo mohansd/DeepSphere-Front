@@ -1,71 +1,44 @@
 <template>
   <div class="container">
-    <i-button icon="el-icon-plus" text="新增数据节点" @click.native="dialogVisible1=true"></i-button>
+    <i-button icon="el-icon-plus" text="新增OSD" @click.native="dialogVisible1=true"></i-button>
     <i-table :osd="isosd" :osdlabels="osdlabels"
              :osdData="osdData" :tabledata="tabledata"
              :showedit="false"
-             :currentchange="currentchange"
-             :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增数据节点" :show="dialogVisible1"
+             @currentchange="currentchange"
+             @clickDelete="handleDelete"
+             :labels="labels" edit="配置"></i-table>
+    <i-dialog title="新增OSD" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
       <div class="form">
         <div class="label">IP： </div>
-        <input v-model="newNode.ip"/>
+        <input v-model="ip"/>
         <el-button size="mini" type="primary" @click="getDisks">查询分区</el-button>
       </div>
       <div class="form">
         <div class="label">选择数据分区： </div>
         <select style="width: 195px;background-color: #fff;height: 22px" id="disk">
-          <option v-for="item in newNode.disks" :key="item" :value="item">{{item}}</option>
+          <option v-for="item in disks" :key="item" :value="item">{{item}}</option>
         </select>
       </div>
     </i-dialog>
-    <i-dialog title="配置数据节点" :show="dialogVisible2"
+    <i-dialog title="确定删除OSD?" :show="dialogVisible2"
               @confirmClicked="confirmClicked2"
               @cancelClicked="cancelClicked2">
       <div class="form">
-        <div class="label">节点名： </div>
-        <input placeholder="输入节点名"/>
-      </div>
-      <div class="form">
         <div class="label">IP： </div>
-        <input placeholder="输入IP"/>
+        <div class="label">{{currentosd.ip}}</div>
       </div>
       <div class="form">
-        <div class="label" style="vertical-align: top;">删除OSD： </div>
-        <div style="display: inline-block;height:150px;width:195px;overflow:auto;border: 1px solid rgb(169, 169, 169)">
-          <div style="color: #333;height:20px;margin-top: 10px;margin-left: 20px">
-            <input type="checkbox">OSD1
-          </div>
-          <div style="color: #333;height:20px;margin-top: 10px;margin-left: 20px">
-            <input type="checkbox">OSD2
-          </div>
-          <div style="color: #333;height:20px;margin-top: 10px;margin-left: 20px">
-            <input type="checkbox">OSD3
-          </div>
-          <div style="color: #333;height:20px;margin-top: 10px;margin-left: 20px">
-            <input type="checkbox">OSD4
-          </div>
-          <div style="color: #333;height:20px;margin-top: 10px;margin-left: 20px">
-            <input type="checkbox">OSD5
-          </div>
-          <div style="color: #333;height:20px;margin-top: 10px;margin-left: 20px">
-            <input type="checkbox">OSD6
-          </div>
-        </div>
-        <el-button size="mini" type="primary" style="vertical-align: top;">删除</el-button>
-      </div>
-      <div class="form">
-        <div class="label">增加OSD： </div>
-        <select style="width: 195px;background-color: #fff;height: 22px" placeholder="选择数据分区"></select>
+        <div class="label">OSD： </div>
+        <div class="label">{{currentosd.name}}</div>
       </div>
     </i-dialog>
   </div>
 </template>
 
 <script>
-  import { getList, getDisk } from '@/api/clusters/dataNode'
+  import { getList, getDisk, createOSD, deleteOSD } from '@/api/clusters/dataNode'
   import iTable from './../../components/Table/nodeTable'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -77,9 +50,15 @@
     data() {
       return {
         newNode: {
-          ip: '',
-          disks: []
+          hostname: '',
+          disk: ''
         },
+        currentosd: {
+          name: '',
+          ip: ''
+        },
+        ip: '',
+        disks: [],
         currentNode: {},
         time: null,
         isosd: true,
@@ -150,9 +129,32 @@
             })
           })
         })
-          .catch(err => {
-            console.log(err)
+        this.time = setInterval(() => {
+          getList().then(response => {
+            const data = response.data.data
+            console.log(data)
+            let temp = []
+            data.forEach(osd => {
+              osd.osds.forEach(item => {
+                temp.push({
+                  hostname: osd.hostname,
+                  ip: osd.ip,
+                  id: item.id,
+                  state: this.translatein(item.in) + ',' + this.translateup(item.up),
+                  numpg: item.stats.numpg,
+                  usage: (item.stats.stat_bytes_used / (1024 * 1024 * 1024)).toFixed(1) +
+                  'GiB/' + (item.stats.stat_bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1) +
+                  'TiB',
+                  op_out_bytes: item.stats.op_out_bytes,
+                  op_in_bytes: item.stats.op_in_bytes,
+                  op_r: item.stats.op_r,
+                  op_w: item.stats.op_w
+                })
+              })
+            })
+            this.tabledata = temp
           })
+        }, 1000)
       },
       translatein(val) {
         if (val === 1) {
@@ -169,26 +171,66 @@
         }
       },
       getDisks() {
-        getDisk(this.newNode.ip).then(res => {
-          this.newNode.disks = res.data.data
-          console.log(this.newNode.disks)
+        getDisk(this.ip).then(res => {
+          if (res.data.code === 0) {
+            this.disks = res.data.data
+            console.log(res.data.data)
+          } else {
+            this.$message({
+              message: '出现错误，请确认后重试！',
+              type: 'error'
+            })
+          }
         })
       },
       confirmClicked1() {
         this.dialogVisible1 = false
+        this.tabledata.forEach(item => {
+          if (this.ip === item.ip) {
+            this.newNode.hostname = item.hostname
+          }
+        })
+        this.newNode.disk = document.getElementById('disk').value
+        console.log(this.newNode)
+        createOSD(this.newNode).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '添加成功！',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '出现错误，请确认后重试！',
+              type: 'error'
+            })
+          }
+        })
       },
       cancelClicked1() {
         this.dialogVisible1 = false
       },
       currentchange(val) {
-        console.log(val)
       },
-      EditClicked(index, row) {
+      handleDelete(val) {
         this.dialogVisible2 = true
-        console.log(row)
+        this.currentosd.ip = val.ip
+        this.currentosd.name = val.id
       },
       confirmClicked2() {
         this.dialogVisible2 = false
+        deleteOSD(this.currentosd).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '出现错误，请重试！',
+              type: 'error'
+            })
+          }
+        })
       },
       cancelClicked2() {
         this.dialogVisible2 = false

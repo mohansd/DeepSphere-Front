@@ -59,3 +59,20 @@ export function getCandidates() {
     }
   })
 }
+
+export function deleteShareMgmt(params) {
+  return request({
+    url: '/api/nas/transport/admin',
+    method: 'post',
+    data: {
+      service: 'ShareMgmt',
+      method: 'delete',
+      params: {
+        uuid: params,
+        recursive: false
+      },
+      options: null
+
+    }
+  })
+}
