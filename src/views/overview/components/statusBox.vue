@@ -15,11 +15,7 @@
       },
       computed: {
         wordcolor() {
-          if (this.getcolor === 'green') {
-            return '#fff'
-          } else {
-            return '#333'
-          }
+          return this.getcolor === 'green' ? '#fff' : '#333' // 绿底白字
         }
       }
     }

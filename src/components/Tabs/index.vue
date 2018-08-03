@@ -25,11 +25,7 @@
     }
 </script>
 
-<style scoped lang="stylus">
-
-</style>
-
-<style lang="stylus">
+<style lang="stylus" rel="stylesheet/stylus">
   .my-tabs.el-tabs--card>.el-tabs__header
     background-color #BDDBF5
     height: 50px

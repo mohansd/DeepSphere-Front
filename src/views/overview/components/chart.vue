@@ -24,7 +24,10 @@
     },
     computed: {
       showData() {
-        return this.datas.showData
+        const showData = this.datas.showData
+        const digital = parseFloat(showData.replace(/[^\d.]/g, '')).toFixed(2)
+        const unit = showData.replace(/[^\a-z]/g, '')
+        return digital + unit
       },
       chartData() {
         let arr = []
