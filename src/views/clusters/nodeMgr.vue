@@ -4,9 +4,8 @@
     <i-button type="delete" @click.native="handleDelete"></i-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
-             :showedit="showEdit"
-             @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增Pool" :show="dialogVisible1"
+             :showedit="showEdit"></i-table>
+    <i-dialog title="新增节点" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
       <div class="form">
@@ -20,30 +19,6 @@
       <div class="form">
         <div class="label">密码： </div>
         <input v-model="newNode.password"/>
-      </div>
-    </i-dialog>
-    <i-dialog title="配置Pool" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <div class="form">
-        <div class="label">Pool名： </div>
-        <input />
-      </div>
-      <div class="form">
-        <div class="label">副本数： </div>
-        <input >
-      </div>
-      <div class="form">
-        <div class="label">pg： </div>
-        <input />
-      </div>
-      <div class="form">
-        <div class="label">pgs： </div>
-        <input >
-      </div>
-      <div class="form">
-        <div class="label">配额： </div>
-        <input >
       </div>
     </i-dialog>
   </div>
@@ -142,7 +117,7 @@
       },
       handleDelete() {
         deleteNode(this.currentNode.ip).then(res => {
-          if (res.code === 0) {
+          if (res.data.code === 0) {
             this.$message({
               message: '删除成功！',
               type: 'success'
@@ -162,7 +137,7 @@
       confirmClicked1() {
         this.dialogVisible1 = false
         addNode(this.newNode).then(res => {
-          if (res.code !== 0) {
+          if (res.data.code !== 0) {
             this.$message({
               message: '节点信息错误！',
               type: 'error'
@@ -178,16 +153,6 @@
       },
       cancelClicked1() {
         this.dialogVisible1 = false
-      },
-      EditClicked(index, row) {
-        this.dialogVisible2 = true
-        console.log(index, row)
-      },
-      confirmClicked2() {
-        this.dialogVisible2 = false
-      },
-      cancelClicked2() {
-        this.dialogVisible2 = false
       }
     },
     mounted() {

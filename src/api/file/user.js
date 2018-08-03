@@ -74,6 +74,19 @@ export function getPrivileges(params) {
     }
   })
 }
+// 设置用户文件夹权限
+export function setPrivileges(params) {
+  return request({
+    url: '/api/nas/transport/admin',
+    method: 'post',
+    data: {
+      service: 'ShareMgmt',
+      method: 'setPrivilegesByRole',
+      params: params,
+      options: null
+    }
+  })
+}
 
 export function setUser(params) {
   return request({

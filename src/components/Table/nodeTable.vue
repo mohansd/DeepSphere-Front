@@ -80,8 +80,8 @@
       handleCurrentChange(val) {
         this.$emit('currentchange', val)
       },
-      handleEdit(index, row) {
-        this.$emit('clickEdit', index, row)
+      handleDelete(val1, val2) {
+        this.$emit('clickDelete', val2)
       }
     }
   }

@@ -2,8 +2,10 @@
   <div class="container">
     <i-button icon="el-icon-plus" text="新增共享文件夹" @click.native="getCandidates"></i-button>
     <i-button type="refresh" @click.native="refresh"></i-button>
-    <i-button type="delete"></i-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
+    <i-button type="delete" @click.native="deletefile"></i-button>
+    <i-table :tabledata="tabledata" :labels="labels"
+             @currentchange="currentchange"
+             edit="配置" @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增共享文件夹" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
@@ -13,10 +15,9 @@
       </div>
       <div class="form">
         <div class="label">设备： </div>
-        <el-select v-model="value" @change="selected">
-          <el-option v-for="item in Candidates" :key="item.uuid" :value="item.uuid" class="my-selset"
-                  :label="item.description"></el-option>
-        </el-select>
+        <select style="width: 195px;background-color: #fff;height: 22px" id="disk">
+          <option v-for="item in Candidates" :key="item.uuid" :value="item.uuid">{{item.description}}</option>
+        </select>
       </div>
       <div class="form">
         <div class="label">路径： </div>
@@ -51,7 +52,7 @@
 </template>
 
 <script>
-  import { getList, getShareMgmt, setShareMgmt, getCandidates } from '@/api/file/fileshare'
+  import { getList, setShareMgmt, getCandidates, deleteShareMgmt } from '@/api/file/fileshare'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -67,6 +68,7 @@
         dialogVisible1: false,
         dialogVisible2: false,
         Candidates: [],
+        currentfile: '',
         now: {
           device: '',
           name: '',
@@ -100,10 +102,8 @@
       }
     },
     methods: {
-      selected(value) {
-        this.now.uuid = value
-        console.log(value)
-        getShareMgmt(value).then(res => {
+      deletefile() {
+        deleteShareMgmt(this.currentfile).then(res => {
           console.log(res)
         })
       },
@@ -138,12 +138,20 @@
       },
       confirmClicked1() {
         this.dialogVisible1 = false
+        this.now.uuid = document.getElementById('disk').value
         setShareMgmt(this.now).then(res => {
-          this.$message({
-            message: '共享文件夹配置成功！',
-            type: 'success'
-          })
-          this.fetchData()
+          if (res) {
+            this.$message({
+              message: '设置成功！',
+              type: 'success'
+            })
+            this.fetchData()
+          } else {
+            this.$message({
+              message: '出现错误！',
+              type: 'error'
+            })
+          }
         })
       },
       cancelClicked1() {
@@ -162,15 +170,27 @@
         this.dialogVisible2 = false
         console.log(this.now)
         setShareMgmt(this.now).then(res => {
-          this.$message({
-            message: '共享文件夹配置成功！',
-            type: 'success'
-          })
-          this.fetchData()
+          if (res) {
+            this.$message({
+              message: '设置成功！',
+              type: 'success'
+            })
+            this.fetchData()
+          } else {
+            this.$message({
+              message: '出现错误！',
+              type: 'error'
+            })
+          }
         })
       },
       cancelClicked2() {
         this.dialogVisible2 = false
+      },
+      currentchange(val) {
+        if (val) {
+          this.currentfile = val.uuid
+        }
       }
     },
     mounted() {

@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" v-show="dialogVisible" @mousedown="mousedown" id="dialog">
+  <div class="modal" v-show="dialogVisible" id="dialog" @mousedown="mousedown">
     <div class="header">
       <span class="title">{{title}}</span>
     </div>
