@@ -112,6 +112,7 @@
 <script>
   import { getData } from '@/api/overview/overview'
   import echarts from 'echarts'
+  const healthStatus = { 'HEALTH_OK': 'green', 'HEALTH_WARN': 'yellow', 'HEALTH_ERROR': 'red' }
   export default {
     name: 'monitor',
     data() {
@@ -215,13 +216,7 @@
     },
     computed: {
       statusColor: function() {
-        if (this.status === 'HEALTH_OK') {
-          return 'green'
-        } else if (this.status === 'HEALTH_ERROR') {
-          return 'red'
-        } else {
-          return 'yellow'
-        }
+        return healthStatus[this.status]
       }
     },
     mounted() {
@@ -235,8 +230,8 @@
 <style scoped lang="stylus" rel="stylesheet/stylus">
 .container
   .box
-    margin-top 20px
-    display inline-block
+    margin-top: 20px
+    display: inline-block
     height: 300px
     width 100%
     background-color: #fff

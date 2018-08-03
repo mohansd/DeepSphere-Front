@@ -17,7 +17,7 @@
     }
 </script>
 
-<style lang="stylus">
+<style lang="stylus" rel="stylesheet/stylus">
   .my-button1.el-button--primary
     height: 35px
     line-height 35px
