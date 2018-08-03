@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-      <div class="wrapper">
+      <div class="item">
         <span class="title">集群状态</span>
         <el-row :gutter="15">
           <el-col :span="6">
@@ -17,7 +17,7 @@
           </el-col>
         </el-row>
       </div>
-      <div class="wrapper">
+      <div class="item">
         <span class="title">OSD状态</span>
         <el-row :gutter="15">
           <el-col :span="6">
@@ -48,7 +48,7 @@
           </el-col>
         </el-row>
       </div>
-      <div class="wrapper" style="height: 350px">
+      <div class="item">
         <span class="title">集群</span>
         <el-row :gutter="15">
           <el-col :span="8">
@@ -62,7 +62,7 @@
           </el-col>
         </el-row>
       </div>
-      <div class="wrapper" style="height: 350px">
+      <div class="item">
         <span class="title">延迟</span>
         <el-row :gutter="15">
           <el-col :span="16">
@@ -73,7 +73,7 @@
           </el-col>
         </el-row>
       </div>
-      <div class="wrapper" style="height: 350px">
+      <div class="item">
         <span class="title">对象</span>
         <el-row :gutter="15">
           <el-col :span="24">
@@ -154,22 +154,25 @@
         this.interval = setInterval(() => {
           this.start = ((+new Date() - 1000 * 60 * 5) / 1000).toFixed(0)
           this.end = ((+new Date()) / 1000).toFixed(0)
-          this.getHealth()
-          this.getOSDsin()
-          this.getOSDsout()
-          this.getOSDsup()
-          this.getOSDsdown()
-          this.getPoolbyte()
-          this.getClusterbyte()
-          this.getClusterusedbyte()
-          this.getavgapplylate()
-          this.getavgcommitlate()
-          this.getIOPSread()
-          this.getIOPSwrite()
-          this.getthroughputr()
-          this.getthroughputw()
-          this.getObjects()
+          this.getAllData()
         }, 1000)
+      },
+      getAllData() {
+        this.getHealth()
+        this.getOSDsin()
+        this.getOSDsout()
+        this.getOSDsup()
+        this.getOSDsdown()
+        this.getPoolbyte()
+        this.getClusterbyte()
+        this.getClusterusedbyte()
+        this.getavgapplylate()
+        this.getavgcommitlate()
+        this.getIOPSread()
+        this.getIOPSwrite()
+        this.getthroughputr()
+        this.getthroughputw()
+        this.getObjects()
       },
       getHealth() {
         let params = {
@@ -399,21 +402,7 @@
       }
     },
     mounted() {
-      this.getHealth()
-      this.getOSDsin()
-      this.getOSDsout()
-      this.getOSDsup()
-      this.getOSDsdown()
-      this.getPoolbyte()
-      this.getClusterbyte()
-      this.getClusterusedbyte()
-      this.getavgapplylate()
-      this.getavgcommitlate()
-      this.getIOPSread()
-      this.getIOPSwrite()
-      this.getthroughputr()
-      this.getthroughputw()
-      this.getObjects()
+      this.getAllData()
       this.initdashboard()
     },
     beforeDestroy() {
@@ -422,14 +411,13 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
 .container
-  padding-top 20px
-  margin-left 51px
-  margin-right 48px
-  .wrapper
-    height: 150px
-    margin-bottom 44px
+  padding-top: 20px
+  margin: 0 48px 0 51px
+  .item
+    min-height: 150px
+    margin-bottom 50px
     .title
       font-size 18px
       font-weight 900

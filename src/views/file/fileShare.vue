@@ -179,7 +179,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .container
     padding-top 20px
     margin-left 51px
@@ -193,7 +193,7 @@
         text-align: right
 </style>
 
-<style lang="stylus">
+<style lang="stylus" rel="stylesheet/scss">
   .el-input__inner
     height: 30px
 </style>

@@ -22,7 +22,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
 .container
   border: 0.5px solid rgba(190, 190, 190, 0.5)
   margin-top 1%

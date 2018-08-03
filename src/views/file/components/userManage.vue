@@ -359,7 +359,7 @@
         text-align: right
 </style>
 
-<style lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .user-tabs.el-tabs--card>.el-tabs__header
     background-color #BDDBF5
     height: 35px

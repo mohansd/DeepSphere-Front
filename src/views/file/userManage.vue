@@ -30,7 +30,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .title
     margin-left 20px
     margin-top 20px

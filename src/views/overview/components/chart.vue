@@ -24,7 +24,10 @@
     },
     computed: {
       showData() {
-        return this.datas.showData
+        const showData = this.datas.showData
+        const digital = parseFloat(showData.replace(/[^\d.]/g, '')).toFixed(2)
+        const unit = showData.replace(/[^\a-z]/g, '')
+        return digital + unit
       },
       chartData() {
         let arr = []
@@ -116,7 +119,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
 .box
   width 100%
   height: 100px

@@ -158,7 +158,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .charts
     margin-top 7px
     width: 100%

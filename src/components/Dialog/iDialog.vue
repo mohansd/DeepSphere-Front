@@ -67,7 +67,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .modal
     left: 40%
     top: 30%

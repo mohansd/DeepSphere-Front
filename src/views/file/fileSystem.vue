@@ -118,7 +118,7 @@
   }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .container
     padding-top 20px
     margin-left 51px

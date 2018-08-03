@@ -15,17 +15,13 @@
       },
       computed: {
         wordcolor() {
-          if (this.getcolor === 'green') {
-            return '#fff'
-          } else {
-            return '#333'
-          }
+          return this.getcolor === 'green' ? '#fff' : '#333' // 绿底白字
         }
       }
     }
 </script>
 
-<style scoped lang="stylus">
+<style scoped lang="stylus" rel="stylesheet/stylus">
   .box
     background: #fff;
     width:100%;
