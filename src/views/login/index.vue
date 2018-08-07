@@ -33,7 +33,7 @@
 
 <script>
   import { isvalidUsername } from '@/utils/validate'
-
+  import { login } from '@/api/login'
   export default {
     name: 'login',
     data() {
@@ -73,18 +73,16 @@
         }
       },
       handleLogin() {
-        this.$refs.loginForm.validate(valid => {
-          if (valid) {
-            this.loading = true
-            this.$store.dispatch('Login', this.loginForm).then(() => {
-              this.loading = false
-              this.$router.push({ path: '/' })
-            }).catch(() => {
-              this.loading = false
-            })
+        login(this.loginForm).then(res => {
+          console.log(res)
+          if (res.data.code === 0) {
+            console.log(document.cookie)
+            // this.$router.push({ path: '/' })
           } else {
-            console.log('error submit!!')
-            return false
+            this.$message({
+              message: '用户名或密码错误！',
+              type: 'error'
+            })
           }
         })
       }

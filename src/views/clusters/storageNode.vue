@@ -198,7 +198,7 @@
         })
         this.newNode.disk = document.getElementById('disk').value
         console.log(this.newNode)
-        createOSD(this.newNode).then(res => {
+        createOSD(this.ip).then(res => {
           if (res.data.code === 0) {
             this.$message({
               message: '添加成功！',

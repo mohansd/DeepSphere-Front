@@ -85,6 +85,7 @@
 </template>
 
 <script>
+  import { convertunit } from '@/utils/convert'
   import { getData } from '@/api/overview/monitor'
   import statusBox from './components/statusBox'
   import lineChart from './components/chart'
@@ -270,9 +271,9 @@
         getData(params).then(res => {
           this.clusterByte.chartData = []
           let data = res.data.data.data.result[0].values
-          this.clusterByte.showData = (data[5][1] / Math.pow(2, 40)).toFixed(1).toString() + 'TiB'
+          this.clusterByte.showData = convertunit(data[5][1])
           data.forEach((item, index) => {
-            this.clusterByte.chartData.push((item[1] / Math.pow(2, 40)).toFixed(1))
+            this.clusterByte.chartData.push(item[1])
             this.timelist[index] = item[0]
           })
         })
@@ -287,9 +288,9 @@
         getData(params).then(res => {
           this.usedclusterByte.chartData = []
           const data = res.data.data.data.result[0].values
-          this.usedclusterByte.showData = (data[5][1] / Math.pow(2, 30)).toFixed(1).toString() + 'GiB'
+          this.usedclusterByte.showData = convertunit(data[5][1])
           data.forEach(item => {
-            this.usedclusterByte.chartData.push((item[1] / Math.pow(2, 40)).toFixed(3))
+            this.usedclusterByte.chartData.push(item[1])
           })
         })
       },
@@ -303,7 +304,7 @@
         getData(params).then(res => {
           this.avgapplylate.chartData = []
           const data = res.data.data.data.result[0].values
-          this.avgapplylate.showData = data[5][1].toString() + 'ms'
+          this.avgapplylate.showData = Number(data[5][1]).toFixed(2) + 'ms'
           data.forEach(item => {
             this.avgapplylate.chartData.push(item[1])
           })
@@ -319,7 +320,7 @@
         getData(params).then(res => {
           this.avgcommitlate.chartData = []
           const data = res.data.data.data.result[0].values
-          this.avgcommitlate.showData = data[5][1].toString() + 'ms'
+          this.avgcommitlate.showData = Number(data[5][1]).toFixed(2) + 'ms'
           data.forEach(item => {
             this.avgcommitlate.chartData.push(item[1])
           })
@@ -396,7 +397,7 @@
           this.clusterObject = []
           const data = res.data.data.data.result[0].values
           data.forEach(item => {
-            this.clusterObject.push((Number(item[1] / 1000)).toFixed(1))
+            this.clusterObject.push((Number(item[1])))
           })
         })
       }

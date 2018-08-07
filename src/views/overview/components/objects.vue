@@ -12,10 +12,10 @@
       </tr>
       <tr>
         <td ><div class="legend" style="background: #6795f8;"></div>总量</td>
-        <td>{{minval1}}k</td>
-        <td>{{maxval1}}k</td>
-        <td>{{avgval1}}k</td>
-        <td>{{curval1}}k</td>
+        <td>{{minval1}}</td>
+        <td>{{maxval1}}</td>
+        <td>{{avgval1}}</td>
+        <td>{{curval1}}</td>
       </tr>
     </table>
   </div>
@@ -23,6 +23,7 @@
 
 <script>
   import echarts from 'echarts'
+  import { convert } from '@/utils/convert'
   export default {
     name: 'objects',
     props: {
@@ -53,36 +54,20 @@
         return this.data2
       },
       minval1() {
-        return Math.min.apply(null, this.data1)
+        return convert(Math.min.apply(null, this.data1))
       },
       maxval1() {
-        return Math.max.apply(null, this.data1)
+        return convert(Math.max.apply(null, this.data1))
       },
       avgval1() {
         let sum = 0
         this.data1.forEach(item => {
           sum = sum + Number(item)
         })
-        return (sum / this.data1.length).toFixed(1)
+        return convert((sum / this.data1.length))
       },
       curval1() {
-        return this.data1[this.data1.length - 1]
-      },
-      minval2() {
-        return Math.min.apply(null, this.data2)
-      },
-      maxval2() {
-        return Math.max.apply(null, this.data2)
-      },
-      avgval2() {
-        let sum = 0
-        this.data2.forEach(item => {
-          sum = sum + Number(item)
-        })
-        return (sum / this.data2.length).toFixed(1)
-      },
-      curval2() {
-        return this.data2[this.data2.length - 1]
+        return convert(this.data1[this.data1.length - 1])
       }
     },
     data() {

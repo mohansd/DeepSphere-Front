@@ -31,7 +31,7 @@
                 </el-col>
                 <el-col :span="16">
                   <div class="node-title">元数据节点</div>
-                  <div class="node-content">1活动，0待机</div>
+                  <div class="node-content">{{metaNode.active}}活动，{{metaNode.standby}}待机</div>
                 </el-col>
               </el-row>
             </el-col>
@@ -68,14 +68,14 @@
           <div class="title">使用情况</div>
           <el-row style="margin-top: 40px">
             <el-col :span="8">
-              <div style="font-size: 50px;font-weight:900;text-align: center;height: 150px;line-height: 150px">{{objects}}k</div>
+              <div style="font-size: 50px;font-weight:900;text-align: center;height: 150px;line-height: 150px">{{objects}}</div>
               <div style="text-align: center;font-weight:900">objects</div>
             </el-col>
             <el-col :span="8">
               <div style="height: 150px;padding-left: 20px">
                 <el-progress type="circle" :percentage="percentage" color="#333" ></el-progress>
               </div>
-              <div style="padding-left: 20px;font-weight:900">Raw capacity<br/>({{usedraw}}GiB used)</div>
+              <div style="padding-left: 20px;font-weight:900">Raw capacity<br/>({{usedraw}} used)</div>
             </el-col>
             <el-col :span="8">
               <div style="height: 150px">
@@ -87,7 +87,7 @@
         </div>
       </el-col>
       <el-col :span="10" :offset="1">
-        <div class="box" style="height: 500px">
+        <div class="box">
           <div class="title">数据池</div>
           <table>
             <tr>
@@ -112,6 +112,7 @@
 <script>
   import { getData } from '@/api/overview/overview'
   import echarts from 'echarts'
+  import { convertunit, convert } from '@/utils/convert'
   const healthStatus = { 'HEALTH_OK': 'green', 'HEALTH_WARN': 'yellow', 'HEALTH_ERROR': 'red' }
   export default {
     name: 'monitor',
@@ -129,16 +130,20 @@
           upnum: 0,
           innum: 0
         },
+        metaNode: {
+          active: 0,
+          standby: 0
+        },
         mgrNode: {
           active_name: ''
         },
         objects: 0,
         percentage: 0,
-        usedraw: 0,
+        usedraw: '',
         option: {
           tooltip: {
             trigger: 'item',
-            formatter: '{b}: {c}GiB ({d}%)'
+            formatter: '{b}: {c} ({d}%)'
           },
           series: [
             {
@@ -175,14 +180,20 @@
       fetchData() {
         getData().then(res => {
           const data = res.data.data
-          console.log(data)
           this.status = data.health.status
           this.mgrNode = data.mgr_status
           this.monNode.num = data.mon_quorum.length
           this.monNode.quorum = data.mon_quorum
-          this.objects = (data.stats.total_objects / 1000).toFixed(1)
-          this.usedraw = (data.stats.total_used_bytes / 1073741824).toFixed(1)
+          this.objects = convert(data.stats.total_objects)
+          this.usedraw = convertunit(data.stats.total_used_bytes)
           this.percentage = (data.stats.total_used_bytes / data.stats.total_bytes).toFixed(2) * 100
+          for (var mds in data.mds_status) {
+            console.log(mds)
+            this.metaNode.active++
+          }
+          data.mds_standby.forEach(item => {
+            this.metaNode.standby++
+          })
           data.osds.forEach(item => {
             this.OSDs.num++
             if (item.in === 1) {
@@ -194,19 +205,17 @@
           })
           data.pools.forEach(item => {
             this.option.series[0].data.push({
-              value: (item.stats.bytes_used / 1073741824).toFixed(2),
-              name: item.name
+              value: item.stats.bytes_used.latest,
+              name: item.pool_name
             })
             this.poolData.push({
-              name: item.name,
-              objects: item.stats.objects,
-              usage: (item.stats.bytes_used / 1000).toFixed(2) + 'k/' + (item.stats.max_avail / 1000000000000).toFixed(1) + 'T',
-              active: item.stats.rd + 'rd, ' + item.stats.wr + 'wr'
+              name: item.pool_name,
+              objects: convert(item.stats.objects.latest),
+              usage: convert(item.stats.bytes_used.latest) + '/' + convert(item.stats.max_avail.latest),
+              active: convert(item.stats.rd.rate) + 'rd, ' + convert(item.stats.wr.rate) + 'wr'
             })
           })
-          console.log(this.poolData)
           this.initChart()
-          console.log(data)
         })
       },
       initChart() {
@@ -245,14 +254,15 @@
     table
       width: 90%
       margin-left: 5%
-      height: 90%
+      margin-top 20px
       th
         text-align left
-        height 10%
+        height: 30px
+        line-height 30px
       td
         border-top 1px solid rgba(170, 170, 170, 0.5)
-        height 8%
-        line-height 8%
+        height: 30px
+        line-height 30px
   .svg-wrapper
     background-color darkgrey
     font-size 60px

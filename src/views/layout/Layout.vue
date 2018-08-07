@@ -8,7 +8,7 @@
         admin
       </div>
       <div class="button" style="right: 30px">
-        <el-dropdown :trigger="click" :hide-timeout="1000">
+        <el-dropdown :hide-timeout="1000">
           <div class="avatar-wrapper" style="color: white">
             <svg-icon icon-class="set"></svg-icon>
             设置
