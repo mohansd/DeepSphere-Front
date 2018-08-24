@@ -38,3 +38,13 @@ export function deletepNode(rack, pnode) {
     data: pnode
   })
 }
+
+export function deleteRack(name) {
+  return request({
+    url: '/api/rack/',
+    method: 'delete',
+    data: {
+      name: name
+    }
+  })
+}

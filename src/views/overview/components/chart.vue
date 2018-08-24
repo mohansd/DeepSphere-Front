@@ -113,6 +113,7 @@
         this.interval = setInterval(() => {
           this.option.series[0].data = this.chartData
           this.myChart.setOption(this.option)
+          this.myChart.resize()
         }, 1000)
       }
     }

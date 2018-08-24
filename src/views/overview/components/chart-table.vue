@@ -170,11 +170,13 @@
           this.option.series[0].data = this.chartdata1
           this.option.series[1].data = this.chartdata2
           this.myChart.setOption(this.option)
+          this.myChart.resize()
         }, 1000)
       }
     },
     beforeDestroy() {
       clearInterval(this.interval)
+      this.myChart.clear()
     }
   }
 </script>

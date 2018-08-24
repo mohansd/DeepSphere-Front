@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, removeToken } from '@/utils/auth'
 
 const user = {
   state: {
@@ -27,12 +27,11 @@ const user = {
   actions: {
     // 登录
     Login({ commit }, userInfo) {
-      const username = userInfo.username.trim()
+      // const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
-        login(username, userInfo.password).then(response => {
-          const data = response.data
-          setToken(data.token)
-          commit('SET_TOKEN', data.token)
+        login(userInfo).then(response => {
+          let data = response.data
+          commit('SET_NAME', data.data.username)
           resolve()
         }).catch(error => {
           reject(error)
@@ -41,31 +40,34 @@ const user = {
     },
 
     // 获取用户信息
-    GetInfo({ commit, state }) {
+    GetInfo({ commit }) {
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(response => {
-          const data = response.data
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+        getInfo().then(response => {
+          const name = response.data.data.user.username
+          if (name) {
+            commit('SET_NAME', name)
+            resolve(response)
           } else {
-            reject('getInfo: roles must be a non-null array !')
+            reject('无正确用户信息')
           }
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          resolve(response)
         }).catch(error => {
           reject(error)
         })
       })
     },
 
+    SetGuest({ commit }) {
+      return new Promise(resolve => {
+        let guest = 'Guest'
+        commit('SET_NAME', guest)
+        resolve()
+      })
+    },
+
     // 登出
-    LogOut({ commit, state }) {
+    LogOut({ commit }) {
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          removeToken()
+        logout().then(res => {
           resolve()
         }).catch(error => {
           reject(error)

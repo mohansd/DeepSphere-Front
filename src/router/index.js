@@ -27,6 +27,9 @@ export const constantRouterMap = [
   {
     path: '/',
     component: Layout,
+    meta: {
+      auth: true
+    },
     redirect: '/overview'
   },
   {
@@ -34,19 +37,19 @@ export const constantRouterMap = [
     component: Layout,
     redirect: 'overview/overview',
     name: 'Dashboard',
-    meta: { title: '总览', icon: 'home' },
+    meta: { title: '总览', icon: 'home', auth: false },
     children: [
       {
         path: 'overview',
         name: 'Overview',
         component: () => import('@/views/overview/monitor'),
-        meta: { title: '概览' }
+        meta: { title: '概览', auth: false }
       },
       {
         path: 'monitor',
         name: 'Monitor',
         component: () => import('@/views/overview/overview'),
-        meta: { title: '运行监控' }
+        meta: { title: '运行监控', auth: false }
       }
     ]
   },
@@ -55,37 +58,37 @@ export const constantRouterMap = [
     component: Layout,
     redirect: 'clusters/manage',
     name: 'clusters',
-    meta: { title: '集群管理', icon: 'cluster' },
+    meta: { title: '集群管理', icon: 'cluster', auth: true },
     children: [
       {
         path: 'node',
         name: 'node',
         component: () => import('@/views/clusters/nodeMgr'),
-        meta: { title: '节点管理' }
+        meta: { title: '节点管理', auth: true }
       },
       {
         path: 'storage',
         name: 'Storage',
         component: () => import('@/views/clusters/storageNode'),
-        meta: { title: '存储节点管理' }
+        meta: { title: '存储节点管理', auth: true }
       },
       {
         path: 'manage',
         name: 'Manage',
         component: () => import('@/views/clusters/manageNode'),
-        meta: { title: '管理节点管理' }
+        meta: { title: '管理节点管理', auth: true }
       },
       {
         path: 'shelf',
         name: 'Shelf',
         component: () => import('@/views/clusters/shelfManage'),
-        meta: { title: '机架管理' }
+        meta: { title: '机架管理', auth: true }
       },
       {
         path: 'pool',
         name: 'Pool',
         component: () => import('@/views/clusters/poolManage'),
-        meta: { title: 'Pool管理' }
+        meta: { title: '数据池管理', auth: true }
       }
     ]
   },
@@ -94,31 +97,31 @@ export const constantRouterMap = [
     component: Layout,
     redirect: 'file/filesystem',
     name: 'file',
-    meta: { title: '文件存储管理', icon: 'file' },
+    meta: { title: '文件存储管理', icon: 'file', auth: true },
     children: [
       {
         path: 'filesystem',
         name: 'FileSystem',
         component: () => import('@/views/file/fileSystem'),
-        meta: { title: '文件系统管理' }
+        meta: { title: '文件系统管理', auth: true }
       },
       {
         path: 'nas',
         name: 'NAS',
         component: () => import('@/views/file/NAS'),
-        meta: { title: 'NAS管理' }
+        meta: { title: 'NAS管理', auth: true }
       },
       {
         path: 'fileshare',
         name: 'FileShare',
         component: () => import('@/views/file/fileShare'),
-        meta: { title: '文件共享' }
+        meta: { title: '文件共享', auth: true }
       },
       {
         path: 'user',
         name: 'User',
         component: () => import('@/views/file/userManage'),
-        meta: { title: '用户管理' }
+        meta: { title: '用户管理', auth: true }
       }
     ]
   },
@@ -127,25 +130,25 @@ export const constantRouterMap = [
     component: Layout,
     redirect: 'object/add',
     name: 'object',
-    meta: { title: '对象存储管理', icon: 'object' },
+    meta: { title: '对象存储管理', icon: 'object', auth: true },
     children: [
       {
         path: 'add',
         name: 'Add',
         component: () => import('@/views/object/addNode'),
-        meta: { title: '添加对象存储网关节点' }
+        meta: { title: '添加对象存储网关节点', auth: true }
       },
       {
         path: 'close',
         name: 'Close',
         component: () => import('@/views/object/close'),
-        meta: { title: '关闭对象网关' }
+        meta: { title: '关闭对象网关', auth: true }
       },
       {
         path: 'modify',
         name: 'Modify',
         component: () => import('@/views/object/modify'),
-        meta: { title: '修改服务端口' }
+        meta: { title: '修改服务端口', auth: true }
       }
     ]
   },
@@ -157,7 +160,7 @@ export const constantRouterMap = [
         path: 'index',
         name: 'blockdevice',
         component: () => import('@/views/blockDevice/blockDevice'),
-        meta: { title: '块设备管理', icon: 'shebei' }
+        meta: { title: '块设备管理', icon: 'shebei', auth: true }
       }
     ]
   },
@@ -166,37 +169,37 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/system/ntp',
     name: 'System',
-    meta: { title: '系统管理', icon: 'system' },
+    meta: { title: '系统管理', icon: 'system', auth: true },
     children: [
       {
         path: 'ntp',
         name: 'NTP',
         component: () => import('@/views/system/NTP'),
-        meta: { title: 'NTP设置' }
+        meta: { title: 'NTP设置', auth: true }
       },
       {
         path: 'parameter',
         name: 'Parameter',
         component: () => import('@/views/system/parameter'),
-        meta: { title: '参数设置' }
+        meta: { title: '参数设置', auth: true }
       },
       {
         path: 'load',
         name: 'Load',
         component: () => import('@/views/system/loadBalancing'),
-        meta: { title: '负载均衡设置' }
+        meta: { title: '负载均衡设置', auth: true }
       },
       {
         path: 'log',
         name: 'Log',
         component: () => import('@/views/system/log'),
-        meta: { title: '日志管理' }
+        meta: { title: '日志管理', auth: true }
       },
       {
         path: 'user',
         name: 'UserSetting',
         component: () => import('@/views/system/user'),
-        meta: { title: '用户设置' }
+        meta: { title: '用户设置', auth: true }
       }
     ]
   },

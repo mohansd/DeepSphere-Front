@@ -156,7 +156,7 @@
           this.start = ((+new Date() - 1000 * 60 * 5) / 1000).toFixed(0)
           this.end = ((+new Date()) / 1000).toFixed(0)
           this.getAllData()
-        }, 1000)
+        }, 5000)
       },
       getAllData() {
         this.getHealth()
@@ -289,6 +289,7 @@
           this.usedclusterByte.chartData = []
           const data = res.data.data.data.result[0].values
           this.usedclusterByte.showData = convertunit(data[5][1])
+          console.log(convertunit(data[5][1]))
           data.forEach(item => {
             this.usedclusterByte.chartData.push(item[1])
           })

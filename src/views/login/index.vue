@@ -2,7 +2,7 @@
   <div class="login-container">
     <el-form class="login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm"
              label-position="left">
-      <h3 class="title">vue-element-admin</h3>
+      <h3 class="title">Deep Sphere</h3>
       <el-form-item prop="username">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user"/>
@@ -20,45 +20,46 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">
-          Sign in
+          登录
         </el-button>
       </el-form-item>
-      <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: admin</span>
-      </div>
+      <el-form-item>
+        <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleGuest">
+          访客登录
+        </el-button>
+      </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-  import { isvalidUsername } from '@/utils/validate'
-  import { login } from '@/api/login'
+  // import { isvalidUsername } from '@/utils/validate'
+  // import { login, permissiontest } from '@/api/login'
   export default {
     name: 'login',
     data() {
-      const validateUsername = (rule, value, callback) => {
-        if (!isvalidUsername(value)) {
-          callback(new Error('请输入正确的用户名'))
-        } else {
-          callback()
-        }
-      }
-      const validatePass = (rule, value, callback) => {
-        if (value.length < 5) {
-          callback(new Error('密码不能小于5位'))
-        } else {
-          callback()
-        }
-      }
+      // const validateUsername = (rule, value, callback) => {
+      //   if (!isvalidUsername(value)) {
+      //     callback(new Error('请输入正确的用户名'))
+      //   } else {
+      //     callback()
+      //   }
+      // }
+      // const validatePass = (rule, value, callback) => {
+      //   if (value.length < 5) {
+      //     callback(new Error('密码不能小于5位'))
+      //   } else {
+      //     callback()
+      //   }
+      // }
       return {
         loginForm: {
-          username: 'admin',
-          password: 'admin'
+          username: 'test',
+          password: 'gushenxing123'
         },
         loginRules: {
-          username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-          password: [{ required: true, trigger: 'blur', validator: validatePass }]
+          username: [{ required: true, trigger: 'blur', message: '用户名不能为空' }],
+          password: [{ required: true, trigger: 'blur', message: '密码不能为空' }]
         },
         loading: false,
         pwdType: 'password'
@@ -73,18 +74,36 @@
         }
       },
       handleLogin() {
-        login(this.loginForm).then(res => {
-          console.log(res)
-          if (res.data.code === 0) {
-            console.log(document.cookie)
-            // this.$router.push({ path: '/' })
-          } else {
-            this.$message({
-              message: '用户名或密码错误！',
-              type: 'error'
+        this.$refs.loginForm.validate(valid => {
+          if (valid) {
+            this.loading = true
+            this.$store.dispatch('Login', this.loginForm).then(() => {
+              this.loading = false
+              this.$router.push({ path: '/' })
+            }).catch(() => {
+              this.loading = false
             })
+          } else {
+            console.log('error submit!!')
+            return false
           }
         })
+        // login(this.loginForm).then(res => {
+        //   permissiontest().then(res => {
+        //     console.log(res)
+        //   })
+        //   if (res.data.code === 0) {
+        //     // this.$router.push({ path: '/' })
+        //   } else {
+        //     this.$message({
+        //       message: '用户名或密码错误！',
+        //       type: 'error'
+        //     })
+        //   }
+        // })
+      },
+      handleGuest() {
+        this.$router.push({ path: '/' })
       }
     }
   }

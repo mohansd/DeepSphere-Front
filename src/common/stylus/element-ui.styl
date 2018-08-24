@@ -1,16 +1,16 @@
 @import "variable.styl"
 
+.el-table--striped .el-table__body tr.el-table__row--striped.current-row td, .el-table__body tr.current-row>td, .el-table__body tr.hover-row.current-row>td, .el-table__body tr.hover-row.el-table__row--striped.current-row>td, .el-table__body tr.hover-row.el-table__row--striped>td, .el-table__body tr.hover-row>td
+  background-color: #bedcf7
+.el-table--enable-row-hover .el-table__body tr:hover>td
+  background-color: #bedcf7
 .el-table
   th
-    background: #1062aa
+    background-color #f5f7fa
     font-size: $font-size-medium-x
     font-weight: bold
   tr
     color: #000
-  tr:nth-child(odd)
-    background: #fff;
-  tr:nth-child(even)
-    background: #f2f2f2;
 .app-breadcrumb.el-breadcrumb
   display: inline-block
   line-height: 50px

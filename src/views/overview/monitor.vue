@@ -113,7 +113,7 @@
   import { getData } from '@/api/overview/overview'
   import echarts from 'echarts'
   import { convertunit, convert } from '@/utils/convert'
-  const healthStatus = { 'HEALTH_OK': 'green', 'HEALTH_WARN': 'yellow', 'HEALTH_ERROR': 'red' }
+  const healthStatus = { 'HEALTH_OK': 'green', 'HEALTH_WARN': 'yellow', 'HEALTH_ERR': 'red' }
   export default {
     name: 'monitor',
     data() {
@@ -241,10 +241,10 @@
   .box
     margin-top: 20px
     display: inline-block
-    height: 300px
     width 100%
     background-color: #fff
     margin-bottom 40px
+    padding-bottom 20px
     box-shadow: 0px 0px 10px 5px #D3D8DD
     .title
       padding-left 20px

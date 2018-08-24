@@ -9,7 +9,7 @@
       <el-row style="margin-top: 25px;width: 600px;margin-left: 30px">
         <el-checkbox-group v-model="enabled_modules" @change="changemodule">
           <el-col :span="8" v-for="module in modulesList" :key="module" style="margin-top: 10px">
-            <el-checkbox :label="module" style="color: #333" ></el-checkbox>
+            <el-checkbox :label="module" style="color: #333;width: 120px"  border></el-checkbox>
           </el-col>
         </el-checkbox-group>
       </el-row>
@@ -34,7 +34,6 @@
       <div class="form">
         <div class="label">节点名： </div>
         <input v-model="currentnode.hostname"/>
-        <el-button type="danger" size="mini">删除</el-button>
       </div>
       <div class="form">
         <div class="label">IP： </div>
@@ -136,17 +135,24 @@
             }
           })
         })
-          .catch(err => {
-            console.log(err)
-          })
       },
       confirmClicked1() {
         this.dialogVisible1 = false
         addmgrNode(this.newNode).then(res => {
-          this.$message({
-            message: '添加管理节点成功！',
-            type: 'success'
-          })
+          if (res.data.code !== 0) {
+            this.$message({
+              message: '管理节点添加失败，请确认后重试！',
+              type: 'error'
+            })
+          } else {
+            this.$message({
+              message: '添加管理节点成功！',
+              type: 'success'
+            })
+          }
+          this.fetchData()
+          this.newNode.hostname = ''
+          this.newNode.ip = ''
         })
       },
       cancelClicked1() {

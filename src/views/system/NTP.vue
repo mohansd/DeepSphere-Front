@@ -1,25 +1,71 @@
 <template>
-  <div class="container">
-    <span style="padding-left: 30px">NTP服务器设置:</span>
-    <br/>
-    <br/>
-    <span style="padding-left: 30px;width: 150px;text-align: right;display: inline-block">NTP服务器： </span>
-    <input />
-    <br/>
-    <span style="margin-top:10px;padding-left: 30px;width: 150px;text-align: right;display: inline-block">同步时间： </span>
-    <input />
-    <br/>
-    <i-button type="primary" text="确定" style="padding-top: 20px;padding-left: 100px"></i-button>
-    <i-button type="primary" text="重置" ></i-button>
+  <div>
+    <div class="title">NTP设置</div>
+    <div class="container">
+      <el-form class="ntpform" label-width="100px" size="mini">
+        <el-form-item label="NTP服务器">
+          <el-input v-model="ntpconfig.server"></el-input>
+        </el-form-item>
+        <el-form-item label="同步时间">
+          <el-input v-model="ntpconfig.timeInterval"> <template slot="append">(min)</template></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="mini" @click="setNTP">确定</el-button>
+          <el-button type="primary" size="mini" @click="resetform">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
   </div>
 </template>
 
 <script>
-  import iButton from './../../components/Button/iButton'
+  import { getntpserver, setntpserver } from '../../api/system/ntp'
   export default {
     name: 'NTP',
     components: {
-      iButton
+    },
+    data() {
+      return {
+        ntpconfig: {
+          server: '',
+          timeInterval: ''
+        }
+      }
+    },
+    methods: {
+      getntp() {
+        getntpserver().then(res => {
+          let data = res.data.data.config
+          this.ntpconfig.server = data.ntpServer
+          this.ntpconfig.timeInterval = data.time
+        })
+      },
+      setNTP() {
+        setntpserver(this.ntpconfig).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: 'NTP配置成功！',
+              type: 'success'
+            })
+          } else if (res.data.message === 'Server must be ip') {
+            this.$message({
+              message: 'NTP服务器必须是IP！',
+              type: 'error'
+            })
+          } else if (res.data.message === 'TimeInterval must be a number') {
+            this.$message({
+              message: '同步时间必须是数字！',
+              type: 'error'
+            })
+          }
+        })
+      },
+      resetform() {
+        this.getntp()
+      }
+    },
+    mounted() {
+      this.getntp()
     }
   }
 </script>
@@ -34,4 +80,11 @@
     background-color #fff
     position absolute
     padding-top 30px
+    .ntpform
+      width 30%
+  .title
+    margin-left 20px
+    margin-top 20px
+    font-weight bolder
+    color: #333
 </style>

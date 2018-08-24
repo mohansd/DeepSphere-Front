@@ -7,11 +7,11 @@ export function convertunit(limit) {
   if (limit < 0.1 * 1024) { // 如果小于0.1KiB转化成B
     size = limit.toFixed(2) + 'B'
   } else if (limit < 0.1 * 1024 * 1024) { // 如果小于0.1MiB转化成KiB
-    size = (limit / 1024).toFixed(2) + 'KiB'
+    size = (limit / 1024).toFixed(1) + 'KiB'
   } else if (limit < 0.1 * 1024 * 1024 * 1024) { // 如果小于0.1GiB转化成MiB
-    size = (limit / (1024 * 1024)).toFixed(2) + 'MiB'
+    size = (limit / (1024 * 1024)).toFixed(1) + 'MiB'
   } else if (limit < 0.1 * 1024 * 1024 * 1024 * 1024) { // 如果小于0.1TB转化成GiB
-    size = (limit / (1024 * 1024 * 1024)).toFixed(2) + 'GiB'
+    size = (limit / (1024 * 1024 * 1024)).toFixed(1) + 'GiB'
   } else { // 其他转化成TiB
     size = (limit / (1024 * 1024 * 1024 * 1024)).toFixed(1) + 'TiB'
   }

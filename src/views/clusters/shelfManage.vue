@@ -1,8 +1,12 @@
 <template>
   <div class="container">
-    <i-button icon="el-icon-plus" text="新增机架" @click.native="dialogVisible1=true"></i-button>
-    <i-button type="refresh" @click.native="fetchData"></i-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置" @clickEdit="EditClicked"></i-table>
+    <el-button type="primary" size="medium" class="my-button" icon="el-icon-plus" @click.native="dialogVisible1=true">新增机架</el-button>
+    <el-button type="primary" icon="el-icon-refresh" @click.native="fetchData" size="medium">刷新</el-button>
+    <el-button type="danger" size="medium" :disabled="isRack" @click.native="handledelete" icon="el-icon-close">删除</el-button>
+    <i-table :tabledata="tabledata" :labels="labels" edit="配置"
+             @currentchange="handlecurrentchange"
+             style="margin-top: 20px"
+             @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增机架" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
@@ -48,7 +52,7 @@
 </template>
 
 <script>
-  import { getList, addRack, getRack, addpNode, deletepNode } from '@/api/clusters/rack'
+  import { getList, addRack, getRack, addpNode, deletepNode, deleteRack } from '@/api/clusters/rack'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -60,6 +64,7 @@
     data() {
       return {
         checkedNode: [],
+        isRack: true,
         nodeName: '',
         nodeIp: '',
         name: '',
@@ -70,6 +75,7 @@
           name: '',
           location: ''
         },
+        currentrack: '',
         dialogVisible1: false,
         dialogVisible2: false,
         tabledata: [],
@@ -96,11 +102,19 @@
             pNodeName: item
           }
           deletepNode(this.editRack.name, pnode).then(res => {
-            this.$message({
-              message: '删除成功！',
-              type: 'success'
-            })
-            this.fetchData()
+            if (res.data.code === 0) {
+              this.$message({
+                message: '删除成功！',
+                type: 'success'
+              })
+              this.fetchData()
+              this.dialogVisible2 = false
+            } else {
+              this.$message({
+                message: '出现错误，请重试！',
+                type: 'error'
+              })
+            }
           })
         })
       },
@@ -109,10 +123,21 @@
           name: this.name,
           location: this.location
         }
-        const postdata = 'name=' + this.name + '&&' + 'location=' + this.location
-        console.log(postdata)
         addRack(params).then(res => {
-          console.log(res)
+          if (res.data.code === 0) {
+            this.$message({
+              message: '新增机架成功！',
+              type: 'success'
+            })
+            this.name = ''
+            this.location = ''
+            this.fetchData()
+          } else {
+            this.$message({
+              message: '出现错误，请重试！',
+              type: 'error'
+            })
+          }
         })
       },
       fetchData() {
@@ -152,11 +177,22 @@
           pNodeName: this.nodeName
         }
         addpNode(this.editRack.name, params).then(res => {
-          this.$message({
-            message: '配置成功！',
-            type: 'success'
-          })
-          this.fetchData()
+          if (res.data.code === 0) {
+            this.$message({
+              message: '新增节点成功！',
+              type: 'success'
+            })
+            this.fetchData()
+            this.nodeName = ''
+            this.nodeIp = ''
+          } else {
+            this.$message({
+              message: '新增节点出错，请确认后重试！',
+              type: 'error'
+            })
+            this.nodeName = ''
+            this.nodeIp = ''
+          }
         })
           .catch(err => {
             console.log(err)
@@ -164,6 +200,30 @@
       },
       cancelClicked2() {
         this.dialogVisible2 = false
+      },
+      handledelete() {
+        if (this.currentrack !== '') {
+          deleteRack(this.currentrack).then(res => {
+            this.$message({
+              message: '机架删除成功！',
+              type: 'success'
+            })
+            this.currentrack = ''
+            this.fetchData()
+          })
+        } else {
+          this.$message({
+            message: '请选择需要删除的机架！',
+            type: 'error'
+          })
+        }
+      },
+      handlecurrentchange(val) {
+        if (val) {
+          console.log(val)
+          this.currentrack = val.name
+          this.isRack = false
+        }
       }
     },
     mounted() {
@@ -177,6 +237,16 @@
     padding-top 20px
     margin-left 51px
     margin-right 48px
+    .my-button.el-button--primary
+      background-color #1262AA
+      border-color #1262AA
+    .my-button.el-button--primary:focus, .my-button.el-button--primary:hover
+      background-color #2078C5
+      border-color #2078C5
+    .my-button.el-button--primary.is-disabled, my-button.el-button--primary.is-disabled:focus, my-button.el-button--primary.is-disabled:hover
+      background-color #a0cfff
+      border-color #a0cfff
+      color: #fff
     .form
       margin-top  10px
       margin-left 5%

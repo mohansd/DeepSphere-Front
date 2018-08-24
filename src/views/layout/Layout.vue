@@ -5,7 +5,7 @@
       <img :src="logoImg" style="position: absolute;height: 50px;right: 16px;top: 10px">
       <div class="button">
         <svg-icon icon-class="user"></svg-icon>
-        admin
+        {{username}}
       </div>
       <div class="button" style="right: 30px">
         <el-dropdown :hide-timeout="1000">
@@ -23,7 +23,7 @@
               <screenfull></screenfull>
             </el-dropdown-item>
             <el-dropdown-item>
-              <span style="display:block;">登出</span>
+              <span style="display:block;" @click="handleLogout">登出</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -31,6 +31,7 @@
     </header>
     <div class="container">
       <sidebar class="sidebar-container"></sidebar>
+      <div style="background-color: rgb(48, 65, 86);width:180px;position:fixed;z-index: 1000;height: 100%"></div>
       <div class="main-container">
         <app-main></app-main>
       </div>
@@ -58,6 +59,21 @@
       return {
         titleImg,
         logoImg
+      }
+    },
+    computed: {
+      username() {
+        console.log(this.$store.state.user.name)
+        return this.$store.state.user.name
+      }
+    },
+    methods: {
+      handleLogout() {
+        console.log('tuichu')
+        this.$store.dispatch('LogOut').then(() => {
+          this.$router.push({ path: '/login' })
+        }).catch(() => {
+        })
       }
     }
   }

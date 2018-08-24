@@ -2,10 +2,10 @@
       <div class="wrapper">
         <el-table class="my-table" :data="tabledata"
                   @row-click="rowClick"
-                  stripe
                   highlight-current-row
                   @current-change="handleCurrentChange"
                   border
+                  stripe
                   style="width: 100%">
           <el-table-column v-for="(item, index) in labels" :key="index"
                            :prop="item.prop" :label="item.label" >
@@ -13,7 +13,7 @@
           <el-table-column v-if="osd" label="osd" prop="osds" width="800">
             <template slot-scope="scope">
               <tr>
-                <th v-for="item in osdlabels" :key="item.label" width="120" height="10">{{item.label}}</th>
+                <th v-for="item in oFsdlabels" :key="item.label" width="120" height="10">{{item.label}}</th>
               </tr>
               <tr v-for="(item, index) in scope.row.osds" :key="index">
                 <td>{{item.id}}</td>
@@ -56,18 +56,19 @@
       },
       data() {
         return {
-          currentPage: 1
+          currentPage: 1,
+          currentRow: null
         }
       },
       methods: {
         rowClick(row, event, column) {
-          // const val = JSON.stringify(column)
           this.$emit('clickRow', row)
         },
         handleSizeChange() {
           console.log('sizechanged')
         },
         handleCurrentChange(val) {
+          console.log(val)
           this.$emit('currentchange', val)
         },
         handleEdit(index, row) {

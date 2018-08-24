@@ -15,16 +15,11 @@ export function createPool(params) {
   })
 }
 
-export function changePool(params) {
+export function changePool(poolName, params) {
   return request({
-    url: 'api/ceph/pool/' + params.poolName,
+    url: 'api/ceph/pool/' + poolName,
     method: 'post',
-    data: {
-      size: params.size,
-      pg_num: params.pg_num,
-      pgp_num: params.pgp_num,
-      max_objects: params.max_objects
-    }
+    data: params
   })
 }
 
@@ -42,5 +37,35 @@ export function getPool(params) {
   return request({
     url: 'api/ceph/pool/' + params,
     method: 'get'
+  })
+}
+
+export function geterasure() {
+  return request({
+    url: 'api/ceph/erasureprofiles',
+    method: 'get'
+  })
+}
+
+export function getcrush() {
+  return request({
+    url: 'api/ceph/crushrules',
+    method: 'get'
+  })
+}
+
+export function createtier(params) {
+  return request({
+    url: 'api/ceph/tier',
+    method: 'put',
+    data: params
+  })
+}
+
+export function deleteTier(params) {
+  return request({
+    url: 'api/ceph/tier',
+    method: 'delete',
+    data: params
   })
 }
