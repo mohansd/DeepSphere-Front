@@ -6,6 +6,7 @@
                   @current-change="handleCurrentChange"
                   border
                   stripe
+                  v-loading="loading"
                   style="width: 100%">
           <el-table-column v-for="(item, index) in labels" :key="index"
                            :prop="item.prop" :label="item.label" >
@@ -52,6 +53,10 @@
         showedit: {
           type: Boolean,
           default: true
+        },
+        loading: {
+          type: Boolean,
+          default: false
         }
       },
       data() {

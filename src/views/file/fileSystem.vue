@@ -8,6 +8,7 @@
              @clickEdit="EditClicked"
              @currentchange="handlecurrentchange"
              style="margin-top: 20px"
+             :loading="loading"
              :showedit="false"></i-table>
     <i-dialog title="新增文件系统" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
@@ -48,6 +49,7 @@
     },
     data() {
       return {
+        loading: false,
         edit: '编辑',
         ip: '',
         dialogVisible1: false,
@@ -133,18 +135,21 @@
       },
       confirmClicked1() {
         this.dialogVisible1 = false
+        this.loading = true
         createfs(this.newfs).then(res => {
           if (res.data.code === 0) {
             this.$message({
               message: '添加成功！',
               type: 'success'
             })
+            this.loading = false
             this.fetchData()
           } else {
             this.$message({
               message: '添加失败！',
               type: 'error'
             })
+            this.loading = false
           }
         })
       },

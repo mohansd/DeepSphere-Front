@@ -144,10 +144,12 @@
           this.tabledata = []
           data.forEach(osd => {
             if (osd.osds.length === 0) {
-              this.tabledata.push({
-                hostname: osd.hostname,
-                ip: osd.ip
-              })
+              if (osd.ip !== '') {
+                this.tabledata.push({
+                  hostname: osd.hostname,
+                  ip: osd.ip
+                })
+              }
             } else {
               osd.osds.forEach(item => {
                 this.tabledata.push({
@@ -220,6 +222,7 @@
           }
         })
         this.newNode.disk = document.getElementById('disk').value
+        console.log(this.newNode)
         createOSD(this.newNode).then(res => {
           if (res.data.code === 0) {
             this.$message({

@@ -4,13 +4,15 @@
     <i-button type="refresh" @click.native="refresh"></i-button>
     <i-button type="delete" @click.native="deleteReceiver"></i-button>
     <div class="container">
-      <div class="title">修改告警接收人信息：</div>
-      <el-form size="mini" label-width="120px" style="width: 400px;margin-left: 20px;margin-top: 10px">
-        <el-form-item label="告警发送人">
-          <el-input v-model="mailsender.token"></el-input>
-        </el-form-item>
-        <el-form-item label="发送人邮件地址">
+      <div class="title">告警发送人： {{mailsender.account}}
+        <el-button type="primary" @click="isnew = !isnew" size="mini" style="margin-left: 150px">{{text}}</el-button>
+      </div>
+      <el-form size="mini" label-width="120px" style="width: 400px;margin-left: 20px;margin-top: 10px" v-show="isnew">
+        <el-form-item label="发送人邮箱">
           <el-input v-model="mailsender.account"></el-input>
+        </el-form-item>
+        <el-form-item label="Token">
+          <el-input v-model="mailsender.token"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="confirmClicked2">确定</el-button>
@@ -64,13 +66,17 @@ export default {
     },
     data() {
       return {
+        isnew: false,
+        account: '',
+        text: '',
         edit: '编辑',
         dialogVisible1: false,
         dialogVisible2: false,
         tabledata: [],
         mailsender: {
           account: '',
-          token: ''
+          token: '',
+          name: ''
         },
         newreceiver: {
           name: '',
@@ -105,10 +111,17 @@ export default {
     methods: {
       fetchData() {
         getmailSender().then(res => {
-          let data = res.data.data.config
-          this.senderTable[0].name = data.token
-          this.senderTable[0].email = data.account
-          this.mailsender = data
+          let data = res.data.data
+          if (data) {
+            this.text = '修改'
+            this.senderTable[0].name = data.description
+            this.senderTable[0].email = data.config.account
+            this.mailsender.name = data.description
+            this.mailsender.token = data.config.token
+            this.mailsender.account = data.config.account
+          } else {
+            this.text = '新增'
+          }
         })
         getmailReceiver().then(res => {
           console.log(res)
@@ -206,8 +219,8 @@ export default {
     min-height 500px
     .container
       margin-top 10px
+      padding-bottom 10px
       width 90%
-      height: 180px
       background-color: #fff
       border: 0.5px solid rgba(190, 190, 190, 0.5)
       padding-top 20px
