@@ -3,16 +3,16 @@
       <div class="item">
         <span class="title">集群状态</span>
         <el-row :gutter="15">
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <status-box title="状态" :num="health.status" :getcolor="health.color"></status-box>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="存储池" id="storage" :datas="Poolbyte"></line-chart>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="集群容量" id="clustercapacity" :datas="clusterByte"></line-chart>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="已用流量" id="usedcapacity" :datas="usedclusterByte"></line-chart>
           </el-col>
         </el-row>

@@ -106,6 +106,7 @@
     },
     beforeDestroy() {
       clearInterval(this.interval)
+      this.myChart.clear()
     },
     methods: {
       initChart() {
