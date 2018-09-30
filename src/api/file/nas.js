@@ -1,15 +1,10 @@
 import request from '@/utils/request'
 
-export function getSMB() {
+export function sambaSetting(params) {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
-    data: {
-      service: 'SMB',
-      method: 'getSettings',
-      params: null,
-      options: null
-    }
+    data: params
   })
 }
 

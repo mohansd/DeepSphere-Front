@@ -20,7 +20,7 @@
       <div class="item">
         <span class="title">OSD状态</span>
         <el-row :gutter="15">
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <el-row :gutter="6">
               <el-col :span="12">
                 <status-box title="OSDs活跃" :num="OSDsState.in"></status-box>
@@ -30,7 +30,7 @@
               </el-col>
             </el-row>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <el-row :gutter="6">
               <el-col :span="12">
                 <status-box title="OSDs开启" :num="OSDsState.up"></status-box>
@@ -40,10 +40,10 @@
               </el-col>
             </el-row>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="平均OSD应用延迟" id="osdappliacation" :datas="avgapplylate"></line-chart>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="平均OSD提交延迟" id="osdsubmit" :datas="avgcommitlate"></line-chart>
           </el-col>
         </el-row>
@@ -51,13 +51,13 @@
       <div class="item">
         <span class="title">集群</span>
         <el-row :gutter="15">
-          <el-col :span="8">
+          <el-col :lg="8" :sm="24">
             <chart-table id="capacity" title="容量" :timelist="timelist" :data1="clusterByte.chartData" :data2="usedclusterByte.chartData"></chart-table>
           </el-col>
-          <el-col :span="8">
+          <el-col :lg="8" :sm="24">
             <iops id="IOPs" title="IOPs" :timelist="timelist" :data1="IOPsread" :data2="IOPswrite"></iops>
           </el-col>
-          <el-col :span="8">
+          <el-col :lg="8" :sm="24">
             <throughput id="throughput" title="吞吐量" :timelist="timelist" :data1="throughputr" :data2="throughputw"></throughput>
           </el-col>
         </el-row>
@@ -65,11 +65,8 @@
       <div class="item">
         <span class="title">延迟</span>
         <el-row :gutter="15">
-          <el-col :span="16">
+          <el-col :span="24">
             <osd id="OSD" title="OSD应用+提交延迟" :timelist="timelist" :data1="avgcommitlate.chartData" :data2="avgapplylate.chartData"></osd>
-          </el-col>
-          <el-col :span="8">
-            <chart-table id="monitor" title="监控延迟" :timelist="timelist"></chart-table>
           </el-col>
         </el-row>
       </div>

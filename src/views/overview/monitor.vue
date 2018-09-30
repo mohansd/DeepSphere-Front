@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <el-row >
-      <el-col :span="11" :offset="1">
+    <el-row :gutter="50">
+      <el-col :lg="12" :sm="24">
         <div class="box" style="height: 100px">
           <div class="title">状态</div>
           <div style="padding-top: 15px;padding-left: 20px">
@@ -9,7 +9,7 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="10" :offset="1">
+      <el-col :lg="11" :sm="24">
           <el-row :gutter="20" style="margin-top: 20px">
             <el-col :span="12">
               <el-row style="background-color: #fff;height: 100px">
@@ -62,8 +62,8 @@
         </el-row>
       </el-col>
     </el-row>
-    <el-row >
-      <el-col :span="11" :offset="1">
+    <el-row :gutter="50">
+      <el-col :lg="12" :sm="24">
         <div class="box" style="height: 300px">
           <div class="title">使用情况</div>
           <el-row style="margin-top: 40px">
@@ -86,7 +86,7 @@
           </el-row>
         </div>
       </el-col>
-      <el-col :span="10" :offset="1">
+      <el-col :lg="12" :sm="24">
         <div class="box">
           <div class="title">数据池</div>
           <table>
@@ -238,6 +238,8 @@
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
 .container
+  padding-top: 20px
+  margin: 0 48px 0 51px
   .box
     margin-top: 20px
     display: inline-block

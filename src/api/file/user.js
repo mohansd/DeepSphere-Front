@@ -1,129 +1,91 @@
 import request from '@/utils/request'
 
-export function getList() {
+export function getUserList() {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
     data: {
-      service: 'UserMgmt',
-      method: 'getUserList',
-      params: {
-        start: 0,
-        limit: 25,
-        sortfield: 'name',
-        sortdir: 'ASC' },
-      options: null
+      method: 'smbGetUserList',
+      params: {}
     }
   })
 }
 
-export function getGroupList() {
+export function addUser(params) {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
     data: {
-      service: 'UserMgmt',
-      method: 'getGroupList',
-      params: {
-        start: 0,
-        limit: 25,
-        sortfield: 'name',
-        sortdir: 'ASC' },
-      options: null
-    }
-  })
-}
-// 获取选中用户组信息
-export function getGroup(params) {
-  return request({
-    url: '/api/nas/transport/admin',
-    method: 'post',
-    data: {
-      service: 'UserMgmt',
-      method: 'getGroup',
-      params: {
-        name: params },
-      options: null
+      method: 'smbAddUser',
+      params: params
     }
   })
 }
 
-// 获取用户列表
-export function getAllUsers(params) {
+export function deleteUser(params) {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
     data: {
-      service: 'UserMgmt',
-      method: 'enumerateAllUsers',
-      params: {},
-      options: null
-    }
-  })
-}
-// 获取用户、用户组共享文件夹权限
-export function getPrivileges(params) {
-  return request({
-    url: '/api/nas/transport/admin',
-    method: 'post',
-    data: {
-      service: 'ShareMgmt',
-      method: 'getPrivilegesByRole',
-      params: params,
-      options: null
-    }
-  })
-}
-// 设置用户文件夹权限
-export function setPrivileges(params) {
-  return request({
-    url: '/api/nas/transport/admin',
-    method: 'post',
-    data: {
-      service: 'ShareMgmt',
-      method: 'setPrivilegesByRole',
-      params: params,
-      options: null
+      method: 'smbDeleteUser',
+      params: params
     }
   })
 }
 
 export function setUser(params) {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
     data: {
-      service: 'UserMgmt',
-      method: 'setUser',
-      params: params,
-      options: null
+      method: 'smbSetUser',
+      params: params
     }
   })
 }
 
-export function getShells() {
+export function getGroupList() {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
     data: {
-      service: 'System',
-      method: 'getShells',
-      params: {},
-      options: null
+      method: 'smbGetGroupList',
+      params: null
     }
   })
 }
 
-export function getAllGroup() {
+export function getGroupInfo(params) {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
     data: {
-      service: 'UserMgmt',
-      method: 'enumerateAllGroups',
-      params: {},
-      options: null
+      method: 'smbGetGroup',
+      params: {
+        groupName: params
+      }
+    }
+  })
+}
 
+export function setGroup(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbSetGroup',
+      params: params
+    }
+  })
+}
+
+export function addGroup(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbAddGroupngqi ',
+      params: params
     }
   })
 }

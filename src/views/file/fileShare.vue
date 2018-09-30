@@ -11,17 +11,35 @@
               @cancelClicked="cancelClicked1">
       <div class="form">
         <div class="label">名称： </div>
-        <input v-model="now.name"/>
+        <input v-model="newShare.directory"/>
       </div>
       <div class="form">
-        <div class="label">设备： </div>
-        <select style="width: 195px;background-color: #fff;height: 22px" id="disk">
-          <option v-for="item in Candidates" :key="item.uuid" :value="item.uuid">{{item.description}}</option>
-        </select>
+        <div class="label">浏览器中访问： </div>
+        <el-switch
+          v-model="isBrowseable"
+          active-color="#0063af"
+          inactive-color="#a8a8a8">
+        </el-switch>
       </div>
       <div class="form">
         <div class="label">路径： </div>
-        <input v-model="now.reldirpath"/>
+        <input v-model="newShare.path"/>
+      </div>
+      <div class="form">
+        <div class="label">匿名访问： </div>
+        <el-switch
+          v-model="isPublic"
+          active-color="#0063af"
+          inactive-color="#a8a8a8">
+        </el-switch>
+      </div>
+      <div class="form">
+        <div class="label">资源可用： </div>
+        <el-switch
+          v-model="isAvailable"
+          active-color="#0063af"
+          inactive-color="#a8a8a8">
+        </el-switch>
       </div>
       <div class="form">
         <div class="label">注释： </div>
@@ -52,7 +70,7 @@
 </template>
 
 <script>
-  import { getList, setShareMgmt, getCandidates, deleteShareMgmt } from '@/api/file/fileshare'
+  import { getShareList } from '@/api/file/fileshare'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -63,6 +81,23 @@
     },
     data() {
       return {
+        isBrowseable: true,
+        isPublic: false,
+        isAvailable: true,
+        newShare: {
+          directory: '',
+          comment: '',
+          browseabel: '',
+          path: '',
+          public: '',
+          available: '',
+          readUsers: [],
+          readGroups: [],
+          writeUsers: [],
+          writeGroups: [],
+          forceCreateMode: '',
+          forceDirectoryMode: ''
+        },
         edit: '编辑',
         value: '',
         dialogVisible1: false,
@@ -77,21 +112,11 @@
           comment: '',
           mntentref: ''
         },
-        tabledata: [
-          {
-            name: 'common',
-            device: '192.168.3.12',
-            path: 'common/',
-            notes: ''
-          }
-        ],
+        tabledata: [],
         labels: [
           {
             label: '名称',
-            prop: 'name'
-          }, {
-            label: '设备',
-            prop: 'device'
+            prop: 'directory'
           }, {
             label: '路径',
             prop: 'path'
@@ -103,93 +128,38 @@
     },
     methods: {
       deletefile() {
-        deleteShareMgmt(this.currentfile).then(res => {
-          console.log(res)
-        })
       },
       getCandidates() {
         this.dialogVisible1 = true
-        getCandidates().then(res => {
-          console.log(res.data)
-          this.Candidates = res.data
-          console.log(this.Candidates)
-        })
-      },
-      refresh() {
-        this.fetchData()
       },
       fetchData() {
         this.tabledata = []
-        console.log('data')
-        getList().then(res => {
-          let data = res.data.data
-          console.log(data)
-          data.forEach(item => {
-            this.tabledata.push({
-              name: item.name,
-              device: item.device,
-              path: item.reldirpath,
-              comment: item.comment,
-              uuid: item.uuid,
-              mntentref: item.mntentref
-            })
-          })
+        getShareList().then(res => {
+          console.log(res.data.code)
+          if (res.data.code === 0) {
+            console.log(res.data.data)
+            this.tabledata = res.data.data.shareList
+          }
         })
       },
       confirmClicked1() {
         this.dialogVisible1 = false
-        this.now.uuid = document.getElementById('disk').value
-        setShareMgmt(this.now).then(res => {
-          if (res) {
-            this.$message({
-              message: '设置成功！',
-              type: 'success'
-            })
-            this.fetchData()
-          } else {
-            this.$message({
-              message: '出现错误！',
-              type: 'error'
-            })
-          }
-        })
       },
       cancelClicked1() {
         this.dialogVisible1 = false
       },
       EditClicked(index, row) {
         this.dialogVisible2 = true
-        this.now.device = row.device
-        this.now.mntentref = row.mntentref
-        this.now.name = row.name
-        this.now.reldirpath = row.path
-        this.now.comment = row.comment
-        this.now.uuid = row.uuid
       },
       confirmClicked2() {
         this.dialogVisible2 = false
-        console.log(this.now)
-        setShareMgmt(this.now).then(res => {
-          if (res) {
-            this.$message({
-              message: '设置成功！',
-              type: 'success'
-            })
-            this.fetchData()
-          } else {
-            this.$message({
-              message: '出现错误！',
-              type: 'error'
-            })
-          }
-        })
       },
       cancelClicked2() {
         this.dialogVisible2 = false
       },
       currentchange(val) {
         if (val) {
-          this.currentfile = val.uuid
+          console.log(val)
         }
       }
     },

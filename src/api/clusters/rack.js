@@ -2,8 +2,23 @@ import request from '@/utils/request'
 
 export function getList() {
   return request({
-    url: '/api/rack/',
+    url: '/api/rack/osdtree2',
     method: 'get'
+  })
+}
+
+export function movebucket(params) {
+  return request({
+    url: '/api/rack/bucket',
+    method: 'put',
+    data: params
+  })
+}
+
+export function deletebucket(bucketName) {
+  return request({
+    url: '/api/rack/bucket/' + bucketName,
+    method: 'delete'
   })
 }
 

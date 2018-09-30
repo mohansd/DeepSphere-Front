@@ -11,64 +11,30 @@
     <i-dialog title="新增用户组" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
-      <el-tabs class="user-tabs" v-model="activeName" @tab-click="handleClick"
-               type="card" style="margin-top: -20px">
-        <el-tab-pane label="常规" name="first">
           <div class="form">
             <div class="label">名称： </div>
-            <input />
+            <input v-model="newGroup.groupName"/>
           </div>
-          <div class="form">
-            <div class="label">注释： </div>
-            <input />
-          </div>
-        </el-tab-pane>
-        <el-tab-pane label="成员" name="second">
-          <el-tree
-            :data="data1"
-            show-checkbox
-            node-key="id"
-            :default-expanded-keys="[2, 3]"
-            :default-checked-keys="[5]"
-            :props="defaultProps">
-          </el-tree>
-        </el-tab-pane>
-      </el-tabs>
     </i-dialog>
-    <i-dialog title="修改用户组信息" :show="dialogVisible2"
+    <i-dialog title="修改用户组成员" :show="dialogVisible2"
               @confirmClicked="confirmClicked2"
               @cancelClicked="cancelClicked2">
-      <el-tabs class="user-tabs" v-model="activeName" @tab-click="handleClick"
-               type="card" style="margin-top: -20px">
-        <el-tab-pane label="常规" name="first">
-          <div class="form">
-            <div class="label">名称： </div>
-            <input v-model="current.name"/>
-          </div>
-          <div class="form">
-            <div class="label">注释： </div>
-            <textarea style="height: 150px;resize: none" v-model="current.comment"/>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane label="成员" name="second">
           <div style="max-height: 300px;overflow:auto">
             <el-tree
-              :data="data2"
+              :data="userList"
               show-checkbox
               node-key="id"
-              :default-expanded-keys="[2, 3]"
-              :default-checked-keys="[5]"
+              ref="groupList"
+              :default-checked-keys="checkedUser"
               :props="defaultProps">
             </el-tree>
           </div>
-        </el-tab-pane>
-      </el-tabs>
     </i-dialog>
   </div>
 </template>
 
 <script>
-  import { getGroupList, getGroup, getAllUsers } from '../../../api/file/user'
+  import { getGroupList, getUserList, getGroupInfo, setGroup, addGroup } from '../../../api/file/user'
 import iTable from './../../../components/Table/index'
   import iButton from './../../../components/Button/iButton'
   export default {
@@ -79,11 +45,15 @@ import iTable from './../../../components/Table/index'
     },
     data() {
       return {
-        current: {
-          name: '',
-          comment: '',
-          members: []
+        newGroup: {
+          groupName: ''
         },
+        currentGroup: {
+          groupName: '',
+          users: []
+        },
+        userList: [],
+        checkedUser: [],
         activeName: 'first',
         data1: [{
           id: 1,
@@ -102,47 +72,130 @@ import iTable from './../../../components/Table/index'
         edit: '编辑',
         dialogVisible1: false,
         dialogVisible2: false,
-        tabledata: [
-          {
-            name: 'gushenxing',
-            notes: '',
-            member: 'mh'
-          }
-        ],
+        tabledata: [],
         labels: [
           {
-            label: '名称',
-            prop: 'name'
-          }, {
-            label: '注释',
-            prop: 'comment'
+            label: '用户组',
+            prop: 'groupName'
           }, {
             label: '成员',
-            prop: 'member'
+            prop: 'users'
           }]
       }
     },
     methods: {
       fetchData() {
+        this.tabledata = []
+        getUserList().then(res => {
+          if (res.data.data.userList && res.data.data.userList.length > 0) {
+            this.userList = res.data.data.userList.map((item, index) => {
+              return {
+                id: index + 1,
+                label: item.userName
+              }
+            })
+          }
+        })
         getGroupList().then(res => {
-          this.tabledata = []
-          let data = res.data.data
-          data.forEach((item, index) => {
-            this.tabledata.push(item)
-          })
+          if (res.data.code === 0) {
+            if (res.data.data.groupList && res.data.data.groupList.length > 0) {
+              let groupList = res.data.data.groupList
+              // console.log(groupList)
+              groupList.forEach(item => {
+                let userStr = ''
+                if (item.isSystem === false) {
+                  if (item.users) {
+                    item.users.forEach((user, index) => {
+                      if (index === 0) {
+                        userStr = user
+                      } else {
+                        userStr = userStr + ', ' + user
+                      }
+                    })
+                  }
+                  this.tabledata.push({
+                    groupName: item.groupName,
+                    users: userStr
+                  })
+                }
+              })
+            }
+          }
         })
       },
       confirmClicked1() {
         this.dialogVisible1 = false
+        console.log(this.newGroup)
+        addGroup(this.newGroup).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '用户组添加成功！',
+              type: 'success'
+            })
+            this.newuser = {
+              userName: '',
+              passWD: ''
+            }
+            this.fetchData()
+          } else {
+            this.$message({
+              message: '用户组添加失败！',
+              type: 'error'
+            })
+          }
+        })
       },
       cancelClicked1() {
         this.dialogVisible1 = false
       },
       EditClicked(index, row) {
         this.dialogVisible2 = true
+        console.log(row)
+        this.currentGroup.groupName = row.groupName
+        this.checkedUser = []
+        this.$refs.groupList.setCheckedKeys([])
+        getGroupInfo(row.groupName).then(res => {
+          console.log(res)
+          if (res.data.code === 0) {
+            if (res.data.data.users && res.data.data.users.length > 0) {
+              let users = res.data.data.users
+              users.forEach((user, index) => {
+                this.userList.forEach(item => {
+                  if (user === item.label) {
+                    this.checkedUser.push(item.id)
+                    console.log(this.checkedUser)
+                    this.$refs.groupList.setCheckedKeys(this.checkedUser)
+                  }
+                })
+              })
+            }
+          }
+        })
       },
       confirmClicked2() {
         this.dialogVisible2 = false
+        this.currentGroup.users = this.$refs.groupList.getCheckedNodes().map(item => {
+          return item.label
+        })
+        setGroup(this.currentGroup).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '用户组成员成功！',
+              type: 'success'
+            })
+            this.newuser = {
+              userName: '',
+              passWD: ''
+            }
+            this.fetchData()
+          } else {
+            this.$message({
+              message: '用户组成员失败！',
+              type: 'error'
+            })
+            this.fetchData()
+          }
+        })
       },
       cancelClicked2() {
         this.dialogVisible2 = false
@@ -151,20 +204,10 @@ import iTable from './../../../components/Table/index'
         console.log(tab, event)
       },
       handleCurrentChange(val) {
-        this.current.name = val.name
-        this.data2[0].children = []
-        getAllUsers().then(res => {
-          console.log(this.data2[0].children)
-          res.data.forEach((item, index) => {
-            this.data2[0].children.push({
-              id: index,
-              label: item.name
-            })
-          })
-        })
-        getGroup(this.current.name).then(res => {
-          console.log(res)
-        })
+        if (val.name) {
+          this.current.name = val.name
+          this.data2[0].children = []
+        }
       }
     },
     mounted() {
@@ -178,6 +221,7 @@ import iTable from './../../../components/Table/index'
     padding-top 20px
     margin-left 51px
     margin-right 48px
+    margin-bottom 50px
     width 80%
     height: 800px
     .form

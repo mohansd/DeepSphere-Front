@@ -18,7 +18,7 @@ router.beforeEach((to, from, next) => {
         NProgress.done()
         next()
       } else {
-        // 未登录,跳转到登陆页面，并且带上 将要去的地址，方便登陆后跳转。
+        // 未登录,跳转到登陆页面。
         next({ path: '/login' })
       }
     })
@@ -28,7 +28,7 @@ router.beforeEach((to, from, next) => {
     if (store.state.user.name === '') {
       axios({
         method: 'get',
-        url: 'http://192.168.3.96:3001/',
+        url: 'http://deepsphere.net:3001/',
         withCredentials: true
       }).then(res => {
         console.log(res)
