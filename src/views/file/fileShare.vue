@@ -15,11 +15,7 @@
       </div>
       <div class="form">
         <div class="label">浏览器中访问： </div>
-        <el-switch
-          v-model="isBrowseable"
-          active-color="#0063af"
-          inactive-color="#a8a8a8">
-        </el-switch>
+        <el-switch v-model="isBrowseable"></el-switch>
       </div>
       <div class="form">
         <div class="label">路径： </div>
@@ -27,19 +23,11 @@
       </div>
       <div class="form">
         <div class="label">匿名访问： </div>
-        <el-switch
-          v-model="isPublic"
-          active-color="#0063af"
-          inactive-color="#a8a8a8">
-        </el-switch>
+        <el-switch v-model="isPublic"></el-switch>
       </div>
       <div class="form">
         <div class="label">资源可用： </div>
-        <el-switch
-          v-model="isAvailable"
-          active-color="#0063af"
-          inactive-color="#a8a8a8">
-        </el-switch>
+        <el-switch v-model="isAvailable"></el-switch>
       </div>
       <div class="form">
         <div class="label">注释： </div>
@@ -127,6 +115,9 @@
       }
     },
     methods: {
+      handleDrag() {
+        this.$refs.select.blur()
+      },
       deletefile() {
       },
       getCandidates() {
