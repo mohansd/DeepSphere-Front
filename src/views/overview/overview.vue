@@ -3,16 +3,16 @@
       <div class="item">
         <span class="title">集群状态</span>
         <el-row :gutter="15">
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <status-box title="状态" :num="health.status" :getcolor="health.color"></status-box>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="存储池" id="storage" :datas="Poolbyte"></line-chart>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="集群容量" id="clustercapacity" :datas="clusterByte"></line-chart>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="已用流量" id="usedcapacity" :datas="usedclusterByte"></line-chart>
           </el-col>
         </el-row>
@@ -20,7 +20,7 @@
       <div class="item">
         <span class="title">OSD状态</span>
         <el-row :gutter="15">
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <el-row :gutter="6">
               <el-col :span="12">
                 <status-box title="OSDs活跃" :num="OSDsState.in"></status-box>
@@ -30,7 +30,7 @@
               </el-col>
             </el-row>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <el-row :gutter="6">
               <el-col :span="12">
                 <status-box title="OSDs开启" :num="OSDsState.up"></status-box>
@@ -40,10 +40,10 @@
               </el-col>
             </el-row>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="平均OSD应用延迟" id="osdappliacation" :datas="avgapplylate"></line-chart>
           </el-col>
-          <el-col :span="6">
+          <el-col :lg="6" :sm="12">
             <line-chart title="平均OSD提交延迟" id="osdsubmit" :datas="avgcommitlate"></line-chart>
           </el-col>
         </el-row>
@@ -51,13 +51,13 @@
       <div class="item">
         <span class="title">集群</span>
         <el-row :gutter="15">
-          <el-col :span="8">
+          <el-col :lg="8" :sm="24">
             <chart-table id="capacity" title="容量" :timelist="timelist" :data1="clusterByte.chartData" :data2="usedclusterByte.chartData"></chart-table>
           </el-col>
-          <el-col :span="8">
+          <el-col :lg="8" :sm="24">
             <iops id="IOPs" title="IOPs" :timelist="timelist" :data1="IOPsread" :data2="IOPswrite"></iops>
           </el-col>
-          <el-col :span="8">
+          <el-col :lg="8" :sm="24">
             <throughput id="throughput" title="吞吐量" :timelist="timelist" :data1="throughputr" :data2="throughputw"></throughput>
           </el-col>
         </el-row>
@@ -65,11 +65,8 @@
       <div class="item">
         <span class="title">延迟</span>
         <el-row :gutter="15">
-          <el-col :span="16">
+          <el-col :span="24">
             <osd id="OSD" title="OSD应用+提交延迟" :timelist="timelist" :data1="avgcommitlate.chartData" :data2="avgapplylate.chartData"></osd>
-          </el-col>
-          <el-col :span="8">
-            <chart-table id="monitor" title="监控延迟" :timelist="timelist"></chart-table>
           </el-col>
         </el-row>
       </div>
@@ -85,6 +82,7 @@
 </template>
 
 <script>
+  import { convertunit } from '@/utils/convert'
   import { getData } from '@/api/overview/monitor'
   import statusBox from './components/statusBox'
   import lineChart from './components/chart'
@@ -155,7 +153,7 @@
           this.start = ((+new Date() - 1000 * 60 * 5) / 1000).toFixed(0)
           this.end = ((+new Date()) / 1000).toFixed(0)
           this.getAllData()
-        }, 1000)
+        }, 5000)
       },
       getAllData() {
         this.getHealth()
@@ -270,9 +268,9 @@
         getData(params).then(res => {
           this.clusterByte.chartData = []
           let data = res.data.data.data.result[0].values
-          this.clusterByte.showData = (data[5][1] / Math.pow(2, 40)).toFixed(1).toString() + 'TiB'
+          this.clusterByte.showData = convertunit(data[5][1])
           data.forEach((item, index) => {
-            this.clusterByte.chartData.push((item[1] / Math.pow(2, 40)).toFixed(1))
+            this.clusterByte.chartData.push(item[1])
             this.timelist[index] = item[0]
           })
         })
@@ -287,9 +285,10 @@
         getData(params).then(res => {
           this.usedclusterByte.chartData = []
           const data = res.data.data.data.result[0].values
-          this.usedclusterByte.showData = (data[5][1] / Math.pow(2, 30)).toFixed(1).toString() + 'GiB'
+          this.usedclusterByte.showData = convertunit(data[5][1])
+          console.log(convertunit(data[5][1]))
           data.forEach(item => {
-            this.usedclusterByte.chartData.push((item[1] / Math.pow(2, 40)).toFixed(3))
+            this.usedclusterByte.chartData.push(item[1])
           })
         })
       },
@@ -303,7 +302,7 @@
         getData(params).then(res => {
           this.avgapplylate.chartData = []
           const data = res.data.data.data.result[0].values
-          this.avgapplylate.showData = data[5][1].toString() + 'ms'
+          this.avgapplylate.showData = Number(data[5][1]).toFixed(2) + 'ms'
           data.forEach(item => {
             this.avgapplylate.chartData.push(item[1])
           })
@@ -319,7 +318,7 @@
         getData(params).then(res => {
           this.avgcommitlate.chartData = []
           const data = res.data.data.data.result[0].values
-          this.avgcommitlate.showData = data[5][1].toString() + 'ms'
+          this.avgcommitlate.showData = Number(data[5][1]).toFixed(2) + 'ms'
           data.forEach(item => {
             this.avgcommitlate.chartData.push(item[1])
           })
@@ -396,7 +395,7 @@
           this.clusterObject = []
           const data = res.data.data.data.result[0].values
           data.forEach(item => {
-            this.clusterObject.push((Number(item[1] / 1000)).toFixed(1))
+            this.clusterObject.push((Number(item[1])))
           })
         })
       }

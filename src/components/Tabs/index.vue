@@ -28,10 +28,11 @@
 <style lang="stylus" rel="stylesheet/stylus">
   .my-tabs.el-tabs--card>.el-tabs__header
     background-color #BDDBF5
-    height: 50px
-    padding-top 10px
+    height: 40px
     padding-left 20px
+    padding-top 10px
   .my-tabs.el-tabs--card>.el-tabs__header .el-tabs__item
+    padding-bottom 0
     background-color #1262aa
     height 40px
     line-height 40px

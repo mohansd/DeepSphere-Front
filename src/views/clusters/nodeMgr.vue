@@ -1,9 +1,10 @@
 <template>
   <div class="container">
-    <i-button icon="el-icon-plus" text="新增节点" @click.native="dialogVisible1=true"></i-button>
-    <i-button type="delete" @click.native="handleDelete"></i-button>
+    <el-button type="primary" class="my-button" icon="el-icon-plus" @click.native="dialogVisible1=true" size="medium">新增节点</el-button>
+    <el-button type="danger" size="medium" :disabled="isNode" @click.native="handleDelete" icon="el-icon-close">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
+             style="margin-top: 20px"
              :showedit="showEdit"></i-table>
     <i-dialog title="新增节点" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
@@ -40,6 +41,7 @@
         edit: '编辑',
         dialogVisible1: false,
         dialogVisible2: false,
+        isNode: true,
         newNode: {
           ip: '',
           username: '',
@@ -122,6 +124,7 @@
               message: '删除成功！',
               type: 'success'
             })
+            this.fetchData()
           } else {
             this.$message({
               message: '出现错误，请重试！',
@@ -133,6 +136,7 @@
       currentchange(val) {
         console.log(val)
         this.currentNode.ip = val.ip
+        this.isNode = false
       },
       confirmClicked1() {
         this.dialogVisible1 = false
@@ -148,6 +152,9 @@
               type: 'success'
             })
             this.fetchData()
+            this.newNode.ip = ''
+            this.newNode.username = ''
+            this.newNode.password = ''
           }
         })
       },
@@ -166,6 +173,16 @@
     padding-top 20px
     margin-left 51px
     margin-right 48px
+    .my-button.el-button--primary
+      background-color #1262AA
+      border-color #1262AA
+    .my-button.el-button--primary:focus, .my-button.el-button--primary:hover
+      background-color #2078C5
+      border-color #2078C5
+    .my-button.el-button--primary.is-disabled, my-button.el-button--primary.is-disabled:focus, my-button.el-button--primary.is-disabled:hover
+      background-color #a0cfff
+      border-color #a0cfff
+      color: #fff
     .form
       margin-top  10px
       margin-left 5%

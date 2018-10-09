@@ -147,6 +147,7 @@
     },
     beforeDestroy() {
       clearInterval(this.interval)
+      this.myChart.clear()
     }
   }
 </script>

@@ -14,12 +14,12 @@ export function getDisk(ip) {
   })
 }
 
-export function createOSD(params) {
+export function createOSD(newNode) {
   return request({
-    url: '/api/ceph/dataNode/' + params.hostname,
+    url: '/api/ceph/dataNode/' + newNode.hostname,
     method: 'put',
     data: {
-      disk: params.disk
+      disk: newNode.disk
     }
   })
 }
@@ -34,3 +34,20 @@ export function deleteOSD(params) {
   })
 }
 
+// get osd tree
+export function getosdTree() {
+  return request({
+    url: '/api/ceph/dataNode/osdTree',
+    method: 'get'
+  })
+}
+
+export function setosdClass(osd_id, device) {
+  return request({
+    url: '/api/ceph/dataNode/' + osd_id,
+    method: 'post',
+    data: {
+      class: device
+    }
+  })
+}

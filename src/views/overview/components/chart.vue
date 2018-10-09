@@ -5,7 +5,7 @@
       height: 60px;
       line-height: 60px;
       font-size: 25px;
-      font-weight: 900">{{showData}}</div>
+      font-weight: 900">{{datas.showData}}</div>
     <div :id="id" style="position: relative;width: 100%;height: 90%;Z-index: 90"></div>
   </div>
 </template>
@@ -106,6 +106,7 @@
     },
     beforeDestroy() {
       clearInterval(this.interval)
+      this.myChart.clear()
     },
     methods: {
       initChart() {
@@ -113,6 +114,7 @@
         this.interval = setInterval(() => {
           this.option.series[0].data = this.chartData
           this.myChart.setOption(this.option)
+          this.myChart.resize()
         }, 1000)
       }
     }

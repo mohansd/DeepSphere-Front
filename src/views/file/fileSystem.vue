@@ -1,12 +1,14 @@
 <template>
   <div class="container">
-    <i-button icon="el-icon-plus" text="新增文件系统" @click.native="dialogVisible1=true"></i-button>
-    <i-button icon="el-icon-plus" text="挂载文件系统" @click.native="dialogVisible2=true"></i-button>
-    <i-button type="refresh" @click.native="refresh"></i-button>
-    <i-button type="delete" @click.native="hangledelete"></i-button>
+    <el-button type="primary" size="medium" class="my-button" icon="el-icon-plus" @click.native="dialogVisible1=true">新增文件系统</el-button>
+    <el-button type="primary" size="medium" class="my-button" icon="el-icon-plus" @click.native="dialogVisible2=true">挂载文件系统</el-button>
+    <el-button type="primary" icon="el-icon-refresh" @click.native="refresh" size="medium">刷新</el-button>
+    <el-button type="danger" size="medium" :disabled="isFile" @click.native="hangledelete" icon="el-icon-close">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels"
              @clickEdit="EditClicked"
              @currentchange="handlecurrentchange"
+             style="margin-top: 20px"
+             :loading="loading"
              :showedit="false"></i-table>
     <i-dialog title="新增文件系统" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
@@ -47,10 +49,12 @@
     },
     data() {
       return {
+        loading: false,
         edit: '编辑',
         ip: '',
         dialogVisible1: false,
         dialogVisible2: false,
+        isFile: true,
         newfs: {
           fsName: '',
           meta_pool: '',
@@ -131,18 +135,21 @@
       },
       confirmClicked1() {
         this.dialogVisible1 = false
+        this.loading = true
         createfs(this.newfs).then(res => {
           if (res.data.code === 0) {
             this.$message({
               message: '添加成功！',
               type: 'success'
             })
+            this.loading = false
             this.fetchData()
           } else {
             this.$message({
               message: '添加失败！',
               type: 'error'
             })
+            this.loading = false
           }
         })
       },
@@ -176,6 +183,7 @@
       handlecurrentchange(val) {
         if (val) {
           this.currentfs = val
+          this.isFile = false
           console.log(val)
         }
       }
@@ -191,6 +199,16 @@
     padding-top 20px
     margin-left 51px
     margin-right 48px
+    .my-button.el-button--primary
+      background-color #1262AA
+      border-color #1262AA
+    .my-button.el-button--primary:focus, .my-button.el-button--primary:hover
+      background-color #2078C5
+      border-color #2078C5
+    .my-button.el-button--primary.is-disabled, my-button.el-button--primary.is-disabled:focus, my-button.el-button--primary.is-disabled:hover
+      background-color #a0cfff
+      border-color #a0cfff
+      color: #fff
     .form
       margin-top  10px
       margin-left 5%

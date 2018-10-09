@@ -2,37 +2,46 @@ import router from './router'
 import store from './store'
 import NProgress from 'nprogress' // Progress 进度条
 import 'nprogress/nprogress.css'// Progress 进度条样式
-import { Message } from 'element-ui'
-import { getToken } from '@/utils/auth' // 验权
-
-const whiteList = ['/login'] // 不重定向白名单
+// import { Message } from 'element-ui'
+// import { getToken } from '@/utils/auth' // 验权
+// import { permissiontest } from './api/login'
+import axios from 'axios'
+// const whiteList = ['/login'] // 不重定向白名单
 router.beforeEach((to, from, next) => {
   NProgress.start()
-  if (getToken()) {
-    if (to.path === '/login') {
-      next({ path: '/' })
-      NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
-    } else {
-      if (store.getters.roles.length === 0) {
-        store.dispatch('GetInfo').then(res => { // 拉取用户信息
-          next()
-        }).catch((err) => {
-          store.dispatch('FedLogOut').then(() => {
-            Message.error(err || 'Verification failed, please login again')
-            next({ path: '/' })
-          })
-        })
-      } else {
+  if (to.meta.auth) {
+    // 对路由进行验证
+    let auth = 0
+    store.dispatch('GetInfo').then(res => {
+      auth = res.data.code
+      if (auth === 0) {
+        NProgress.done()
         next()
+      } else {
+        // 未登录,跳转到登陆页面。
+        next({ path: '/login' })
       }
-    }
+    })
   } else {
-    if (whiteList.indexOf(to.path) !== -1) {
-      next()
-    } else {
-      next()
-      NProgress.done()
+    NProgress.done()
+    console.log('name: ' + store.state.user.name)
+    if (store.state.user.name === '') {
+      axios({
+        method: 'get',
+        url: process.env.BASE_API,
+        withCredentials: true
+      }).then(res => {
+        console.log(res)
+        if (res.data.code === 3) {
+          console.log(3)
+          store.dispatch('SetGuest')
+        } else {
+          console.log(0)
+          store.dispatch('GetInfo')
+        }
+      })
     }
+    next()
   }
 })
 
