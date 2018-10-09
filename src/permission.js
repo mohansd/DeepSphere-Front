@@ -28,7 +28,7 @@ router.beforeEach((to, from, next) => {
     if (store.state.user.name === '') {
       axios({
         method: 'get',
-        url: 'http://deepsphere.net:3001/',
+        url: process.env.BASE_API,
         withCredentials: true
       }).then(res => {
         console.log(res)

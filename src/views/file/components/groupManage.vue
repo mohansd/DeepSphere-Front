@@ -1,11 +1,11 @@
 <template>
   <div class="table-container">
     <i-button icon="el-icon-plus" text="新增用户组" @click.native="dialogVisible1=true"></i-button>
-    <i-button icon="el-icon-view" text="权限" @click.native="dialogVisible2=true"></i-button>
     <i-button type="refresh" @click.native="fetchData"></i-button>
     <i-button type="delete"></i-button>
     <i-table :tabledata="tabledata" :labels="labels"
              edit="配置"
+             style="margin-bottom: 20px"
              @currentchange="handleCurrentChange"
              @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增用户组" :show="dialogVisible1"
@@ -204,8 +204,9 @@ import iTable from './../../../components/Table/index'
         console.log(tab, event)
       },
       handleCurrentChange(val) {
-        if (val.name) {
-          this.current.name = val.name
+        if (val) {
+          // console.log(val)
+          // this.current.name = val.groupName
           this.data2[0].children = []
         }
       }
@@ -223,7 +224,6 @@ import iTable from './../../../components/Table/index'
     margin-right 48px
     margin-bottom 50px
     width 80%
-    height: 800px
     .form
       margin-top  10px
       margin-left 5%
