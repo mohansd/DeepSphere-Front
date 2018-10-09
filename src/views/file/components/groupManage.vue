@@ -98,9 +98,9 @@ import iTable from './../../../components/Table/index'
         })
         getGroupList().then(res => {
           if (res.data.code === 0) {
-            if (res.data.data.groupList && res.data.data.groupList.length > 0) {
-              let groupList = res.data.data.groupList
-              // console.log(groupList)
+            if (res.data.data && res.data.data.length > 0) {
+              let groupList = res.data.data
+              console.log(groupList)
               groupList.forEach(item => {
                 let userStr = ''
                 if (item.isSystem === false) {
@@ -213,6 +213,7 @@ import iTable from './../../../components/Table/index'
     },
     mounted() {
       this.fetchData()
+      console.log(1)
     }
   }
 </script>

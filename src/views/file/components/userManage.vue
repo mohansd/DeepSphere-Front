@@ -120,27 +120,30 @@
         this.tabledata = []
         this.data = []
         getUserList().then(res => {
-          this.tabledata = res.data.data.userList.map(user => {
-            let group = ''
-            if (user.groups && user.groups.length > 0) {
-              user.groups.forEach((item, index) => {
-                if (index === 0) {
-                  group = item
-                } else {
-                  group = item + ', ' + group
-                }
+          console.log(res)
+          res.data.data.forEach(user => {
+            if (!user.isSystem) {
+              let group = ''
+              if (user.groups && user.groups.length > 0) {
+                user.groups.forEach((item, index) => {
+                  if (index === 0) {
+                    group = item
+                  } else {
+                    group = item + ', ' + group
+                  }
+                })
+              }
+              this.tabledata.push({
+                group: user.groups,
+                userName: user.userName,
+                groups: group
               })
-            }
-            return {
-              group: user.groups,
-              userName: user.userName,
-              groups: group
             }
           })
         })
         getGroupList().then(res => {
           console.log(res)
-          res.data.data.groupList.forEach((group, index) => {
+          res.data.data.forEach((group, index) => {
             if (group.groupName && group.groupName !== '') {
               this.data.push({
                 label: group.groupName,

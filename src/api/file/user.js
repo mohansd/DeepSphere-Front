@@ -84,8 +84,20 @@ export function addGroup(params) {
     url: '/api/smb',
     method: 'post',
     data: {
-      method: 'smbAddGroupngqi ',
+      method: 'smbAddGroup',
       params: params
     }
   })
 }
+
+export function deleteGroup(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbDeleteGroup',
+      params: params
+    }
+  })
+}
+
