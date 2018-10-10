@@ -22,6 +22,17 @@ export function logout() {
   })
 }
 
+export function register(params) {
+  return request({
+    url: '/register',
+    method: 'post',
+    data: {
+      username: params.username,
+      password: params.password
+    }
+  })
+}
+
 export function changePassword(params) {
   return request({
     url: '/changePassword',

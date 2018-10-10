@@ -33,3 +33,14 @@ export function deleteShare(params) {
   })
 }
 
+export function setShare(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbSetShare',
+      params: params
+    }
+  })
+}
+

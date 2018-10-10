@@ -81,7 +81,7 @@
     position absolute
     padding-top 30px
     .ntpform
-      width 30%
+      width 40%
   .title
     margin-left 20px
     margin-top 20px

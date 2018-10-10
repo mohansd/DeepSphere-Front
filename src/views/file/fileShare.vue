@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <el-button type="primary" class="my-button" icon="el-icon-plus" @click.native="dialogVisible1=true" size="medium">新增共享文件夹</el-button>
-    <el-button type="primary" size="medium" :disabled="isShare" @click.native="handleAuthority" icon="el-icon-view">权限</el-button>
     <el-button type="danger" size="medium" :disabled="isShare" @click.native="handleDelete" icon="el-icon-close">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels"
              @currentchange="currentchange"
@@ -76,9 +75,8 @@
             <table>
               <tr>
                 <th>名称</th>
-                <th>读写</th>
-                <th>只读</th>
-                <th>禁止读写</th>
+                <th>写</th>
+                <th>读</th>
               </tr>
               <tbody>
               <div @click="showUserList = !showUserList" class="table-label">
@@ -87,9 +85,8 @@
               </div>
               <tr v-show="showUserList" v-for="user in userList" :key="user.name">
                 <td>{{user.name}}</td>
-                <td><input type="checkbox" :checked="check"/></td>
-                <td><input type="checkbox" checked/></td>
-                <td><input type="checkbox" checked/></td>
+                <td><input type="checkbox" :name="user.name" :checked="user.write" @click="handleUserCheckbox(user.name, 0)"/></td>
+                <td><input type="checkbox" :name="user.name" :checked="user.read" @click="handleUserCheckbox(user.name, 1)"/></td>
               </tr>
               <div @click="showGroupList = !showGroupList" class="table-label">
                 <i :class="showGroupList ? 'el-icon-remove-outline' : 'el-icon-circle-plus-outline'"></i>
@@ -97,9 +94,8 @@
               </div>
               <tr v-show="showGroupList" v-for="(group, index) in groupList" :key="index">
                 <td>{{group.name}}</td>
-                <td><input type="checkbox" :checked="check"/></td>
-                <td><input type="checkbox" checked/></td>
-                <td><input type="checkbox" checked/></td>
+                <td><input type="checkbox" :name="index" :checked="group.write" @click="handleGroupCheckbox(index, group.name, 0)"/></td>
+                <td><input type="checkbox" :name="index" :checked="group.read" @click="handleGroupCheckbox(index, group.name, 1)"/></td>
               </tr>
               </tbody>
             </table>
@@ -111,7 +107,7 @@
 </template>
 
 <script>
-  import { getShareList, createShare, deleteShare } from '@/api/file/fileshare'
+  import { getShareList, createShare, deleteShare, setShare } from '@/api/file/fileshare'
   import { getUserList, getGroupList } from '@/api/file/user'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
@@ -150,6 +146,7 @@
         return this.currentAvailable ? '开启' : '关闭'
       }
     },
+
     data() {
       return {
         check: 'checked',
@@ -212,7 +209,62 @@
           }]
       }
     },
+
     methods: {
+      handleUserCheckbox(name, num) {
+        let nodeList = document.getElementsByName(name)
+        console.log(nodeList[num])
+        if (num === 0) {
+          this.userList = this.userList.map(user => {
+            if (user.name === name) {
+              if (nodeList[num].checked) {
+                user.write = 'checked'
+              } else {
+                user.write = ''
+              }
+            }
+            return user
+          })
+        } else {
+          this.userList = this.userList.map(user => {
+            if (user.name === name) {
+              if (nodeList[num].checked) {
+                user.read = 'checked'
+              } else {
+                user.read = ''
+              }
+            }
+            return user
+          })
+        }
+      },
+      handleGroupCheckbox(name, groupName, num) {
+        let nodeList = document.getElementsByName(name)
+        console.log(nodeList)
+        if (num === 0) {
+          this.groupList = this.groupList.map(group => {
+            if (group.name === groupName) {
+              if (nodeList[num].checked) {
+                group.write = 'checked'
+              } else {
+                group.write = ''
+              }
+            }
+            return group
+          })
+        } else {
+          this.groupList = this.groupList.map(group => {
+            if (group.name === groupName) {
+              if (nodeList[num].checked) {
+                group.read = 'checked'
+              } else {
+                group.read = ''
+              }
+            }
+            return group
+          })
+        }
+      },
       handleDrag() {
         this.$refs.select.blur()
       },
@@ -236,9 +288,10 @@
       handleAuthority() {},
       fetchData() {
         this.tabledata = []
+        this.userList = []
+        this.groupList = []
         getShareList().then(res => {
           if (res.data.code === 0) {
-            console.log(res.data.data)
             this.tabledata = res.data.data.shareList
           } else {
             this.$message({
@@ -246,24 +299,27 @@
               type: 'error'
             })
           }
+          console.log(this.tabledata)
         })
 
         getUserList().then(res => {
-          if (res.data.code === 0 && res.data.data.userList) {
-            this.userList = res.data.data.userList.map(item => {
-              return {
-                name: item.userName,
-                write: '',
-                read: '',
-                none: ''
+          if (res.data.code === 0 && res.data.data) {
+            res.data.data.forEach(item => {
+              if (!item.isSystem) {
+                this.userList.push({
+                  name: item.userName,
+                  write: '',
+                  read: '',
+                  none: ''
+                })
               }
             })
           }
         })
 
         getGroupList().then(res => {
-          if (res.data.code === 0 && res.data.data.groupList) {
-            res.data.data.groupList.forEach(item => {
+          if (res.data.code === 0 && res.data.data) {
+            res.data.data.forEach(item => {
               if (!item.isSystem) {
                 this.groupList.push({
                   name: item.groupName,
@@ -298,10 +354,98 @@
       },
       EditClicked(index, row) {
         this.dialogVisible2 = true
+        console.log(row)
+        this.userList = this.userList.map(user => {
+          return {
+            name: user.name,
+            write: '',
+            read: '',
+            none: ''
+          }
+        })
+        this.groupList = this.groupList.map(group => {
+          return {
+            name: group.name,
+            write: '',
+            read: '',
+            none: ''
+          }
+        })
+        if (row.readUsers && row.readUsers.length > 0) {
+          row.readUsers.forEach(item => {
+            this.userList.forEach(user => {
+              if (user.name === item) {
+                user.read = 'checked'
+              }
+            })
+          })
+        }
+        if (row.writeUsers && row.writeUsers.length > 0) {
+          row.writeUsers.forEach(item => {
+            this.userList.forEach(user => {
+              if (user.name === item) {
+                user.write = 'checked'
+              }
+            })
+          })
+        }
+        if (row.readGroups && row.readGroups.length > 0) {
+          row.readGroups.forEach(item => {
+            this.groupList.forEach(group => {
+              if (group.name === item) {
+                group.read = 'checked'
+              }
+            })
+          })
+        }
+        if (row.writeGroups && row.writeGroups.length > 0) {
+          row.writeGroups.forEach(item => {
+            this.groupList.forEach(group => {
+              if (group.name === item) {
+                group.write = 'checked'
+              }
+            })
+          })
+        }
       },
       confirmClicked2() {
         this.dialogVisible2 = false
+        this.currentShare.readUsers = []
+        this.currentShare.writeUsers = []
+        this.currentShare.readGroups = []
+        this.currentShare.writeGroups = []
+        this.userList.forEach(item => {
+          if (item.read === 'checked') {
+            this.currentShare.readUsers.push(item.name)
+          }
+          if (item.write === 'checked') {
+            this.currentShare.writeUsers.push(item.name)
+          }
+        })
+        this.groupList.forEach(item => {
+          if (item.read === 'checked') {
+            this.currentShare.readGroups.push(item.name)
+          }
+          if (item.write === 'checked') {
+            this.currentShare.writeGroups.push(item.name)
+          }
+        })
         console.log(this.currentShare)
+        // console.log(this.userList)
+        setShare(this.currentShare).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '共享文件夹配置成功！',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '共享文件夹配置失败！',
+              type: 'error'
+            })
+          }
+          this.fetchData()
+        })
       },
       cancelClicked2() {
         this.dialogVisible2 = false

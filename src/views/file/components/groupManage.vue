@@ -26,6 +26,7 @@
               node-key="id"
               ref="groupList"
               :default-checked-keys="checkedUser"
+              @check="getCheckedKeys"
               :props="defaultProps">
             </el-tree>
           </div>
@@ -87,14 +88,15 @@ import iTable from './../../../components/Table/index'
       fetchData() {
         this.tabledata = []
         getUserList().then(res => {
-          if (res.data.data.userList && res.data.data.userList.length > 0) {
-            this.userList = res.data.data.userList.map((item, index) => {
+          if (res.data.data && res.data.data.length > 0) {
+            this.userList = res.data.data.map((item, index) => {
               return {
                 id: index + 1,
                 label: item.userName
               }
             })
           }
+          console.log(this.userList)
         })
         getGroupList().then(res => {
           if (res.data.code === 0) {
@@ -123,6 +125,15 @@ import iTable from './../../../components/Table/index'
           }
         })
       },
+      getCheckedKeys(value1, value2) {
+        // this.newuser.groups = []
+        this.currentGroup.users = []
+        value2.checkedNodes.forEach(item => {
+          // this.newGroup.groups.push(item.label)
+          this.currentGroup.users.push(item.label)
+        })
+        console.log(this.currentGroup)
+      },
       confirmClicked1() {
         this.dialogVisible1 = false
         console.log(this.newGroup)
@@ -136,13 +147,13 @@ import iTable from './../../../components/Table/index'
               userName: '',
               passWD: ''
             }
-            this.fetchData()
           } else {
             this.$message({
               message: '用户组添加失败！',
               type: 'error'
             })
           }
+          this.fetchData()
         })
       },
       cancelClicked1() {
@@ -180,7 +191,7 @@ import iTable from './../../../components/Table/index'
         setGroup(this.currentGroup).then(res => {
           if (res.data.code === 0) {
             this.$message({
-              message: '用户组成员成功！',
+              message: '用户组成员修改成功！',
               type: 'success'
             })
             this.newuser = {
@@ -190,7 +201,7 @@ import iTable from './../../../components/Table/index'
             this.fetchData()
           } else {
             this.$message({
-              message: '用户组成员失败！',
+              message: '用户组成员修改失败！',
               type: 'error'
             })
             this.fetchData()

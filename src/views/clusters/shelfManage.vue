@@ -36,7 +36,7 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="moveBucket">确定</el-button>
-            <el-button type="info" @click="showAdd = false">取消</el-button>
+            <el-button type="info" @click="showMove = false">取消</el-button>
           </el-form-item>
         </el-form>
       </div>
