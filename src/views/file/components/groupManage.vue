@@ -1,11 +1,11 @@
 <template>
   <div class="table-container">
-    <i-button icon="el-icon-plus" text="新增用户组" @click.native="dialogVisible1=true"></i-button>
-    <i-button type="refresh" @click.native="fetchData"></i-button>
-    <i-button type="delete"></i-button>
+    <el-button class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" type="primary">新增用户组</el-button>
+    <el-button type="primary" @click="fetchData" icon="el-icon-refresh">刷新</el-button>
+    <el-button type="danger" icon="el-icon-close" :disabled="hasGroup" @click="handleDelete">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels"
              edit="配置"
-             style="margin-bottom: 20px"
+             style="margin-bottom: 20px; margin-top: 20px"
              @currentchange="handleCurrentChange"
              @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增用户组" :show="dialogVisible1"
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-  import { getGroupList, getUserList, getGroupInfo, setGroup, addGroup } from '../../../api/file/user'
+  import { getGroupList, getUserList, getGroupInfo, setGroup, addGroup, deleteGroup } from '../../../api/file/user'
 import iTable from './../../../components/Table/index'
   import iButton from './../../../components/Button/iButton'
   export default {
@@ -46,6 +46,7 @@ import iTable from './../../../components/Table/index'
     },
     data() {
       return {
+        hasGroup: true,
         newGroup: {
           groupName: ''
         },
@@ -214,17 +215,36 @@ import iTable from './../../../components/Table/index'
       handleClick(tab, event) {
         console.log(tab, event)
       },
+      handleDelete() {
+        console.log(this.currentGroup)
+        deleteGroup(this.currentGroup).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '用户组删除成功！',
+              type: 'success'
+            })
+            this.fetchData()
+          } else {
+            this.$message({
+              message: '用户组删除失败！',
+              type: 'error'
+            })
+          }
+        })
+      },
       handleCurrentChange(val) {
         if (val) {
-          // console.log(val)
+          console.log(val)
           // this.current.name = val.groupName
           this.data2[0].children = []
+          this.hasGroup = false
+        } else {
+          this.hasGroup = true
         }
       }
     },
     mounted() {
       this.fetchData()
-      console.log(1)
     }
   }
 </script>
@@ -236,6 +256,16 @@ import iTable from './../../../components/Table/index'
     margin-right 48px
     margin-bottom 50px
     width 80%
+    .my-button.el-button--primary
+      background-color #1262AA
+      border-color #1262AA
+    .my-button.el-button--primary:focus, .my-button.el-button--primary:hover
+      background-color #2078C5
+      border-color #2078C5
+    .my-button.el-button--primary.is-disabled, my-button.el-button--primary.is-disabled:focus, my-button.el-button--primary.is-disabled:hover
+      background-color #a0cfff
+      border-color #a0cfff
+      color: #fff
     .form
       margin-top  10px
       margin-left 5%

@@ -1,10 +1,11 @@
 <template>
   <div class="table-container">
-    <i-button icon="el-icon-plus" text="新增用户" @click.native="dialogVisible1=true"></i-button>
-    <i-button type="refresh" @click.native="refresh"></i-button>
-    <i-button type="delete" @click.native="deleteUser"></i-button>
+    <el-button class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" type="primary">新增用户</el-button>
+    <el-button type="primary" @click.native="refresh" icon="el-icon-refresh">刷新</el-button>
+    <el-button type="danger" @click="deleteUser" icon="el-icon-close" :disabled="hasUser">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
+             style="margin-top: 20px"
              @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增用户" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
@@ -48,6 +49,7 @@
     },
     data() {
       return {
+        hasUser: true,
         currentKey: null,
         checkeduser: [],
         shells: [],
@@ -90,6 +92,7 @@
         this.fetchData()
       },
       deleteUser() {
+        // console.log(this.currentuser)
         deleteUser(this.currentuser).then(res => {
           if (res.data.code === 0) {
             this.$message({
@@ -231,7 +234,10 @@
       currentchange(val) {
         if (val) {
           console.log(val)
+          this.hasUser = false
           this.currentuser.userName = val.userName
+        } else {
+          this.hasUser = true
         }
       }
     },
@@ -249,6 +255,16 @@
     margin-bottom 50px
     width 80%
     height: 800px
+    .my-button.el-button--primary
+      background-color #1262AA
+      border-color #1262AA
+    .my-button.el-button--primary:focus, .my-button.el-button--primary:hover
+      background-color #2078C5
+      border-color #2078C5
+    .my-button.el-button--primary.is-disabled, my-button.el-button--primary.is-disabled:focus, my-button.el-button--primary.is-disabled:hover
+      background-color #a0cfff
+      border-color #a0cfff
+      color: #fff
     table
       width: 100%
       max-height 200px

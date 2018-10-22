@@ -151,14 +151,16 @@ export default {
     margin-left 20px
     margin-top 20px
     width 80%
+    min-width 500px
     min-height: 250px
     background-color #fff
     position absolute
     padding-top 20px
     padding-left 10px
     .passwordform
-      width 30%
       margin-top 20px
+      min-width 300px
+      width: 30%
       .show-pwd
         position: absolute
         right: 10px

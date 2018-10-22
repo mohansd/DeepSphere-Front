@@ -76,12 +76,13 @@
     margin-top 1%
     margin-left 1%
     width 80%
+    min-width 500px
     height: 200px
     background-color #fff
     position absolute
     padding-top 30px
     .ntpform
-      width 40%
+      width 50%
   .title
     margin-left 20px
     margin-top 20px

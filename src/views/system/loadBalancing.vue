@@ -342,6 +342,7 @@
       color: #333
       margin-bottom 10px
     .dnsbox
+      min-width 500px
       width: 80%
       background-color #fff
       padding 20px

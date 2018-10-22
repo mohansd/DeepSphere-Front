@@ -61,6 +61,7 @@
     margin-top 10px
     margin-left 20px
     width 95%
+    min-width 500px
     background-color: #fff
     border: 0.5px solid rgba(190, 190, 190, 0.5)
     padding-top 20px

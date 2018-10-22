@@ -19,8 +19,7 @@
     <template slot="SAMBA设置">
       <div class="alertinfo" v-show="showrestart">
         <span>SAMBA设置已修改，重启服务器后生效。若不重启，当前页面刷新或关闭后修改将失效。</span>
-        <el-button type="primary">确定重启</el-button>
-        <el-button >放弃修改</el-button>
+        <el-button type="primary" size="medium" @click="restart">确定重启</el-button>
       </div>
       <el-button size="medium" @click="ischange=!ischange"
                  type="primary" style="margin-left: 20px">修改</el-button>
@@ -60,7 +59,7 @@
 </template>
 
 <script>
-  import { sambaSetting } from '@/api/file/nas'
+  import { sambaSetting, setSMB, restartSMB } from '@/api/file/nas'
   import iTabs from './../../components/Tabs/index'
   export default {
     name: 'NAS',
@@ -137,6 +136,22 @@
           }
         })
       },
+      restart() {
+        restartSMB().then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: 'SAMBA服务重启成功',
+              type: 'success'
+            })
+            this.showrestart = false
+          } else {
+            this.$message({
+              message: 'SAMBA服务重启失败',
+              type: 'error'
+            })
+          }
+        })
+      },
       clickcancel() {
         this.ischange = false
         let data = {
@@ -160,6 +175,21 @@
           passdbBackend: this.newsamba.passdbBackend
         }
         this.samba = data
+        console.log(this.newsamba)
+        setSMB(this.newsamba).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: 'SAMBA设置修改成功',
+              type: 'success'
+            })
+            this.showrestart = true
+          } else {
+            this.$message({
+              message: 'SAMBA设置修改失败',
+              type: 'error'
+            })
+          }
+        })
         // let params = {
         //   'method': 'smbSetGlobal',
         //   'params': this.newsmba

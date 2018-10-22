@@ -10,13 +10,22 @@ export function sambaSetting(params) {
 
 export function setSMB(params) {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/smb',
     method: 'post',
     data: {
-      service: 'SMB',
-      method: 'setSettings',
-      params: params,
-      options: null
+      method: 'smbSetGlobal',
+      params: params
+    }
+  })
+}
+
+export function restartSMB() {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbRestart',
+      params: null
     }
   })
 }

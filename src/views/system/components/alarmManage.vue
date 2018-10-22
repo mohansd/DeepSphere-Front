@@ -5,9 +5,9 @@
     <i-button type="delete" @click.native="deleteReceiver"></i-button>
     <div class="container">
       <div class="title">告警发送人： {{mailsender.account}}
-        <el-button type="primary" @click="isnew = !isnew" size="mini" style="margin-left: 150px">{{text}}</el-button>
+        <el-button type="primary" @click="isnew = !isnew" size="mini" style="margin-left: 150px;">{{text}}</el-button>
       </div>
-      <el-form size="mini" label-width="120px" style="width: 400px;margin-left: 20px;margin-top: 10px" v-show="isnew">
+      <el-form size="mini" label-width="120px" style="width: 400px;margin-left: 20px;margin-top: 10px;" v-show="isnew">
         <el-form-item label="发送人邮箱">
           <el-input v-model="mailsender.account"></el-input>
         </el-form-item>
@@ -24,6 +24,7 @@
     <br/>
     <i-table :tabledata="tabledata" :labels="labels"
              @currentchange="currentchange"
+             style="min-width: 500px"
              :showedit="false" @clickEdit="EditClicked"></i-table>
     <i-dialog title="新增告警接收人" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
@@ -221,6 +222,7 @@ export default {
       margin-top 10px
       padding-bottom 10px
       width 90%
+      min-width: 500px
       background-color: #fff
       border: 0.5px solid rgba(190, 190, 190, 0.5)
       padding-top 20px
