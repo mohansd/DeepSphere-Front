@@ -9,7 +9,7 @@
       </div>
       <div class="button" style="right: 30px">
         <el-dropdown :hide-timeout="1000">
-          <div class="avatar-wrapper" style="color: white">
+          <div class="avatar-wrapper" style="color: white; cursor: pointer">
             <svg-icon icon-class="set"></svg-icon>
             设置
           </div>
@@ -98,6 +98,7 @@
       color: #fff
       position: absolute
       right: 100px
+      cursor pointer
   .background
     top: 0
     left: 0

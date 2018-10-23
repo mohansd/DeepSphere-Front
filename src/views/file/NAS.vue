@@ -1,19 +1,21 @@
 <template>
   <i-tabs :labels="labels">
     <template slot="NFS设置">
-      <el-button style="margin-left: 20px" type="primary" size="small" >保存</el-button>
-      <el-button type="primary" size="small" >重设</el-button>
       <div class="container" >
-        <span style="padding-right: 20px">启用</span>
-        <el-switch
-          v-model="nfs.enable"
-          active-color="#13ce66"
-          inactive-color="#ff4949">
-        </el-switch>
-        <div style="padding-top: 20px;">本地主机浏览
-          <input v-model="nfs.numproc"/>
-        </div>
-        <span style="font-size: 12px;padding-left: 90px;">指定创建多少个服务器线程</span>
+        <el-form label-width="120px">
+          <el-form-item label="NFS设置">
+            <el-switch
+              v-model="nfsState"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+            </el-switch>
+            <span style="color: #606266; line-height: 40px;font-size: 14px">
+              {{nfsState ? '开启' : '关闭'}}</span>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" size="small" @click="setnfsStat">保存</el-button>
+          </el-form-item>
+        </el-form>
       </div>
     </template>
     <template slot="SAMBA设置">
@@ -59,26 +61,16 @@
 </template>
 
 <script>
-  import { sambaSetting, setSMB, restartSMB } from '@/api/file/nas'
+  import { sambaSetting, setSMB, restartSMB, getStat, nfsFreshShare, nfsRestart, nfsStop } from '@/api/file/nas'
   import iTabs from './../../components/Tabs/index'
   export default {
     name: 'NAS',
     components: {
       iTabs
     },
-    // watch: {
-    //   newsamba: {
-    //     handler(curval, oldval) {
-    //       if (oldval.workgroup) {
-    //         this.showrestart = true
-    //         console.log(oldval)
-    //       }
-    //     },
-    //     deep: true
-    //   }
-    // },
     data() {
       return {
+        nfsState: true,
         showrestart: false,
         ischange: false,
         labels: ['NFS设置', 'SAMBA设置'],
@@ -135,6 +127,56 @@
             })
           }
         })
+        getStat().then(res => {
+          console.log(res)
+          if (res.data.code === 0) {
+            this.nfsState = res.data.data.isStart
+          }
+        })
+      },
+      setnfsStat() {
+        if (this.nfsState) {
+          // 启用-保存：先发送nfsFreshShare，再发送nfsRestart；关闭-保存：nfsStop
+          nfsFreshShare().then(res => {
+            if (res.data.code === 0) {
+              nfsRestart().then(res => {
+                if (res.data.code === 0) {
+                  this.$message({
+                    message: 'NFS设置保存成功',
+                    type: 'success'
+                  })
+                } else {
+                  this.$message({
+                    message: 'NFS设置保存失败',
+                    type: 'error'
+                  })
+                }
+                this.fetchData()
+              })
+            } else {
+              this.$message({
+                message: 'NFS设置保存失败',
+                type: 'error'
+              })
+              this.fetchData()
+            }
+          })
+        } else {
+          nfsStop().then(res => {
+            if (res.data.code === 0) {
+              this.$message({
+                message: 'NFS设置保存成功',
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                message: 'NFS设置保存失败',
+                type: 'error'
+              })
+            }
+            this.fetchData()
+          })
+        }
       },
       restart() {
         restartSMB().then(res => {
@@ -190,25 +232,6 @@
             })
           }
         })
-        // let params = {
-        //   'method': 'smbSetGlobal',
-        //   'params': this.newsmba
-        // }
-        // sambaSetting(params).then(res => {
-        //   console.log(res)
-        //   if (res.data.code === 0) {
-        //     this.$message({
-        //       message: 'SAMBA设置修改成功',
-        //       type: 'success'
-        //     })
-        //     this.fetchData()
-        //   } else {
-        //     this.$message({
-        //       message: 'SAMBA设置修改失败',
-        //       type: 'error'
-        //     })
-        //   }
-        // })
       }
     },
     mounted() {

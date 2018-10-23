@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getList() {
+export function getNodeList() {
   return request({
     url: 'api/ceph/pNode',
     method: 'get'

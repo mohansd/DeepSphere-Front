@@ -26,7 +26,7 @@
 </template>
 
 <script>
-  import { getList, addNode, deleteNode } from '@/api/clusters/pNode'
+  import { getNodeList, addNode, deleteNode } from '@/api/clusters/pNode'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -82,7 +82,7 @@
     methods: {
       fetchData() {
         this.tabledata = []
-        getList().then(res => {
+        getNodeList().then(res => {
           let data = res.data.data
           console.log(data)
           data.forEach(item => {

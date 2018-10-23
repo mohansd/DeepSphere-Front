@@ -121,13 +121,13 @@
         deletefs(this.currentfs).then(res => {
           if (res.data.code === 0) {
             this.$message({
-              message: '删除成功！',
+              message: '文件系统删除成功！',
               type: 'success'
             })
             this.fetchData()
           } else {
             this.$message({
-              message: '删除失败！',
+              message: '文件系统删除失败！',
               type: 'error'
             })
           }
@@ -139,14 +139,14 @@
         createfs(this.newfs).then(res => {
           if (res.data.code === 0) {
             this.$message({
-              message: '添加成功！',
+              message: '文件系统添加成功！',
               type: 'success'
             })
             this.loading = false
             this.fetchData()
           } else {
             this.$message({
-              message: '添加失败！',
+              message: '文件系统添加失败！  ' + res.data.message,
               type: 'error'
             })
             this.loading = false

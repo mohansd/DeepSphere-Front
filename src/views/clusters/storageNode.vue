@@ -1,9 +1,6 @@
 <template>
   <div class="container">
     <el-button icon="el-icon-plus" class="my-button" type="primary" @click="dialogVisible1=true" size="medium">新增OSD</el-button>
-    <el-button icon="el-icon-edit" class="my-button"
-               :disabled="state"
-               type="primary" @click="dialogVisible3=true" size="medium">设备类型</el-button>
     <i-table :osd="isosd" :osdlabels="osdlabels"
              :osdData="osdData" :tabledata="tabledata"
              :showedit="false"
@@ -26,8 +23,15 @@
           <option v-for="item in disks" :key="item" :value="item">{{item}}</option>
         </select>
       </div>
+      <div class="form">
+        <div class="label">设置设备类型： </div>
+        <select id="device" style="width: 195px;background-color: #fff;height: 22px">
+          <option value="hdd" label="hdd"></option>
+          <option value="ssd" label="ssd"></option>
+        </select>
+      </div>
     </i-dialog>
-    <i-dialog title="确定删除OSD?" :show="dialogVisible2"
+    <i-dialog title="确定删除当前选中的OSD?" :show="dialogVisible2"
               @confirmClicked="confirmClicked2"
               @cancelClicked="cancelClicked2">
       <div class="form">
@@ -39,30 +43,12 @@
         <div class="label">{{currentosd.name}}</div>
       </div>
     </i-dialog>
-    <i-dialog title="配置设备类型" :show="dialogVisible3"
-              @confirmClicked="confirmClicked3"
-              @cancelClicked="cancelClicked3">
-      <div class="form">
-        <div class="label">OSD： </div>
-        <div class="label">{{currentosd.name}}</div>
-      </div>
-      <div class="form">
-        <div class="label">当前设备类型： </div>
-        <div class="label">{{currentosd.device_class}}</div>
-      </div>
-      <div class="form">
-        <div class="label">修改设备类型： </div>
-        <select id="device" style="width: 120px">
-          <option value="hdd" label="hdd"></option>
-          <option value="ssd" label="ssd"></option>
-        </select>
-      </div>
-    </i-dialog>
   </div>
 </template>
 
 <script>
   import { getList, getDisk, createOSD, deleteOSD, getosdTree, setosdClass } from '@/api/clusters/dataNode'
+  import { getNodeList } from '@/api/clusters/pNode'
   import iTable from './../../components/Table/nodeTable'
   export default {
     name: 'storageNode',
@@ -71,6 +57,7 @@
     },
     data() {
       return {
+        nodeList: [],
         state: true,
         newNode: {
           hostname: '',
@@ -139,6 +126,11 @@
         // }, 1000)
       },
       fetchData() {
+        getNodeList().then(res => {
+          if (res.data.code === 0) {
+            this.nodeList = res.data.data
+          }
+        })
         getList().then(res => {
           const data = res.data.data
           this.tabledata = []
@@ -170,7 +162,6 @@
                 })
               })
               getosdTree().then(res => {
-                console.log(res.data.data.nodes)
                 let nodes = res.data.data.nodes
                 nodes.forEach(node => {
                   if (node.device_class) {
@@ -205,7 +196,6 @@
         getDisk(this.ip).then(res => {
           if (res.data.code === 0) {
             this.disks = res.data.data
-            console.log(res.data.data)
           } else {
             this.$message({
               message: '出现错误，请确认后重试！',
@@ -216,17 +206,29 @@
       },
       confirmClicked1() {
         this.dialogVisible1 = false
-        this.tabledata.forEach(item => {
+        this.nodeList.forEach(item => {
           if (this.ip === item.ip) {
             this.newNode.hostname = item.hostname
           }
         })
         this.newNode.disk = document.getElementById('disk').value
-        console.log(this.newNode)
         createOSD(this.newNode).then(res => {
           if (res.data.code === 0) {
+            this.setOSDClass(res.data.data.id)
+          } else {
             this.$message({
-              message: '添加成功！',
+              message: '新增OSD失败，请确认后重试！',
+              type: 'error'
+            })
+          }
+        })
+      },
+      setOSDClass(id) {
+        let device = document.getElementById('device').value
+        setosdClass(id, device).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '新增OSD成功！',
               type: 'success'
             })
             this.fetchData()
@@ -234,7 +236,7 @@
             this.newNode.disk = ''
           } else {
             this.$message({
-              message: '出现错误，请确认后重试！',
+              message: '新增OSD失败，请确认后重试！',
               type: 'error'
             })
           }
@@ -249,6 +251,7 @@
         if (val.id) {
           this.state = false
           this.osdid = val.osdid
+          console.log(this.osdid)
         } else {
           this.state = true
         }

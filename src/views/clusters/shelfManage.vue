@@ -43,6 +43,7 @@
     </div>
     <div class="table-class">
       <el-table
+        class="my-table"
         :data="tabledata"
         border=""
         :span-method="objectSpanMethod"
@@ -51,7 +52,7 @@
         :cell-style="cellHover"
         style="width: 100%">
         <el-table-column
-          label="区域">
+          label="地区">
           <template slot-scope="scope">
             <span>{{scope.row.root.name}}</span>
             <el-dropdown v-show="row === scope.row && col === scope.column" trigger="click" style="cursor: pointer">
@@ -209,7 +210,7 @@
         tabledata: [],
         labels: [
           {
-            label: '区域',
+            label: '地区',
             prop: 'region'
           }, {
             label: '数据中心',

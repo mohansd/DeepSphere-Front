@@ -7,15 +7,15 @@
              class="passwordform" size="mini" :rules="rules">
       <el-form-item label="原密码：" prop="oldPassword">
         <el-input v-model="password.oldPassword" :type="oldType" ></el-input>
-        <span class="show-pwd" @click="showoldPwd"><svg-icon icon-class="eye"/></span>
+        <span class="show-pwd" @click="showoldPwd"><svg-icon :icon-class="oldType===''? 'eye-open':'eye'"/></span>
       </el-form-item>
       <el-form-item label="新密码：" prop="newPassword">
         <el-input v-model="password.newPassword" :type="newType"></el-input>
-        <span class="show-pwd" @click="shownewPwd"><svg-icon icon-class="eye"/></span>
+        <span class="show-pwd" @click="shownewPwd"><svg-icon :icon-class="newType===''? 'eye-open':'eye'"/></span>
       </el-form-item>
       <el-form-item label="确认密码：" prop="repeat">
         <el-input v-model="password.repeat" :type="repeatType" ></el-input>
-        <span class="show-pwd" @click="showrepeatPwd"><svg-icon icon-class="eye"/></span>
+        <span class="show-pwd" @click="showrepeatPwd"><svg-icon :icon-class="repeatType===''? 'eye-open':'eye'"/></span>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="mini" @click="changepassword">确定</el-button>
@@ -121,25 +121,13 @@ export default {
         }
       },
       showoldPwd() {
-        if (this.oldType === 'password') {
-          this.oldType = ''
-        } else {
-          this.oldType = 'password'
-        }
+        this.oldType = this.oldType === '' ? 'password' : ''
       },
       shownewPwd() {
-        if (this.newType === 'password') {
-          this.newType = ''
-        } else {
-          this.newType = 'password'
-        }
+        this.newType = this.newType === '' ? 'password' : ''
       },
       showrepeatPwd() {
-        if (this.repeatType === 'password') {
-          this.repeatType = ''
-        } else {
-          this.repeatType = 'password'
-        }
+        this.repeatType = this.repeatType === '' ? 'password' : ''
       }
     }
   }

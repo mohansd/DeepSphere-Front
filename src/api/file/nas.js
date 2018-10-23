@@ -30,46 +30,46 @@ export function restartSMB() {
   })
 }
 
-export function getNFS() {
+export function getStat() {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/nfs',
     method: 'post',
     data: {
-      service: 'NFS',
-      method: 'getSettings',
-      params: null,
-      options: null
-
+      method: 'nfsStat',
+      params: null
     }
   })
 }
 
-export function setNFS(params) {
+export function nfsFreshShare() {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/nfs',
     method: 'post',
     data: {
-      service: 'NFS',
-      method: 'setSettings',
-      params: params,
-      options: null
-
+      method: 'nfsFreshShare',
+      params: null
     }
   })
 }
 
-export function login() {
+export function nfsRestart() {
   return request({
-    url: '/api/nas/transport/admin',
+    url: '/api/nfs',
     method: 'post',
     data: {
-      service: 'Session',
-      method: 'login',
-      params: {
-        username: 'admin',
-        password: 'admin' },
-      options: null
+      method: 'nfsRestart',
+      params: null
+    }
+  })
+}
 
+export function nfsStop() {
+  return request({
+    url: '/api/nfs',
+    method: 'post',
+    data: {
+      method: 'nfsStop',
+      params: null
     }
   })
 }

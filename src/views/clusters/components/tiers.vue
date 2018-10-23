@@ -13,15 +13,22 @@
               @cancelClicked="cancelClicked1">
       <div class="form">
         <div class="label">数据池名称： </div>
-        <select id="pool">
-          <option v-for="pool in pools" :key="pool" :value="pool" :label="pool"></option>
+        <select id="pool" @change="handleSelect()">
+          <option v-for="pool in pools" :key="pool"
+                  :value="pool" :label="pool"></option>
         </select>
       </div>
       <div class="form">
         <div class="label">缓存池： </div>
         <select id="cachepool">
-          <option v-for="pool in pools" :key="pool" :value="pool" :label="pool"></option>
+          <option v-for="pool in pools" :key="pool"
+                  :disabled="pool === selected"
+                  :value="pool" :label="pool"></option>
         </select>
+      </div>
+      <div class="form">
+        <div class="label"></div>
+        <span>数据池与缓存池不能相同</span>
       </div>
       <div class="form">
         <div class="label">缓存模式： </div>
@@ -29,10 +36,6 @@
           <option value="writeback" label="writeback"></option>
         </select>
       </div>
-    </i-dialog>
-    <i-dialog title="配置数据池" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
     </i-dialog>
   </div>
 </template>
@@ -49,6 +52,7 @@
     },
     data() {
       return {
+        selected: '',
         dialogVisible1: false,
         dialogVisible2: false,
         tabledata: [],
@@ -110,7 +114,14 @@
               })
             })
           }
+          this.selected = this.pools[0]
         })
+      },
+      handleSelect() {
+        if (document.getElementById('pool')) {
+          this.selected = document.getElementById('pool').value
+          console.log(document.getElementById('pool').value)
+        }
       },
       refreshdata() {
         this.fetchData()
