@@ -8,7 +8,7 @@ export function login(loginform) {
   })
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
     url: '/',
     method: 'get'

@@ -88,22 +88,15 @@
             return false
           }
         })
-        // login(this.loginForm).then(res => {
-        //   permissiontest().then(res => {
-        //     console.log(res)
-        //   })
-        //   if (res.data.code === 0) {
-        //     // this.$router.push({ path: '/' })
-        //   } else {
-        //     this.$message({
-        //       message: '用户名或密码错误！',
-        //       type: 'error'
-        //     })
-        //   }
-        // })
       },
       handleGuest() {
-        this.$router.push({ path: '/' })
+        this.$store.dispatch('GuestLogin').then(() => {
+          console.log('guest')
+          this.loading = false
+          this.$router.push({ path: '/overview/overview' })
+        }).catch(() => {
+          this.loading = false
+        })
       }
     }
   }

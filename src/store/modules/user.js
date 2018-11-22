@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/login'
-import { getToken, removeToken } from '@/utils/auth'
+import { getToken, removeToken, setToken } from '@/utils/auth'
 
 const user = {
   state: {
@@ -31,6 +31,8 @@ const user = {
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
           let data = response.data
+          commit('SET_TOKEN', data.data.username)
+          setToken(data.data.username)
           commit('SET_NAME', data.data.username)
           resolve()
         }).catch(error => {
@@ -39,17 +41,26 @@ const user = {
       })
     },
 
+    GuestLogin: ({ commit }) => {
+      commit('SET_TOKEN', 'GuestLogin')
+      commit('SET_NAME', 'Guest')
+      setToken('GuestLogin')
+    },
+
     // 获取用户信息
-    GetInfo({ commit }) {
+    GetUserInfo({ commit }) {
       return new Promise((resolve, reject) => {
         getInfo().then(response => {
-          const name = response.data.data.user.username
-          if (name) {
-            commit('SET_NAME', name)
-            resolve(response)
-          } else {
-            reject('无正确用户信息')
+          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
+            reject('error')
           }
+          if (response.data.code === 0) {
+            commit('SET_ROLES', ['user'])
+            commit('SET_NAME', response.data.data.user.username)
+          } else {
+            commit('SET_ROLES', ['guest'])
+          }
+          resolve(response)
         }).catch(error => {
           reject(error)
         })
@@ -68,6 +79,9 @@ const user = {
     LogOut({ commit }) {
       return new Promise((resolve, reject) => {
         logout().then(res => {
+          commit('SET_TOKEN', '')
+          commit('SET_ROLES', [])
+          removeToken()
           resolve()
         }).catch(error => {
           reject(error)

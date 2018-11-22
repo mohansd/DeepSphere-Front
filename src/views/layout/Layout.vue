@@ -71,8 +71,7 @@
       handleLogout() {
         console.log('tuichu')
         this.$store.dispatch('LogOut').then(() => {
-          this.$router.push({ path: '/login' })
-        }).catch(() => {
+          location.reload()
         })
       }
     }
