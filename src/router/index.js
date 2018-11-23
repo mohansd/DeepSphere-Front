@@ -210,6 +210,12 @@ export const asyncRouterMap = [
         name: 'UserSetting',
         component: () => import('@/views/system/user'),
         meta: { title: '用户设置', roles: ['user'] }
+      },
+      {
+        path: 'licence',
+        name: 'Licence',
+        component: () => import('@/views/system/licence'),
+        meta: { title: '使用许可', roles: ['user'] }
       }
     ]
   },

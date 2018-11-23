@@ -1,4 +1,5 @@
 import { asyncRouterMap, constantRouterMap } from '@/router'
+import { getStatus } from '../../api/licence/licence'
 
 /**
  * 通过meta.role判断是否与当前用户权限匹配
@@ -37,12 +38,16 @@ function filterAsyncRouter(routes, roles) {
 const permission = {
   state: {
     routers: constantRouterMap,
-    addRouters: []
+    addRouters: [],
+    licence: ''
   },
   mutations: {
     SET_ROUTERS: (state, routers) => {
       state.addRouters = routers
       state.routers = constantRouterMap.concat(routers)
+    },
+    SET_LICENCE: (state, licence) => {
+      state.licence = licence
     }
   },
   actions: {
@@ -57,6 +62,21 @@ const permission = {
         }
         commit('SET_ROUTERS', accessedRouters)
         resolve()
+      })
+    },
+    CheckLicence({ commit }) {
+      return new Promise((resolve, reject) => {
+        getStatus().then(res => {
+          if (res.data && res.data !== 'No Valid key registered') {
+            commit('SET_LICENCE', res.data)
+            resolve(res)
+          } else {
+            commit('SET_LICENCE', '')
+            reject('err')
+          }
+        }).catch(err => {
+          reject(err)
+        })
       })
     }
   }
