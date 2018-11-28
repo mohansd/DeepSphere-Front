@@ -1,86 +1,71 @@
 import request from '@/utils/request'
 
-export function getState() {
+export function getDNSHost() {
   return request({
-    url: '/api/balancing/state',
+    url: '/api/balancing/DNSHost',
     method: 'get'
   })
 }
 
-export function getServer() {
+export function addDNSHost(ip) {
   return request({
-    url: '/api/balancing/server',
-    method: 'get'
-  })
-}
-
-export function changeServer(ip) {
-  return request({
-    url: '/api/balancing/server/' + ip,
-    method: 'put'
-  })
-}
-
-export function getdomain() {
-  return request({
-    url: '/api/balancing/domain',
-    method: 'get'
-  })
-}
-
-export function changedomain(domain) {
-  return request({
-    url: '/api/balancing/domain/' + domain,
-    method: 'put'
-  })
-}
-
-export function getforwarder() {
-  return request({
-    url: '/api/balancing/forwarder',
-    method: 'get'
-  })
-}
-
-export function addforwarder(ip) {
-  return request({
-    url: '/api/balancing/forwarder/' + ip,
-    method: 'put'
-  })
-}
-
-export function deleteforwarder(ip) {
-  return request({
-    url: '/api/balancing/forwarder/' + ip,
-    method: 'delete'
-  })
-}
-
-export function getclients() {
-  return request({
-    url: '/api/balancing/clients',
-    method: 'get'
-  })
-}
-
-export function addclient(ip) {
-  return request({
-    url: '/api/balancing/client/' + ip,
-    method: 'put'
-  })
-}
-
-export function deleteclient(ip) {
-  return request({
-    url: '/api/balancing/client/' + ip,
-    method: 'delete'
-  })
-}
-
-export function serveraction(action) {
-  return request({
-    url: '/api/balancing/server/' + action,
+    url: '/api/balancing/DNSHost/' + ip,
     method: 'post'
   })
 }
 
+export function deleteDNSHost(ip) {
+  return request({
+    url: '/api/balancing/DNSHost/' + ip,
+    method: 'delete'
+  })
+}
+
+export function restartDNSHost(ip, method) {
+  return request({
+    url: '/api/balancing/DNSHost',
+    method: 'put',
+    data: {
+      method: method,
+      ip: ip
+    }
+  })
+}
+
+export function getDNSRcord() {
+  return request({
+    url: '/api/balancing/DNSRcord',
+    method: 'get'
+  })
+}
+
+export function addDNSRcord(params) {
+  return request({
+    url: '/api/balancing/DNSRcord',
+    method: 'post',
+    data: params
+  })
+}
+
+export function deleteDNSRcord(params) {
+  return request({
+    url: '/api/balancing/DNSRcord',
+    method: 'delete',
+    data: params
+  })
+}
+
+export function putDNSRcord(params) {
+  return request({
+    url: '/api/balancing/DNSRcord',
+    method: 'put',
+    data: params
+  })
+}
+
+export function freshDNS(params) {
+  return request({
+    url: '/api/balancing/DNSFresh',
+    method: 'options'
+  })
+}

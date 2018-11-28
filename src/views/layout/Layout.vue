@@ -31,7 +31,7 @@
     </header>
     <div class="container">
       <sidebar class="sidebar-container"></sidebar>
-      <div style="background-color: rgb(48, 65, 86);width:180px;position:fixed;z-index: 1000;height: 100%"></div>
+      <div style="background-color: rgb(48, 65, 86);top:0;width:180px;position:fixed;z-index: 1000;height: 100%"></div>
       <div class="main-container">
         <app-main></app-main>
       </div>
@@ -90,6 +90,7 @@
     width: 100%
     background: #f2f2f2
   header
+    z-index 1010
     background: #1062aa
     width: 100%
     height: 100px

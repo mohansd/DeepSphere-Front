@@ -32,7 +32,7 @@
           <el-table-column label="编辑" width="180" v-if="showedit">
             <template slot-scope="scope">
               <el-button
-                type="text"
+                size="mini"
                 @click="handleEdit(scope.$index, scope.row)">{{edit}}</el-button>
             </template>
           </el-table-column>
@@ -91,11 +91,3 @@
   padding-bottom 50px
 </style>
 
-<style lang="stylus" rel="stylesheet/stylus">
-  .my-table.el-table th
-    color: #333
-    text-align: center
-
-  .my-table.el-table td
-    text-align: center
-</style>

@@ -1,359 +1,381 @@
 <template>
-  <div class="container">
-    <div class="title">负载均衡设置</div>
-    <div class="dnsbox">
-      <el-form label-width="150px"  size="medium">
-        <el-form-item label="DNS服务器：">
-          <span>{{domainServer}}</span>
-          <el-button @click="showserver=!showserver" type="primary" style="margin-left: 60px">{{serverbtn}}</el-button>
-        </el-form-item>
-        <el-form-item label="添加DNS服务器：" v-show="showserver" class="boxshow">
-          <el-input v-model="newserver" style="width: 180px"></el-input>
-          <el-button type="primary" @click="changeserver">确定</el-button>
-          <el-button @click="showserver=false" type="info">取消</el-button>
-        </el-form-item>
-        <el-form-item label="服务器状态：">
-          <el-switch
-            v-model="value" @change="changeState">
-          </el-switch>
-          <span>{{state}}</span>
-        </el-form-item>
-        <el-form-item label="域名：">
-          <span>{{domain}}</span>
-          <el-button type="primary" style="margin-left: 20px" @click="showdomain=!showdomain">修改</el-button>
-        </el-form-item>
-        <el-form-item label="修改域名：" v-show="showdomain" class="boxshow">
-          <el-input style="width: 180px" v-model="newdomain"></el-input>
-          <el-button type="primary" @click="changeDomain">确定</el-button>
-          <el-button @click="showdomain=false" type="info">取消</el-button>
-        </el-form-item>
-        <el-form-item label="上级DNS：">
-          <div class="box">
-            <el-radio-group v-model="checkedforwarder">
-              <el-radio
-                v-for="(item, index) in forwarder" :key="index"
-                :label="item"
-                border size="medium" style="margin-bottom: 2px;margin-left: 5px">
-                {{item}}
-              </el-radio>
-            </el-radio-group>
-          </div>
-          <el-button @click="shownew=!shownew" type="primary">新增</el-button>
-          <el-button type="danger" @click="deleteForwarder">删除</el-button>
-        </el-form-item>
-        <el-form-item label="新增上级DNS：" v-show="shownew" class="boxshow">
-          <el-input v-model="newforwarder" style="width: 180px"></el-input>
-          <el-button type="primary" @click="addForwarder">确定</el-button>
-          <el-button @click="shownew=false" type="info">取消</el-button>
-        </el-form-item>
-        <el-form-item label="负载服务器：">
-          <div class="box">
-            <el-radio-group v-model="checkedclient">
-              <el-radio
-                v-for="(item, index) in clients" :key="index"
-                :label="item"
-                border size="medium" style="margin-bottom: 2px;margin-left: 5px">
-                {{item}}
-              </el-radio>
-            </el-radio-group>
-          </div>
-          <el-button @click="showclient=!showclient" type="primary">新增</el-button>
-          <el-button type="danger" @click="deleteClient">删除</el-button>
-        </el-form-item>
-        <el-form-item label="新增负载服务器：" v-show="showclient" class="boxshow">
-          <el-input v-model="newclient" style="width: 180px"></el-input>
-          <el-button type="primary" @click="addClient">确定</el-button>
-          <el-button @click="showclient=false" type="info">取消</el-button>
-        </el-form-item>
-      </el-form>
+  <div>
+    <el-alert
+      show-icon
+      v-show="hasFix"
+      title="DNS记录已修改，请重启配置文件。若不重启，离开或刷新页面时当前修改将失效。"
+      close-text="立即重启"
+      @close="freshData"
+      type="warning">
+    </el-alert>
+    <p class="title">DNS服务器</p>
+    <div class="container">
+      <el-button type="primary" @click="dialogVisible1 = true" size="medium">新增</el-button>
+      <el-table
+        v-loading="loading"
+        border
+        stripe
+        :data="tabledata"
+        style="width: 100%;margin-top: 10px">
+        <el-table-column
+          prop="ip"
+          label="IP">
+        </el-table-column>
+        <el-table-column
+          prop="hostName"
+          label="名称">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态">
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-tooltip class="item" effect="dark" :content="scope.row.option + 'DNS服务器'" placement="top-start">
+              <el-button
+                size="mini"
+                @click="handleStart(scope.$index, scope.row)">
+                {{scope.row.option}}
+              </el-button>
+            </el-tooltip>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
+    <p class="title">DNS记录</p>
+    <div class="container">
+      <el-tabs type="border-card">
+        <el-tab-pane v-for="record in records" :label="record" :key="record">
+          <p style="width: 85%; display: inline-block; margin-bottom: 20px; font-size: 18px">域名： {{recordData[record].domain}}</p>
+          <el-button type="primary" @click="dialogVisible2 = true" size="medium">新增记录</el-button>
+          <el-table :data="recordData[record].nodes" border style="width: 100%">
+            <el-table-column label="IP" prop="ip"></el-table-column>
+            <el-table-column label="状态" prop="enable"></el-table-column>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  @click="handleDNSRcordState(scope.$index, record, scope.row)">
+                  {{scope.row.enable==='开启' ? '关闭' : '开启'}}
+                </el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="handleDeleteRecord(scope.$index, record, scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+    <i-dialog title="新增DNS服务器" :show="dialogVisible1"
+              @confirmClicked="confirmClicked1"
+              @cancelClicked="cancelClicked1">
+      <div class="form" v-loading="loading" >
+        <div class="label">IP： </div>
+        <input v-model="newIP"/>
+      </div>
+    </i-dialog>
+    <i-dialog title="新增DNS记录" :show="dialogVisible2"
+              @confirmClicked="confirmClicked2"
+              @cancelClicked="cancelClicked2">
+      <div class="form" v-loading="loading2" >
+        <div class="label">IP： </div>
+        <input v-model="newRecord.ip"/>
+      </div>
+      <div class="form" v-loading="loading2" >
+        <div class="label">type： </div>
+        <select style="width: 195px;background-color: #fff;height: 22px" id="recordType">
+          <option v-for="item in records" :key="item" :value="item">{{item}}</option>
+        </select>
+      </div>
+    </i-dialog>
   </div>
 </template>
 
 <script>
-  import { serveraction, getState, getServer, changeServer, getforwarder, getdomain,
-    changedomain, addforwarder, deleteforwarder,
-    getclients, addclient, deleteclient } from '@/api/system/balancing'
+  import { getDNSHost, addDNSHost, deleteDNSHost, restartDNSHost,
+    getDNSRcord, addDNSRcord, freshDNS, deleteDNSRcord, putDNSRcord } from '@/api/system/balancing'
+  import iTable from './../../components/Table/index'
+
   export default {
     name: 'loadBalancing',
     data() {
       return {
-        action: '',
-        domainServer: '',
-        showserver: false,
-        newserver: '',
-        serverbtn: '修改',
-        shownew: false,
-        value: true,
-        state: '开启',
-        domain: '',
-        newdomain: '',
-        showdomain: false,
-        forwarder: [],
-        newforwarder: '',
-        checkedforwarder: '',
-        clients: [],
-        checkedclient: '',
-        newclient: '',
-        showclient: false
+        hasFix: false,
+        labels: [
+          {
+            label: 'IP',
+            prop: 'ip'
+          }, {
+            label: '名称',
+            prop: 'hostName'
+          }, {
+            label: '状态',
+            prop: 'status'
+          }],
+        tabledata: [],
+        recordData: {
+          smb: {
+            domain: '',
+            nodes: []
+          },
+          nfs: {
+            domain: '',
+            nodes: []
+          },
+          rgw: {
+            domain: '',
+            nodes: []
+          },
+          iscsi: {
+            domain: '',
+            nodes: []
+          },
+          ftp: {
+            domain: '',
+            nodes: []
+          }
+        },
+        records: ['smb', 'nfs', 'rgw', 'iscsi', 'ftp'],
+        checkedDNS: '',
+        newIP: '',
+        dialogVisible1: false,
+        dialogVisible2: false,
+        start: '',
+        loading: false,
+        loading2: false,
+        newRecord: {
+          ip: '',
+          type: '',
+          enable: true
+        }
       }
     },
-    methods: {
-      changeState(val) {
-        console.log(val)
-        if (val) {
-          this.action = 'restart'
-        } else {
-          this.action = 'stop'
-        }
-        serveraction(this.action).then(res => {
-          console.log(res)
-        })
-      },
-      setState() {
-        getState().then(res => {
-          if (res.data.data === ' active (running) ') {
-            this.state = '开启'
-            this.value = true
-          } else {
-            this.state = '关闭'
-            this.value = false
-          }
-        })
-      },
-      setServer() {
-        getServer().then(res => {
-          if (res.data.data.domainServer === '') {
-            this.serverbtn = '新增'
-          } else {
-            this.domainServer = res.data.data.domainServer
-          }
-        })
-      },
-      changeserver() {
-        changeServer(this.newserver).then(res => {
-          if (res.data.code === 5) {
-            this.$message({
-              message: '修改失败！请输入正确格式的IP',
-              type: 'error'
-            })
-          } else if (res.data.code === 4) {
-            this.$message({
-              message: 'DNS服务器' + this.serverbtn + '失败，请确认后重试！',
-              type: 'error'
-            })
-          } else {
-            this.$message({
-              message: 'DNS服务器' + this.serverbtn + '成功',
-              type: 'success'
-            })
-            this.newserver = ''
-            this.showserver = false
-            this.setServer()
-          }
-        })
-      },
-      getDomain() {
-        getdomain().then(res => {
-          this.domain = res.data.data
-        })
-      },
-      changeDomain() {
-        changedomain(this.newdomain).then(res => {
-          console.log(res.data.message)
-          if (res.data.code === 5) {
-            this.$message({
-              message: '修改失败！域名格式必须为xxx.xxx.xxx(x为小写字母)',
-              type: 'error'
-            })
-          } else if (res.data.code === 4) {
-            this.$message({
-              message: res.data.message,
-              type: 'error'
-            })
-          } else if (res.data.code === 6) {
-            this.$message({
-              message: '请先设置DNS服务器',
-              type: 'error'
-            })
-          } else {
-            this.$message({
-              message: '域名修改成功',
-              type: 'success'
-            })
-            this.getDomain()
-            this.newdomain = ''
-            this.showdomain = false
-          }
-        })
-      },
-      getForwarder() {
-        getforwarder().then(res => {
-          this.forwarder = res.data.data
-        })
-      },
-      addForwarder() {
-        addforwarder(this.newforwarder).then(res => {
-          if (res.data.message === 'No Balancing server been set!') {
-            this.$message({
-              message: '添加失败！请先设置DNS服务器',
-              type: 'error'
-            })
-          } else if (res.data.code === 5) {
-            this.$message({
-              message: '添加失败！请输入正确格式的IP',
-              type: 'error'
-            })
-          } else if (res.data.code === 4) {
-            this.$message({
-              message: res.data.message,
-              type: 'error'
-            })
-          } else {
-            this.$message({
-              message: 'DNS添加成功',
-              type: 'success'
-            })
-            this.getForwarder()
-            this.newforwarder = ''
-            this.shownew = false
-          }
-        })
-      },
-      deleteForwarder() {
-        if (this.checkedforwarder === '') {
-          this.$message({
-            message: '请选择需要删除的DNS',
-            type: 'error'
-          })
-        } else {
-          deleteforwarder(this.checkedforwarder).then(res => {
-            if (res.data.message === 'No Balancing server been set!') {
-              this.$message({
-                message: '删除失败！请先设置DNS服务器',
-                type: 'error'
-              })
-            } else if (res.data.code === 5) {
-              this.$message({
-                message: '删除失败！',
-                type: 'error'
-              })
-            } else if (res.data.code === 4) {
-              this.$message({
-                message: res.data.message,
-                type: 'error'
-              })
-            } else {
-              this.$message({
-                message: 'DNS删除成功',
-                type: 'success'
-              })
-              this.getForwarder()
-              this.checkedforwarder = ''
-            }
-          })
-        }
-      },
-      getClients() {
-        getclients().then(res => {
-          this.clients = res.data.data
-        })
-      },
-      addClient() {
-        addclient(this.newclient).then(res => {
-          if (res.data.message === 'No Balancing server been set!') {
-            this.$message({
-              message: '添加失败！请先设置DNS服务器',
-              type: 'error'
-            })
-          } else if (res.data.code === 5) {
-            this.$message({
-              message: '添加失败！请输入正确格式的IP',
-              type: 'error'
-            })
-          } else if (res.data.code === 4) {
-            this.$message({
-              message: res.data.message,
-              type: 'error'
-            })
-          } else {
-            this.$message({
-              message: '负载服务器添加成功',
-              type: 'success'
-            })
-            this.getClients()
-            this.newclient = ''
-            this.showclient = false
-          }
-        })
-      },
-      deleteClient() {
-        if (this.checkedclient === '') {
-          this.$message({
-            message: '请选择需要删除的负载服务器',
-            type: 'error'
-          })
-        } else {
-          deleteclient(this.checkedclient).then(res => {
-            if (res.data.message === 'No Balancing server been set!') {
-              this.$message({
-                message: '删除失败！请先设置DNS服务器',
-                type: 'error'
-              })
-            } else if (res.data.code === 5) {
-              this.$message({
-                message: '删除失败！',
-                type: 'error'
-              })
-            } else if (res.data.code === 4) {
-              this.$message({
-                message: res.data.message,
-                type: 'error'
-              })
-            } else {
-              this.$message({
-                message: '负载服务器删除成功',
-                type: 'success'
-              })
-              this.getClients()
-              this.checkedclient = ''
-            }
-          })
-        }
-      }
+    components: {
+      iTable
     },
     mounted() {
-      this.setState()
-      this.setServer()
-      this.getDomain()
-      this.getForwarder()
-      this.getClients()
+      this.fetchData()
+    },
+    methods: {
+      freshData() {
+        freshDNS().then(res => {
+          if (res.data.code === 0) {
+            // this.dnsData = res.data.data
+            this.fetchData()
+            this.$message({
+              message: 'DNS配置更新成功',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: 'DNS配置更新失败：' + res.data.message,
+              type: 'error'
+            })
+          }
+        })
+      },
+      fetchData() {
+        this.loading = true
+        getDNSHost().then(res => {
+          this.loading = false
+          if (res.data.code === 0) {
+            // this.dnsData = res.data.data
+            this.tabledata = res.data.data
+            res.data.data.forEach((item, index) => {
+              let str = item.status.split(')')[0]
+              this.tabledata[index].status = str.includes('(') ? str + ')' : str
+              this.tabledata[index].option = item.status.includes('running') ? '关闭' : '开启'
+            })
+          } else {
+            this.$message({
+              message: 'DNS服务器获取失败：' + res.data.message,
+              type: 'error'
+            })
+          }
+        })
+        getDNSRcord().then(res => {
+          if (res.data.code === 0) {
+            let data = res.data.data.rcords
+            data.forEach(item => {
+              this.recordData[item.type].domain = item.prefix + '.' + res.data.data.domainName
+              item.nodes.forEach(node => {
+                node.enable = node.enable ? '开启' : '关闭'
+              })
+              this.recordData[item.type].nodes = item.nodes
+            })
+          }
+        })
+      },
+      handleDeleteRecord(index, record, row) {
+        console.log(index)
+        let params = {
+          ip: row.ip,
+          type: record
+        }
+        deleteDNSRcord(params).then(res => {
+          if (res.data.code === 0) {
+            // this.dnsData = res.data.data
+            this.$message({
+              message: 'DNS记录删除成功',
+              type: 'success'
+            })
+            this.hasFix = true
+            this.recordData[record].nodes.splice(index, 1)
+          } else {
+            this.$message({
+              message: 'DNS记录删除失败',
+              type: 'error'
+            })
+          }
+        })
+      },
+      handleDNSRcordState(index, record, row) {
+        let params = {
+          method: row.enable === '开启' ? 'disable' : 'enable',
+          ip: row.ip,
+          type: record
+        }
+        putDNSRcord(params).then(res => {
+          if (res.data.code === 0) {
+            // this.dnsData = res.data.data
+            this.$message({
+              message: 'DNS记录状态修改成功',
+              type: 'success'
+            })
+            this.hasFix = true
+            this.recordData[record].nodes[index].enable = params.method === 'enable' ? '开启' : '关闭'
+          } else {
+            this.$message({
+              message: 'DNS记录状态修改失败',
+              type: 'error'
+            })
+          }
+        })
+      },
+      handleDelete(index, row) {
+        this.loading = true
+        deleteDNSHost(row.ip).then(res => {
+          if (res.data.code === 0) {
+            // this.dnsData = res.data.data
+            this.$message({
+              message: 'DNS服务器删除成功',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: 'DNS服务器删除失败',
+              type: 'error'
+            })
+          }
+          this.loading = false
+          this.fetchData()
+        })
+      },
+      handleStart(index, row) {
+        console.log(row)
+        this.loading = true
+        let method = row.option === '开启' ? 'restart' : 'stop'
+        restartDNSHost(row.ip, method).then(res => {
+          if (res.data.code === 0) {
+            // this.dnsData = res.data.data
+            this.$message({
+              message: 'DNS服务器' + row.option + '成功',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: 'DNS服务器' + row.option + '失败',
+              type: 'error'
+            })
+          }
+          this.loading = false
+          this.fetchData()
+        })
+      },
+      confirmClicked1() {
+        this.loading = true
+        addDNSHost(this.newIP).then(res => {
+          if (res.data.code === 0 && res.data.data.includes('already') === false) {
+            this.$message({
+              message: 'DNS服务器添加成功',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: 'DNS服务器添加失败',
+              type: 'error'
+            })
+          }
+          this.newIP = ''
+          this.dialogVisible1 = false
+          this.loading = false
+          this.fetchData()
+        })
+      },
+      cancelClicked1() {
+        this.dialogVisible1 = false
+      },
+      confirmClicked2() {
+        console.log(this.newRecord)
+        this.newRecord.type = document.getElementById('recordType').value
+        addDNSRcord(this.newRecord).then(res => {
+          if (res.data.code === 0 && res.data.data.includes('already') === false) {
+            // this.dnsData = res.data.data
+            this.hasFix = true
+            this.recordData[this.newRecord.type].nodes.push({
+              ip: this.newRecord.ip,
+              enable: '开启'
+            })
+            this.$message({
+              message: 'DNS记录添加成功',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: 'DNS记录添加失败',
+              type: 'error'
+            })
+          }
+        })
+        this.dialogVisible2 = false
+      },
+      cancelClicked2() {
+        this.dialogVisible2 = false
+      }
     }
   }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  .container
-    padding-top 20px
+  .title
     margin-left 20px
-    margin-right 48px
-    .title
-      font-weight bolder
-      color: #333
-      margin-bottom 10px
-    .dnsbox
-      min-width 500px
-      width: 80%
-      background-color #fff
-      padding 20px
-      color #606266
-      .box
-        margin-bottom 5px
-        border solid 1px rgba(170, 170, 170, 0.5)
-        padding 5px 5px 5px 5px
-        max-width 500px
-      .boxshow
-        background-color #f4f4f5
-        padding-top 5px
-        padding-bottom 5px
+    margin-top 20px
+    font-weight bolder
+    color: #333
+  .container
+    border: 0.5px solid rgba(190, 190, 190, 0.5)
+    margin-top 10px
+    margin-left 20px
+    width 90%
+    min-width 500px
+    background-color #fff
+    padding 20px
+    .button-box
+      top 0
+      width 5%
+      display inline-block
+  .form
+    margin-top  10px
+    margin-left 5%
+  .label
+    display: inline-block;
+    width: 120px;
+    text-align: right
 </style>
+

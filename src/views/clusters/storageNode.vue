@@ -193,16 +193,18 @@
         }
       },
       getDisks() {
-        getDisk(this.ip).then(res => {
-          if (res.data.code === 0) {
-            this.disks = res.data.data
-          } else {
-            this.$message({
-              message: '出现错误，请确认后重试！',
-              type: 'error'
-            })
-          }
-        })
+        if (this.ip) {
+          getDisk(this.ip).then(res => {
+            if (res.data.code === 0) {
+              this.disks = res.data.data
+            } else {
+              this.$message({
+                message: '出现错误，请确认后重试！',
+                type: 'error'
+              })
+            }
+          })
+        }
       },
       confirmClicked1() {
         this.dialogVisible1 = false

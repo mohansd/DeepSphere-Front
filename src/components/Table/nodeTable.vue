@@ -87,18 +87,3 @@
   }
 </script>
 
-<style scoped lang="stylus" rel="stylesheet/stylus">
-  .wrapper
-    border: 0.5px solid rgba(190, 190, 190, 0.5)
-    width: 90%
-    background #fff
-    padding-bottom 50px
-</style>
-
-<style lang="stylus" rel="stylesheet/stylus">
-  .my-table.el-table th
-    color: #333
-    text-align: center
-  .my-table.el-table td
-    text-align: center
-</style>

@@ -1,9 +1,11 @@
 <template>
   <div class="container">
-    <i-button icon="el-icon-plus" text="新增管理节点" @click.native="dialogVisible1=true"></i-button>
-    <i-button type="refresh" @click.native="fetchData"></i-button>
+    <el-button type="primary" class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" size="medium">新增管理节点</el-button>
+    <el-button type="primary" @click="fetchData" size="medium" icon="el-icon-refresh">刷新</el-button>
+    <el-button type="danger" size="medium" :disabled="isNode" @click="handleDelete" icon="el-icon-close">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
-             @clickEdit="EditClicked"></i-table>
+             @currentchange="currentchange"
+             @clickEdit="EditClicked" style="margin-top: 20px"></i-table>
     <div style="font-size:18px;font-weight: 900;margin-top: 20px">模板</div>
     <div class="templatebox">
       <el-row style="margin-top: 25px;width: 600px;margin-left: 30px">
@@ -48,7 +50,7 @@
 </template>
 
 <script>
-  import { getList, addmgrNode, getModules, updateModules, changeState } from '@/api/clusters/mgrNode'
+  import { getList, addmgrNode, getModules, updateModules, changeState, deletemgrNode } from '@/api/clusters/mgrNode'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   import lodash from 'lodash'
@@ -65,6 +67,7 @@
           hostname: '',
           ip: ''
         },
+        isNode: true,
         state: 'sandby',
         ip: '192.168.3.12',
         enabled_modules: [],
@@ -76,7 +79,8 @@
           'influx',
           'localpool',
           'selftest',
-          'zabbix'],
+          'zabbix',
+          'iostat'],
         newNode: {
           hostname: '',
           ip: ''
@@ -99,6 +103,22 @@
       }
     },
     methods: {
+      handleDelete() {
+        deletemgrNode(this.currentnode.ip).then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '管理节点删除成功！',
+              type: 'success'
+            })
+            this.fetchData()
+          } else {
+            this.$message({
+              message: '管理节点删除失败:' + res.data.message,
+              type: 'error'
+            })
+          }
+        })
+      },
       changemodule(index) {
         console.log(index)
         console.log(this.modulesList)
@@ -177,6 +197,12 @@
       },
       cancelClicked2() {
         this.dialogVisible2 = false
+      },
+      currentchange(val) {
+        if (val) {
+          this.isNode = false
+          this.currentnode = val
+        }
       }
     },
     mounted() {
@@ -191,6 +217,16 @@
     padding-top 20px
     margin-left 51px
     margin-right 48px
+    .my-button.el-button--primary
+      background-color #1262AA
+      border-color #1262AA
+    .my-button.el-button--primary:focus, .my-button.el-button--primary:hover
+      background-color #2078C5
+      border-color #2078C5
+    .my-button.el-button--primary.is-disabled, my-button.el-button--primary.is-disabled:focus, my-button.el-button--primary.is-disabled:hover
+      background-color #a0cfff
+      border-color #a0cfff
+      color: #fff
     .form
       margin-top  10px
       margin-left 5%

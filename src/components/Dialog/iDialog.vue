@@ -7,7 +7,7 @@
       <slot></slot>
     </div>
     <div class="footer">
-      <div class="confirmbtn" @click="handleConfirm">确定</div>
+      <div class="confirmbtn"@click="handleConfirm">确定</div>
       <div class="cancelbtn" @click="handleClose">取消</div>
     </div>
   </div>
@@ -37,7 +37,6 @@
     },
     methods: {
       handleConfirm() {
-        console.log(this.dialogVisible)
         this.$emit('confirmClicked', false)
       },
       handleClose() {

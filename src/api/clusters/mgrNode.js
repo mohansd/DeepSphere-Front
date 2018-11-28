@@ -42,3 +42,13 @@ export function changeState(ip, state) {
     }
   })
 }
+
+export function deletemgrNode(ip) {
+  return request({
+    url: '/api/ceph/mgrNode/' + ip,
+    method: 'delete',
+    data: {
+      ip: ip
+    }
+  })
+}
