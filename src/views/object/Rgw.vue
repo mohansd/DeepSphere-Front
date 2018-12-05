@@ -32,13 +32,13 @@
     </el-table>
     <el-dialog
       :show-close="false"
-      title="新增MDS节点"
+      title="新增对象网关存储节点"
       :visible.sync="dialogVisible1"
       width="400px"
       center>
       <el-form ref="form" label-width="30px" size="mini"
                v-loading="loading"
-               element-loading-text="新增节点..."
+               element-loading-text="新增对象网关存储节点..."
                element-loading-spinner="el-icon-loading">
         <el-form-item label="IP">
           <el-input v-model="newNodeIP"></el-input>
@@ -53,10 +53,10 @@
 </template>
 
 <script>
-  import { getMdsNode, addMdsNode, deleteMdsNode, setMdsNode } from '../../api/clusters/mdsNode'
+  import { getRgwList, addRgw, deleteRgw } from '../../api/rgw/rgw'
 
   export default {
-    name: 'MdsNode',
+    name: 'Rgw',
     data() {
       return {
         loading: false,
@@ -72,7 +72,7 @@
     },
     methods: {
       fetchData() {
-        getMdsNode().then(res => {
+        getRgwList().then(res => {
           if (res.data.code === 0) {
             this.tableData = res.data.data
           }
@@ -80,68 +80,45 @@
       },
       handleNodeAdd() {
         this.loading = true
-        addMdsNode(this.newNodeIP).then(res => {
+        addRgw(this.newNodeIP).then(res => {
           this.loading = false
           this.newNodeIP = ''
           if (res.data.code === 0) {
             this.$message({
-              message: '新增MDS节点成功！',
+              message: '新增对象网关存储节点成功！',
               type: 'success'
             })
             this.fetchData()
             this.dialogVisible1 = false
           } else {
             this.$message({
-              message: '新增MDS节点失败： ' + res.data.message,
+              message: '新增对象网关存储节点失败： ' + res.data.message,
               type: 'error'
             })
           }
         }).catch(err => {
           this.$message({
-            message: '新增MDS节点失败： ' + err,
+            message: '新增对象网关存储节点失败： ' + err,
             type: 'error'
           })
           this.loading = false
         })
       },
       handleEdit(index, row) {
-        console.log(row)
-        this.loading = true
-        const method = row.status.includes('inactive') ? 'startMds' : 'stopMds'
-        setMdsNode(method, row.ip).then(res => {
-          this.loading = false
-          if (res.data.code === 0) {
-            this.$message({
-              message: 'MDS节点状态修改成功！',
-              type: 'success'
-            })
-          } else {
-            this.$message({
-              message: 'MDS节点状态修改失败： ' + res.data.message,
-              type: 'error'
-            })
-          }
-          this.fetchData()
-          this.currentNode = {}
-        }).catch(err => {
-          this.$message({
-            message: 'MDS节点状态修改失败： ' + err,
-            type: 'error'
-          })
-          this.loading = false
-        })
+        // rgw服务器开关功能未完成
+        console.log('click edit!')
       },
       handleDelete() {
-        deleteMdsNode(this.currentNode.ip).then(res => {
+        deleteRgw(this.currentNode.ip).then(res => {
           if (res.data.code === 0) {
             this.$message({
-              message: '删除MDS节点成功！',
+              message: '删除对象网关存储节点成功！',
               type: 'success'
             })
             this.fetchData()
           } else {
             this.$message({
-              message: '删除MDS节点失败： ' + res.data.message,
+              message: '删除对象网关存储节点失败： ' + res.data.message,
               type: 'error'
             })
           }

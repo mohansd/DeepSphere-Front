@@ -1,62 +1,62 @@
 <template>
-  <div class="container">
-    <el-button type="primary" class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" size="medium">新增节点</el-button>
-    <el-button type="danger" size="medium" :disabled="isNode" @click="handleDelete" icon="el-icon-close">删除节点</el-button>
-    <el-table
-      v-loading="loading"
-      border
-      stripe
-      highlight-current-row
-      @current-change="handleCurrentChange"
-      :data="tableData"
-      style="width: 100%;margin-top: 20px">
-      <el-table-column
-        prop="hostname"
-        label="主机">
-      </el-table-column>
-      <el-table-column
-        prop="ip"
-        label="IP">
-      </el-table-column>
-      <el-table-column
-        prop="status"
-        label="状态">
-      </el-table-column>
+    <div class="container">
+      <el-button type="primary" class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" size="medium">新增节点</el-button>
+      <el-button type="danger" size="medium" :disabled="isNode" @click="handleDelete" icon="el-icon-close">删除节点</el-button>
+      <el-table
+        v-loading="loading"
+        border
+        stripe
+        highlight-current-row
+        @current-change="handleCurrentChange"
+        :data="tableData"
+        style="width: 100%;margin-top: 20px">
+        <el-table-column
+          prop="hostname"
+          label="主机">
+        </el-table-column>
+        <el-table-column
+          prop="ip"
+          label="IP">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态">
+        </el-table-column>
       <el-table-column label="编辑">
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status.includes('inactive') ? '开启' : '关闭'}}</el-button>
+            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status === 'active' ? '关闭' : '开启'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog
-      :show-close="false"
-      title="新增MDS节点"
-      :visible.sync="dialogVisible1"
-      width="400px"
-      center>
-      <el-form ref="form" label-width="30px" size="mini"
-               v-loading="loading"
-               element-loading-text="新增节点..."
-               element-loading-spinner="el-icon-loading">
-        <el-form-item label="IP">
-          <el-input v-model="newNodeIP"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer">
+        <el-dialog
+          :show-close="false"
+          title="新增守护节点"
+          :visible.sync="dialogVisible1"
+          width="400px"
+          center>
+          <el-form ref="form" label-width="30px" size="mini"
+                   v-loading="loading"
+                   element-loading-text="新增节点..."
+                   element-loading-spinner="el-icon-loading">
+            <el-form-item label="IP">
+              <el-input v-model="newNodeIP"></el-input>
+            </el-form-item>
+          </el-form>
+          <span slot="footer">
             <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
             <el-button type="primary" @click="handleNodeAdd" size="small">确 定</el-button>
           </span>
-    </el-dialog>
-  </div>
+        </el-dialog>
+    </div>
 </template>
 
 <script>
-  import { getMdsNode, addMdsNode, deleteMdsNode, setMdsNode } from '../../api/clusters/mdsNode'
+  import { getMonNode, addMonNode, deleteMonNode, setMonNode } from '../../api/clusters/monNode'
 
   export default {
-    name: 'MdsNode',
+    name: 'MonNode',
     data() {
       return {
         loading: false,
@@ -72,7 +72,7 @@
     },
     methods: {
       fetchData() {
-        getMdsNode().then(res => {
+        getMonNode().then(res => {
           if (res.data.code === 0) {
             this.tableData = res.data.data
           }
@@ -80,68 +80,56 @@
       },
       handleNodeAdd() {
         this.loading = true
-        addMdsNode(this.newNodeIP).then(res => {
+        addMonNode(this.newNodeIP).then(res => {
           this.loading = false
           this.newNodeIP = ''
           if (res.data.code === 0) {
             this.$message({
-              message: '新增MDS节点成功！',
+              message: '新增守护节点成功！',
               type: 'success'
             })
             this.fetchData()
             this.dialogVisible1 = false
           } else {
             this.$message({
-              message: '新增MDS节点失败： ' + res.data.message,
+              message: '新增守护节点失败： ' + res.data.message,
               type: 'error'
             })
           }
-        }).catch(err => {
-          this.$message({
-            message: '新增MDS节点失败： ' + err,
-            type: 'error'
-          })
-          this.loading = false
         })
       },
       handleEdit(index, row) {
         console.log(row)
         this.loading = true
-        const method = row.status.includes('inactive') ? 'startMds' : 'stopMds'
-        setMdsNode(method, row.ip).then(res => {
+        const method = row.status === 'active' ? 'stopMon' : 'startMon'
+        setMonNode(method, row.ip).then(res => {
           this.loading = false
           if (res.data.code === 0) {
             this.$message({
-              message: 'MDS节点状态修改成功！',
+              message: '守护节点状态修改成功！',
               type: 'success'
             })
           } else {
             this.$message({
-              message: 'MDS节点状态修改失败： ' + res.data.message,
+              message: '守护节点状态修改失败： ' + res.data.message,
               type: 'error'
             })
           }
           this.fetchData()
           this.currentNode = {}
-        }).catch(err => {
-          this.$message({
-            message: 'MDS节点状态修改失败： ' + err,
-            type: 'error'
-          })
-          this.loading = false
         })
       },
       handleDelete() {
-        deleteMdsNode(this.currentNode.ip).then(res => {
+        deleteMonNode(this.currentNode.ip).then(res => {
           if (res.data.code === 0) {
             this.$message({
-              message: '删除MDS节点成功！',
+              message: '删除守护节点成功！',
               type: 'success'
             })
             this.fetchData()
           } else {
             this.$message({
-              message: '删除MDS节点失败： ' + res.data.message,
+              message: '删除守护节点失败： ' + res.data.message,
               type: 'error'
             })
           }

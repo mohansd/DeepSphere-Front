@@ -139,7 +139,7 @@
 <style scoped lang="stylus" rel="stylesheet/stylus">
   .modal
     left: 40%
-    top: 30%
+    top: 300px
     position absolute
     z-index 999
     width: 450px

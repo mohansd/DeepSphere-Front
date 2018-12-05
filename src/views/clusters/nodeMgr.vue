@@ -1,10 +1,11 @@
 <template>
   <div class="container">
-    <el-button type="primary" class="my-button" icon="el-icon-plus" @click.native="dialogVisible1=true" size="medium">新增节点</el-button>
-    <el-button type="danger" size="medium" :disabled="isNode" @click.native="handleDelete" icon="el-icon-close">删除</el-button>
+    <el-button type="primary" class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" size="medium">新增节点</el-button>
+    <el-button type="danger" size="medium" :disabled="isNode" @click="handleDelete" icon="el-icon-close">删除节点</el-button>
+    <el-button type="danger" size="medium" @click="dialogVisible2 = true" icon="el-icon-close">删除集群</el-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
-             style="margin-top: 20px"
+             style="margin-top: 20px;margin-bottom: 20px"
              :showedit="showEdit"></i-table>
     <i-dialog title="新增节点" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
@@ -22,11 +23,16 @@
         <input v-model="newNode.password"/>
       </div>
     </i-dialog>
+    <i-dialog title="删除集群" :show="dialogVisible2"
+              @confirmClicked="handleDeleteCluster"
+              @cancelClicked="dialogVisible2 = false">
+      <p style="width: 100%; text-align: center">确定删除集群？</p>
+    </i-dialog>
   </div>
 </template>
 
 <script>
-  import { getNodeList, addNode, deleteNode } from '@/api/clusters/pNode'
+  import { getNodeList, addNode, deleteNode, deleteCluster } from '@/api/clusters/pNode'
   import iTable from './../../components/Table/index'
   import iButton from './../../components/Button/iButton'
   export default {
@@ -80,31 +86,38 @@
       }
     },
     methods: {
+      handleDeleteCluster() {
+        deleteCluster().then(res => {
+          if (res.data.code === 0) {
+            this.$message({
+              message: '集群删除成功！',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '集群删除失败！',
+              type: 'error'
+            })
+          }
+        })
+      },
       fetchData() {
         this.tabledata = []
         getNodeList().then(res => {
           let data = res.data.data
-          console.log(data)
           data.forEach(item => {
             this.tabledata.push({
               hostname: item.hostname,
               ip: item.ip,
-              isData: this.translateBool(item.isData),
-              isMDS: this.translateBool(item.isMDS),
-              isMgr: this.translateBool(item.isMgr),
-              isMon: this.translateBool(item.isMon),
-              isRgw: this.translateBool(item.isRgw),
+              isData: item.isData ? '是' : '否',
+              isMDS: item.isMDS ? '是' : '否',
+              isMgr: item.isMgr ? '是' : '否',
+              isMon: item.isMon ? '是' : '否',
+              isRgw: item.isRgw ? '是' : '否',
               osds: this.translateArr(item.osds)
             })
           })
         })
-      },
-      translateBool(val) {
-        if (val === true) {
-          return '是'
-        } else if (val === false) {
-          return '否'
-        }
       },
       translateArr(val) {
         let str = ''
@@ -134,9 +147,10 @@
         })
       },
       currentchange(val) {
-        console.log(val)
-        this.currentNode.ip = val.ip
-        this.isNode = false
+        if (val) {
+          this.currentNode.ip = val.ip
+          this.isNode = false
+        }
       },
       confirmClicked1() {
         this.dialogVisible1 = false

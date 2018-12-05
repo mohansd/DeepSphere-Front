@@ -26,13 +26,13 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status.includes('inactive') ? '开启' : '关闭'}}</el-button>
+            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status.includes('running') ? '关闭' : '开启'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
     <el-dialog
       :show-close="false"
-      title="新增MDS节点"
+      title="新增iscsi节点"
       :visible.sync="dialogVisible1"
       width="400px"
       center>
@@ -53,10 +53,9 @@
 </template>
 
 <script>
-  import { getMdsNode, addMdsNode, deleteMdsNode, setMdsNode } from '../../api/clusters/mdsNode'
-
+  import * as apiIscsi from '../../api/rbd/iscsi'
   export default {
-    name: 'MdsNode',
+    name: 'IscsiNode',
     data() {
       return {
         loading: false,
@@ -72,33 +71,39 @@
     },
     methods: {
       fetchData() {
-        getMdsNode().then(res => {
+        apiIscsi.getIscsi().then(res => {
           if (res.data.code === 0) {
-            this.tableData = res.data.data
+            this.tableData = res.data.data.map(node => {
+              return {
+                hostname: node.hostname,
+                ip: node.ip,
+                status: node.status.split(')')[0] + ')'
+              }
+            })
           }
         })
       },
       handleNodeAdd() {
         this.loading = true
-        addMdsNode(this.newNodeIP).then(res => {
+        apiIscsi.addIscsi(this.newNodeIP).then(res => {
           this.loading = false
           this.newNodeIP = ''
           if (res.data.code === 0) {
             this.$message({
-              message: '新增MDS节点成功！',
+              message: '新增iscsi节点成功！',
               type: 'success'
             })
             this.fetchData()
             this.dialogVisible1 = false
           } else {
             this.$message({
-              message: '新增MDS节点失败： ' + res.data.message,
+              message: '新增iscsi节点失败： ' + res.data.message,
               type: 'error'
             })
           }
         }).catch(err => {
           this.$message({
-            message: '新增MDS节点失败： ' + err,
+            message: '新增iscsi节点失败： ' + err,
             type: 'error'
           })
           this.loading = false
@@ -107,17 +112,17 @@
       handleEdit(index, row) {
         console.log(row)
         this.loading = true
-        const method = row.status.includes('inactive') ? 'startMds' : 'stopMds'
-        setMdsNode(method, row.ip).then(res => {
+        const method = row.status.includes('running') ? 'stop' : 'restart'
+        apiIscsi.setIscsi(method, row.ip).then(res => {
           this.loading = false
           if (res.data.code === 0) {
             this.$message({
-              message: 'MDS节点状态修改成功！',
+              message: 'iscsi节点状态修改成功！',
               type: 'success'
             })
           } else {
             this.$message({
-              message: 'MDS节点状态修改失败： ' + res.data.message,
+              message: 'iscsi节点状态修改失败： ' + res.data.message,
               type: 'error'
             })
           }
@@ -125,23 +130,25 @@
           this.currentNode = {}
         }).catch(err => {
           this.$message({
-            message: 'MDS节点状态修改失败： ' + err,
+            message: 'iscsi节点状态修改失败： ' + err,
             type: 'error'
           })
           this.loading = false
         })
       },
       handleDelete() {
-        deleteMdsNode(this.currentNode.ip).then(res => {
+        this.loading = true
+        apiIscsi.deleteIscsi(this.currentNode.ip).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
             this.$message({
-              message: '删除MDS节点成功！',
+              message: '删除iscsi节点成功！',
               type: 'success'
             })
             this.fetchData()
           } else {
             this.$message({
-              message: '删除MDS节点失败： ' + res.data.message,
+              message: '删除iscsi节点失败： ' + res.data.message,
               type: 'error'
             })
           }

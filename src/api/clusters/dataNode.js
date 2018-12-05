@@ -51,3 +51,11 @@ export function setosdClass(osd_id, device) {
     }
   })
 }
+
+export function setosdStatus(params) {
+  return request({
+    url: '/api/ceph/dataNode',
+    method: 'put',
+    data: params
+  })
+}

@@ -109,7 +109,6 @@
           'params': null
         }
         sambaSetting(params).then(res => {
-          console.log(res)
           if (res.data.code === 0) {
             this.sambadata = res.data.data
             this.samba.workgroup = res.data.data.workgroup
@@ -128,7 +127,6 @@
           }
         })
         getStat().then(res => {
-          console.log(res)
           if (res.data.code === 0) {
             this.nfsState = res.data.data.isStart
           }
@@ -217,7 +215,6 @@
           passdbBackend: this.newsamba.passdbBackend
         }
         this.samba = data
-        console.log(this.newsamba)
         setSMB(this.newsamba).then(res => {
           if (res.data.code === 0) {
             this.$message({

@@ -89,6 +89,18 @@ export const asyncRouterMap = [
         meta: { title: '管理节点管理', roles: ['user'] }
       },
       {
+        path: 'mon',
+        name: 'Mon',
+        component: () => import('@/views/clusters/MonNode'),
+        meta: { title: '守护节点管理', roles: ['user'] }
+      },
+      {
+        path: 'mds',
+        name: 'Mds',
+        component: () => import('@/views/clusters/mdsNode'),
+        meta: { title: 'MDS节点管理', roles: ['user'] }
+      },
+      {
         path: 'shelf',
         name: 'Shelf',
         component: () => import('@/views/clusters/shelfManage'),
@@ -143,16 +155,16 @@ export const asyncRouterMap = [
     meta: { title: '对象存储管理', icon: 'object', roles: ['user'] },
     children: [
       {
-        path: 'add',
-        name: 'Add',
-        component: () => import('@/views/object/addNode'),
-        meta: { title: '添加对象存储网关节点', roles: ['user'] }
+        path: 'rgw',
+        name: 'Rgw',
+        component: () => import('@/views/object/Rgw'),
+        meta: { title: '对象网关存储节点', roles: ['user'] }
       },
       {
-        path: 'close',
-        name: 'Close',
-        component: () => import('@/views/object/close'),
-        meta: { title: '关闭对象网关', roles: ['user'] }
+        path: 'rgwuser',
+        name: 'RgwUser',
+        component: () => import('@/views/object/RgwUser'),
+        meta: { title: '对象网关存储用户', roles: ['user'] }
       },
       {
         path: 'modify',
@@ -165,12 +177,21 @@ export const asyncRouterMap = [
   {
     path: '/blockdevice',
     component: Layout,
+    redirect: 'blockdevice/iscsi',
+    name: 'blockdevice',
+    meta: { title: '块设备管理', icon: 'shebei', roles: ['user'] },
     children: [
       {
+        path: 'iscsi',
+        name: 'Iscsi',
+        component: () => import('@/views/blockDevice/IscsiNode'),
+        meta: { title: 'iscsi节点', roles: ['user'] }
+      },
+      {
         path: 'index',
-        name: 'blockdevice',
+        name: 'rbd',
         component: () => import('@/views/blockDevice/blockDevice'),
-        meta: { title: '块设备管理', icon: 'shebei', roles: ['user'] }
+        meta: { title: 'rbd管理', roles: ['user'] }
       }
     ]
   },

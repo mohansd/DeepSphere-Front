@@ -5,7 +5,7 @@
     <el-button type="danger" size="medium" :disabled="isNode" @click="handleDelete" icon="el-icon-close">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
-             @clickEdit="EditClicked" style="margin-top: 20px"></i-table>
+             @clickEdit="EditClicked" style="margin-top: 20px;min-width: 600px"></i-table>
     <div style="font-size:18px;font-weight: 900;margin-top: 20px">模板</div>
     <div class="templatebox">
       <el-row style="margin-top: 25px;width: 600px;margin-left: 30px">
@@ -236,6 +236,7 @@
         text-align: right
     .templatebox
       margin-top 10px
+      min-width 600px
       height:300px
       width: 90%
       border: 0.5px solid rgba(190, 190, 190, 0.5)

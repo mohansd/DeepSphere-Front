@@ -1,14 +1,73 @@
 <template>
   <div class="container">
     <el-button icon="el-icon-plus" class="my-button" type="primary" @click="dialogVisible1=true" size="medium">新增OSD</el-button>
-    <i-table :osd="isosd" :osdlabels="osdlabels"
-             :osdData="osdData" :tabledata="tabledata"
-             :showedit="false"
-             @currentchange="currentchange"
-             @clickDelete="handleDelete"
-             :labels="labels"
-             edit="配置"
-              style="margin-top: 20px"></i-table>
+    <el-button type="danger" size="medium" :disabled="isosd" @click="dialogVisible2 = true" icon="el-icon-close">删除OSD</el-button>
+    <el-table
+      border
+      stripe
+      highlight-current-row
+      :span-method="objectSpanMethod"
+      @current-change="handleCurrentChange"
+      :data="tableData"
+      style="width: 100%;margin-top: 20px;margin-bottom: 20px">
+      <el-table-column
+        prop="hostname"
+        label="节点名">
+      </el-table-column>
+      <el-table-column
+        prop="ip"
+        label="IP">
+      </el-table-column>
+      <el-table-column
+        prop="osd"
+        label="OSD">
+        <el-table-column
+          prop="id"
+          label="ID">
+        </el-table-column>
+        <el-table-column
+          prop="device_class"
+          label="设备类型">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态">
+        </el-table-column>
+        <el-table-column
+          prop="numpg"
+          label="PGs">
+        </el-table-column>
+        <el-table-column
+          prop="used"
+          label="使用情况">
+        </el-table-column>
+        <el-table-column
+          prop="read_bytes"
+          label="Read bytes">
+        </el-table-column>
+        <el-table-column
+          prop="write_bytes"
+          label="Write bytes">
+        </el-table-column>
+        <el-table-column
+          prop="read_ops"
+          label="Read ops">
+        </el-table-column>
+        <el-table-column
+          prop="write_ops"
+          label="Write ops">
+        </el-table-column>
+      </el-table-column>
+      <el-table-column label="编辑">
+        <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="primary"
+            @click="handleEdit(scope.$index, scope.row)">修改状态</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
     <i-dialog title="新增OSD" :show="dialogVisible1"
               @confirmClicked="confirmClicked1"
               @cancelClicked="cancelClicked1">
@@ -31,6 +90,7 @@
         </select>
       </div>
     </i-dialog>
+
     <i-dialog title="确定删除当前选中的OSD?" :show="dialogVisible2"
               @confirmClicked="confirmClicked2"
               @cancelClicked="cancelClicked2">
@@ -39,22 +99,46 @@
         <div class="label">{{currentosd.ip}}</div>
       </div>
       <div class="form">
-        <div class="label">OSD： </div>
-        <div class="label">{{currentosd.name}}</div>
+        <div class="label">OSD ID： </div>
+        <div class="label">{{currentosd.id}}</div>
+      </div>
+    </i-dialog>
+
+    <i-dialog title="修改OSD状态" :show="dialogVisible3"
+              @confirmClicked="confirmClicked3"
+              @cancelClicked="dialogVisible3 = false">
+      <div class="form">
+        <div class="label">IP： </div>
+        <div class="label">{{currentosd.ip}}</div>
+      </div>
+      <div class="form">
+        <div class="label">OSD ID： </div>
+        <div class="label">{{currentosd.id}}</div>
+      </div>
+      <div class="form">
+        <div class="label">in/out： </div>
+        <select style="width: 195px;background-color: #fff;height: 22px;" id="in">
+          <option value="inOSD" :selected="currentosd.stats.in">inOSD</option>
+          <option value="outOSD" :selected="!currentosd.stats.in">outOSD</option>
+        </select>
+      </div>
+      <div class="form">
+        <div class="label">enable/disable： </div>
+        <select style="width: 195px;background-color: #fff;height: 22px" id="enable">
+          <option value="enableOSD" :selected="currentosd.stats.enable">enableOSD</option>
+          <option value="disableOSD" :selected="!currentosd.stats.enable">disableOSD</option>
+        </select>
       </div>
     </i-dialog>
   </div>
 </template>
 
 <script>
-  import { getList, getDisk, createOSD, deleteOSD, getosdTree, setosdClass } from '@/api/clusters/dataNode'
-  import { getNodeList } from '@/api/clusters/pNode'
-  import iTable from './../../components/Table/nodeTable'
+  import { getList, getDisk, createOSD, deleteOSD, setosdClass, setosdStatus } from '@/api/clusters/dataNode'
+  import { convertunit } from '../../utils/convert'
+
   export default {
     name: 'storageNode',
-    components: {
-      iTable
-    },
     data() {
       return {
         nodeList: [],
@@ -67,7 +151,10 @@
           name: '',
           ip: '',
           id: '',
-          device_class: ''
+          stats: {
+            in: true,
+            enable: true
+          }
         },
         osdid: '',
         ip: '',
@@ -80,117 +167,46 @@
         dialogVisible1: false,
         dialogVisible2: false,
         dialogVisible3: false,
-        tabledata: [],
-        osdlabels: [{
-          label: 'ID',
-          prop: 'id'
-        }, {
-          label: '设备类型',
-          prop: 'device_class'
-        }, {
-          label: '状态',
-          prop: 'state'
-        }, {
-          label: 'PGs',
-          prop: 'numpg'
-        }, {
-          label: '使用',
-          prop: 'usage'
-        }, {
-          label: 'Read bytes',
-          prop: 'op_out_bytes'
-        }, {
-          label: 'Write bytes',
-          prop: 'op_in_bytes'
-        }, {
-          label: 'Read ops',
-          prop: 'op_r'
-        }, {
-          label: 'Write ops',
-          prop: 'op_w'
-        }],
-        labels: [
-          {
-            label: '节点名',
-            prop: 'hostname'
-          }, {
-            label: 'IP',
-            prop: 'ip'
-          }]
+        tableData: [],
+        pos: 0,
+        spanArr: []
       }
     },
+    mounted() {
+      this.fetchData()
+    },
+    beforeDestroy() {},
     methods: {
-      refresh() {
-        // this.time = setInterval(() => {
-        //   this.fetchData()
-        // }, 1000)
-      },
       fetchData() {
-        getNodeList().then(res => {
-          if (res.data.code === 0) {
-            this.nodeList = res.data.data
-          }
-        })
         getList().then(res => {
-          const data = res.data.data
-          this.tabledata = []
-          data.forEach(osd => {
-            if (osd.osds.length === 0) {
-              if (osd.ip !== '') {
-                this.tabledata.push({
-                  hostname: osd.hostname,
-                  ip: osd.ip
-                })
-              }
-            } else {
-              osd.osds.forEach(item => {
-                this.tabledata.push({
-                  hostname: osd.hostname,
-                  osdid: '',
-                  ip: osd.ip,
-                  id: item.id,
-                  device_class: '',
-                  state: this.translatein(item.in) + ',' + this.translateup(item.up),
-                  numpg: item.stats.numpg,
-                  usage: (item.stats.stat_bytes_used / (1024 * 1024 * 1024)).toFixed(1) +
-                  'GiB/' + (item.stats.stat_bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1) +
-                  'TiB',
-                  op_out_bytes: item.stats.op_out_bytes,
-                  op_in_bytes: item.stats.op_in_bytes,
-                  op_r: item.stats.op_r,
-                  op_w: item.stats.op_w
-                })
-              })
-              getosdTree().then(res => {
-                let nodes = res.data.data.nodes
-                nodes.forEach(node => {
-                  if (node.device_class) {
-                    this.tabledata.forEach(item => {
-                      if (item.id === node.name) {
-                        item.device_class = node.device_class
-                        item.osdid = node.id
-                      }
-                    })
+          this.tableData = []
+          if (res.data.code === 0) {
+            if (res.data.data.length > 0) {
+              res.data.data.forEach(node => {
+                const temp = node.osds.map(osd => {
+                  return {
+                    hostname: node.hostname,
+                    ip: node.ip,
+                    id: osd.id,
+                    device_class: osd.device_class,
+                    status: (osd.in === 1 ? 'in' : 'out') + ',' + (osd.up === 1 ? 'up' : 'down'),
+                    numpg: osd.stats.numpg,
+                    used: convertunit(osd.stats.stat_bytes) + '/' + convertunit(osd.stats.stat_bytes_used),
+                    read_bytes: osd.stats.op_out_bytes,
+                    write_bytes: osd.stats.op_in_bytes,
+                    read_ops: osd.stats.op_r,
+                    write_ops: osd.stats.op_w
                   }
                 })
+                this.tableData = this.tableData.concat(temp)
               })
+              this.getSpanArr(this.tableData)
             }
-          })
+          }
         })
       },
-      translatein(val) {
-        if (val === 1) {
-          return 'in'
-        } else {
-          return 'out'
-        }
-      },
-      translateup(val) {
-        if (val === 1) {
-          return 'up'
-        } else {
-          return 'down'
-        }
+      handleEdit() {
+        this.dialogVisible3 = true
       },
       getDisks() {
         if (this.ip) {
@@ -247,13 +263,15 @@
       cancelClicked1() {
         this.dialogVisible1 = false
       },
-      currentchange(val) {
-        this.currentosd.name = val.id
-        this.currentosd.device_class = val.device_class
-        if (val.id) {
+      handleCurrentChange(val) {
+        if (val) {
+          this.currentosd.id = val.id
+          this.currentosd.ip = val.ip
+          this.currentosd.stats.in = val.status.includes('in')
+          this.currentosd.stats.enable = val.status.includes('up')
+          this.isosd = false
           this.state = false
           this.osdid = val.osdid
-          console.log(this.osdid)
         } else {
           this.state = true
         }
@@ -285,32 +303,90 @@
       },
       confirmClicked3() {
         this.dialogVisible3 = false
-        let device = document.getElementById('device').value
-        setosdClass(this.osdid, device).then(res => {
-          if (res.data.code === 0) {
-            this.$message({
-              message: '修改设备类型成功！',
-              type: 'success'
-            })
-            this.fetchData()
-          } else {
-            this.$message({
-              message: '出现错误，请重试！',
-              type: 'error'
-            })
+        const inValue = document.getElementById('in').value
+        const enableValue = document.getElementById('enable').value
+        const inflag = (this.currentosd.stats.in ? 'inOSD' : 'outOSD') !== inValue
+        const enableflag = (this.currentosd.stats.enable ? 'enableOSD' : 'disableOSD') !== enableValue
+        if (inflag) {
+          const params1 = {
+            method: inValue,
+            ip: this.currentosd.ip,
+            osd_num: this.currentosd.id.toString()
           }
-        })
+          setosdStatus(params1).then(res => {
+            if (res.data.code === 0) {
+              // this.dnsData = res.data.data
+              this.fetchData()
+              this.$message({
+                message: 'OSD状态修改成功',
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                message: 'OSD状态修改失败：' + res.data.message,
+                type: 'error'
+              })
+            }
+          })
+        }
+        if (enableflag) {
+          const params2 = {
+            method: enableValue,
+            ip: this.currentosd.ip,
+            osd_num: this.currentosd.id.toString()
+          }
+          setosdStatus(params2).then(res => {
+            if (res.data.code === 0) {
+              // this.dnsData = res.data.data
+              this.fetchData()
+              this.$message({
+                message: 'OSD状态修改成功',
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                message: 'OSD状态修改失败：' + res.data.message,
+                type: 'error'
+              })
+            }
+          })
+        }
       },
-      cancelClicked3() {
-        this.dialogVisible3 = false
+      objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex === 0) {
+          const _row = this.spanArr[rowIndex]
+          const _col = _row > 0 ? 1 : 0
+          return {
+            rowspan: _row,
+            colspan: _col
+          }
+        }
+        if (columnIndex === 1) {
+          const _row = this.spanArr[rowIndex]
+          const _col = _row > 0 ? 1 : 0
+          return {
+            rowspan: _row,
+            colspan: _col
+          }
+        }
+      },
+      getSpanArr(data) {
+        for (var i = 0; i < data.length; i++) {
+          if (i === 0) {
+            this.spanArr.push(1)
+            this.pos = 0
+          } else {
+            // 判断当前元素与上一个元素是否相同
+            if (data[i].hostname === data[i - 1].hostname) {
+              this.spanArr[this.pos] += 1
+              this.spanArr.push(0)
+            } else {
+              this.spanArr.push(1)
+              this.pos = i
+            }
+          }
+        }
       }
-    },
-    mounted() {
-      this.fetchData()
-      this.refresh()
-    },
-    beforeDestroy() {
-      clearInterval(this.time)
     }
   }
 </script>

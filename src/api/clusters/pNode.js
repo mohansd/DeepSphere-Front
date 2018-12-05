@@ -21,3 +21,10 @@ export function deleteNode(ip) {
     method: 'delete'
   })
 }
+
+export function deleteCluster() {
+  return request({
+    url: 'api/ceph/',
+    method: 'delete'
+  })
+}

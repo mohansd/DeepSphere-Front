@@ -7,7 +7,7 @@
                   border
                   stripe
                   v-loading="loading"
-                  style="width: 100%">
+                  style="width: 100%;min-width: 600px">
           <el-table-column v-for="(item, index) in labels" :key="index"
                            :prop="item.prop" :label="item.label" >
           </el-table-column>
@@ -33,6 +33,7 @@
             <template slot-scope="scope">
               <el-button
                 size="mini"
+                type="primary"
                 @click="handleEdit(scope.$index, scope.row)">{{edit}}</el-button>
             </template>
           </el-table-column>
