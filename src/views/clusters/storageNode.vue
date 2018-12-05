@@ -5,6 +5,7 @@
     <el-table
       border
       stripe
+      v-loading="tableLoading"
       highlight-current-row
       :span-method="objectSpanMethod"
       @current-change="handleCurrentChange"
@@ -68,68 +69,117 @@
       </el-table-column>
     </el-table>
 
-    <i-dialog title="新增OSD" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form">
-        <div class="label">IP： </div>
-        <input v-model="ip"/>
-        <el-button size="mini" type="primary" @click="getDisks">查询分区</el-button>
-      </div>
-      <div class="form">
-        <div class="label">选择数据分区： </div>
-        <select style="width: 195px;background-color: #fff;height: 22px" id="disk">
-          <option v-for="item in disks" :key="item" :value="item">{{item}}</option>
-        </select>
-      </div>
-      <div class="form">
-        <div class="label">设置设备类型： </div>
-        <select id="device" style="width: 195px;background-color: #fff;height: 22px">
-          <option value="hdd" label="hdd"></option>
-          <option value="ssd" label="ssd"></option>
-        </select>
-      </div>
-    </i-dialog>
+    <el-dialog
+      :show-close="false"
+      title="新增OSD"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="70px" size="mini"
+               v-loading = "loading"
+               element-loading-text="数据分区查询中..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="IP">
+          <el-input v-model="ip" style="width: 195px"></el-input>
+          <el-button size="mini" type="primary" @click="getDisks">查询分区</el-button>
+        </el-form-item>
+        <el-form-item label="数据分区">
+          <el-select v-model="newNode.disk" placeholder="请选择">
+            <el-option
+              v-for="item in disks"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备类型">
+          <el-select v-model="device" placeholder="请选择">
+            <el-option value="hdd" label="hdd"></el-option>
+            <el-option value="ssd" label="hdd"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
 
-    <i-dialog title="确定删除当前选中的OSD?" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <div class="form">
-        <div class="label">IP： </div>
-        <div class="label">{{currentosd.ip}}</div>
-      </div>
-      <div class="form">
-        <div class="label">OSD ID： </div>
-        <div class="label">{{currentosd.id}}</div>
-      </div>
-    </i-dialog>
+    <el-dialog
+      :show-close="false"
+      title="删除OSD"
+      :visible.sync="dialogVisible2"
+      width="400px"
+      center>
+      <p>确定删除OSD{{currentosd.id}}?</p>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
 
-    <i-dialog title="修改OSD状态" :show="dialogVisible3"
-              @confirmClicked="confirmClicked3"
-              @cancelClicked="dialogVisible3 = false">
-      <div class="form">
-        <div class="label">IP： </div>
-        <div class="label">{{currentosd.ip}}</div>
-      </div>
-      <div class="form">
-        <div class="label">OSD ID： </div>
-        <div class="label">{{currentosd.id}}</div>
-      </div>
-      <div class="form">
-        <div class="label">in/out： </div>
-        <select style="width: 195px;background-color: #fff;height: 22px;" id="in">
-          <option value="inOSD" :selected="currentosd.stats.in">inOSD</option>
-          <option value="outOSD" :selected="!currentosd.stats.in">outOSD</option>
-        </select>
-      </div>
-      <div class="form">
-        <div class="label">enable/disable： </div>
-        <select style="width: 195px;background-color: #fff;height: 22px" id="enable">
-          <option value="enableOSD" :selected="currentosd.stats.enable">enableOSD</option>
-          <option value="disableOSD" :selected="!currentosd.stats.enable">disableOSD</option>
-        </select>
-      </div>
-    </i-dialog>
+    <el-dialog
+      :show-close="false"
+      title="修改OSD状态"
+      :visible.sync="dialogVisible3"
+      width="400px"
+      center>
+      <el-form label-width="70px" size="mini"
+               v-loading = "loading"
+               element-loading-text="修改OSD状态..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="IP">
+          <p style="text-align: center">{{currentosd.ip}}</p>
+        </el-form-item>
+        <el-form-item label="OSD ID">
+          <p style="text-align: center">{{currentosd.id}}</p>
+        </el-form-item>
+        <el-form-item label="in/out">
+          <el-select v-model="currentosd.stats.in" @change="selectChange('in')">
+            <el-option value="inOSD" label="inOSD"></el-option>
+            <el-option value="outOSD" label="outOSD"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="in/out">
+          <el-select v-model="currentosd.stats.enable" @change="selectChange('enable')">
+            <el-option value="enableOSD" label="enableOSD"></el-option>
+            <el-option value="disableOSD" label="disableOSD"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="cancelClicked3" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked3" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <!--<i-dialog title="修改OSD状态" :show="dialogVisible3"-->
+              <!--@confirmClicked="confirmClicked3"-->
+              <!--@cancelClicked="dialogVisible3 = false">-->
+      <!--<div class="form">-->
+        <!--<div class="label">IP： </div>-->
+        <!--<div class="label">{{currentosd.ip}}</div>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">OSD ID： </div>-->
+        <!--<div class="label">{{currentosd.id}}</div>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">in/out： </div>-->
+        <!--<select style="width: 195px;background-color: #fff;height: 22px;" id="in">-->
+          <!--<option value="inOSD" :selected="currentosd.stats.in">inOSD</option>-->
+          <!--<option value="outOSD" :selected="!currentosd.stats.in">outOSD</option>-->
+        <!--</select>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">enable/disable： </div>-->
+        <!--<select style="width: 195px;background-color: #fff;height: 22px" id="enable">-->
+          <!--<option value="enableOSD" :selected="currentosd.stats.enable">enableOSD</option>-->
+          <!--<option value="disableOSD" :selected="!currentosd.stats.enable">disableOSD</option>-->
+        <!--</select>-->
+      <!--</div>-->
+    <!--</i-dialog>-->
   </div>
 </template>
 
@@ -141,6 +191,9 @@
     name: 'storageNode',
     data() {
       return {
+        tableLoading: false,
+        loading: false,
+        device: '',
         nodeList: [],
         state: true,
         newNode: {
@@ -169,7 +222,21 @@
         dialogVisible3: false,
         tableData: [],
         pos: 0,
-        spanArr: []
+        spanArr: [],
+        inValue: '',
+        enableValue: '',
+        flag: {
+          in: false,
+          enable: false
+        },
+        constcurrent: {
+          name: '',
+          ip: '',
+          id: '',
+          stats: {
+            in: true,
+            enable: true
+          }}
       }
     },
     mounted() {
@@ -210,9 +277,15 @@
       },
       getDisks() {
         if (this.ip) {
+          this.loading = true
           getDisk(this.ip).then(res => {
+            this.loading = false
             if (res.data.code === 0) {
               this.disks = res.data.data
+              this.$message({
+                message: '查询成功，请选择',
+                type: 'success'
+              })
             } else {
               this.$message({
                 message: '出现错误，请确认后重试！',
@@ -223,17 +296,19 @@
         }
       },
       confirmClicked1() {
+        this.tableLoading = true
         this.dialogVisible1 = false
-        this.nodeList.forEach(item => {
+        this.tableData.forEach(item => {
           if (this.ip === item.ip) {
             this.newNode.hostname = item.hostname
           }
         })
-        this.newNode.disk = document.getElementById('disk').value
+        // this.newNode.disk = document.getElementById('disk').value
         createOSD(this.newNode).then(res => {
           if (res.data.code === 0) {
             this.setOSDClass(res.data.data.id)
           } else {
+            this.tableLoading = false
             this.$message({
               message: '新增OSD失败，请确认后重试！',
               type: 'error'
@@ -242,8 +317,9 @@
         })
       },
       setOSDClass(id) {
-        let device = document.getElementById('device').value
-        setosdClass(id, device).then(res => {
+        // let device = document.getElementById('device').value
+        setosdClass(id, this.device).then(res => {
+          this.tableLoading = false
           if (res.data.code === 0) {
             this.$message({
               message: '新增OSD成功！',
@@ -267,8 +343,12 @@
         if (val) {
           this.currentosd.id = val.id
           this.currentosd.ip = val.ip
-          this.currentosd.stats.in = val.status.includes('in')
-          this.currentosd.stats.enable = val.status.includes('up')
+          this.currentosd.stats.in = val.status.includes('in') ? 'inOSD' : 'outOSD'
+          this.currentosd.stats.enable = val.status.includes('up') ? 'enableOSD' : 'disableOSD'
+          this.constcurrent.id = val.id
+          this.constcurrent.ip = val.ip
+          this.constcurrent.stats.in = val.status.includes('in') ? 'inOSD' : 'outOSD'
+          this.constcurrent.stats.enable = val.status.includes('up') ? 'enableOSD' : 'disableOSD'
           this.isosd = false
           this.state = false
           this.osdid = val.osdid
@@ -301,19 +381,21 @@
       cancelClicked2() {
         this.dialogVisible2 = false
       },
+      cancelClicked3() {
+        this.dialogVisible3 = false
+      },
       confirmClicked3() {
         this.dialogVisible3 = false
-        const inValue = document.getElementById('in').value
-        const enableValue = document.getElementById('enable').value
-        const inflag = (this.currentosd.stats.in ? 'inOSD' : 'outOSD') !== inValue
-        const enableflag = (this.currentosd.stats.enable ? 'enableOSD' : 'disableOSD') !== enableValue
-        if (inflag) {
+        if (this.constcurrent.stats.in !== this.currentosd.stats.in) {
+          this.tableLoading = true
           const params1 = {
-            method: inValue,
+            method: this.currentosd.stats.in,
             ip: this.currentosd.ip,
             osd_num: this.currentosd.id.toString()
           }
           setosdStatus(params1).then(res => {
+            this.tableLoading = false
+            this.flag.in = false
             if (res.data.code === 0) {
               // this.dnsData = res.data.data
               this.fetchData()
@@ -329,13 +411,16 @@
             }
           })
         }
-        if (enableflag) {
+        if (this.constcurrent.stats.enable !== this.currentosd.stats.enable) {
+          this.tableLoading = true
           const params2 = {
-            method: enableValue,
+            method: this.currentosd.stats.enable,
             ip: this.currentosd.ip,
             osd_num: this.currentosd.id.toString()
           }
           setosdStatus(params2).then(res => {
+            this.tableLoading = false
+            this.flag.enable = false
             if (res.data.code === 0) {
               // this.dnsData = res.data.data
               this.fetchData()
@@ -371,6 +456,8 @@
         }
       },
       getSpanArr(data) {
+        this.spanArr = []
+        this.pos = 0
         for (var i = 0; i < data.length; i++) {
           if (i === 0) {
             this.spanArr.push(1)
@@ -386,6 +473,9 @@
             }
           }
         }
+      },
+      selectChange(type) {
+        this.flag[type] = !this.flag[type]
       }
     }
   }

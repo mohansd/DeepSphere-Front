@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <el-button type="primary" size="medium" class="my-button" icon="el-icon-plus" @click.native="dialogVisible1=true">新增文件系统</el-button>
-    <el-button type="primary" size="medium" class="my-button" icon="el-icon-plus" @click.native="dialogVisible2=true">挂载文件系统</el-button>
+    <el-button type="primary" size="medium" class="my-button" icon="el-icon-plus" @click.native="dialogVisible2=true" :disabled="isFile">挂载文件系统</el-button>
     <el-button type="primary" icon="el-icon-refresh" @click.native="refresh" size="medium">刷新</el-button>
     <el-button type="danger" size="medium" :disabled="isFile" @click.native="hangledelete" icon="el-icon-close">删除</el-button>
     <i-table :tabledata="tabledata" :labels="labels"
@@ -9,31 +9,54 @@
              @currentchange="handlecurrentchange"
              style="margin-top: 20px"
              :loading="loading"
-             :showedit="false"></i-table>
-    <i-dialog title="新增文件系统" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form">
-        <div class="label">文件系统名： </div>
-        <input v-model="newfs.fsName"/>
-      </div>
-      <div class="form">
-        <div class="label">元数据池： </div>
-        <input v-model="newfs.meta_pool"/>
-      </div>
-      <div class="form">
-        <div class="label">存储数据池： </div>
-        <input v-model="newfs.data_pool"/>
-      </div>
-    </i-dialog>
-    <i-dialog title="挂载文件系统" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <div class="form">
-        <div class="label">IP： </div>
-        <input v-model="ip"/>
-      </div>
-    </i-dialog>
+             :showedit="false">
+    </i-table>
+
+    <el-dialog
+      :show-close="false"
+      title="新增文件系统"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="90px" size="mini"
+               v-loading="loading"
+               element-loading-text="新增文件系统..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="文件系统名">
+          <el-input v-model="newfs.fsName"></el-input>
+        </el-form-item>
+        <el-form-item label="元数据池">
+          <el-input v-model="newfs.meta_pool"></el-input>
+        </el-form-item>
+        <el-form-item label="存储数据池">
+          <el-input v-model="newfs.data_pool"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="挂载文件系统"
+      :visible.sync="dialogVisible2"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="90px" size="mini"
+               v-loading="loading"
+               element-loading-text="挂载文件系统..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="IP">
+          <el-input v-model="ip"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -134,7 +157,6 @@
         })
       },
       confirmClicked1() {
-        this.dialogVisible1 = false
         this.loading = true
         createfs(this.newfs).then(res => {
           if (res.data.code === 0) {
@@ -144,9 +166,10 @@
             })
             this.loading = false
             this.fetchData()
+            this.dialogVisible1 = false
           } else {
             this.$message({
-              message: '文件系统添加失败！  ' + res.data.message,
+              message: '文件系统添加失败:' + res.data.message,
               type: 'error'
             })
             this.loading = false
@@ -162,8 +185,10 @@
       },
       confirmClicked2() {
         this.dialogVisible2 = false
+        this.loading = true
         console.log(this.ip, this.currentfs.name)
         mountfs(this.ip, this.currentfs.name).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
             this.$message({
               message: '挂载成功！',
@@ -175,6 +200,7 @@
               type: 'error'
             })
           }
+          this.fetchData()
         })
       },
       cancelClicked2() {

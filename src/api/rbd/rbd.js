@@ -39,8 +39,16 @@ export function addImage(params) {
 // 删除镜像
 export function deleteImage(pool, image) {
   return request({
-    url: `/api/cephRbd/${pool}/${image}`,
+    url: `/api/cephRbd/image/${pool}/${image}`,
     method: 'delete'
   })
 }
 
+// 添加/删除iscsi目标
+export function setImageTarget(params) {
+  return request({
+    url: `/api/cephRbd/image`,
+    method: 'put',
+    data: params
+  })
+}

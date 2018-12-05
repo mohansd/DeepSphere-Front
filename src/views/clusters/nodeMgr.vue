@@ -7,39 +7,50 @@
              @currentchange="currentchange"
              style="margin-top: 20px;margin-bottom: 20px"
              :showedit="showEdit"></i-table>
-    <i-dialog title="新增节点" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form">
-        <div class="label">节点IP： </div>
-        <input v-model="newNode.ip"/>
-      </div>
-      <div class="form">
-        <div class="label">用户名： </div>
-        <input v-model="newNode.username"/>
-      </div>
-      <div class="form">
-        <div class="label">密码： </div>
-        <input v-model="newNode.password"/>
-      </div>
-    </i-dialog>
-    <i-dialog title="删除集群" :show="dialogVisible2"
-              @confirmClicked="handleDeleteCluster"
-              @cancelClicked="dialogVisible2 = false">
-      <p style="width: 100%; text-align: center">确定删除集群？</p>
-    </i-dialog>
+    <el-dialog
+      :show-close="false"
+      title="新增节点"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="60px" size="mini">
+        <el-form-item label="节点IP">
+          <el-input v-model="newNode.ip"></el-input>
+        </el-form-item>
+        <el-form-item label="用户名">
+          <el-input v-model="newNode.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="newNode.password"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+    <el-dialog
+      :show-close="false"
+      title="删除集群"
+      :visible.sync="dialogVisible2"
+      width="400px"
+      center>
+      <p>确定删除集群: {{deletePool}}?</p>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="handleDeleteCluster" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import { getNodeList, addNode, deleteNode, deleteCluster } from '@/api/clusters/pNode'
   import iTable from './../../components/Table/index'
-  import iButton from './../../components/Button/iButton'
   export default {
     name: 'shelfManage',
     components: {
-      iTable,
-      iButton
+      iTable
     },
     data() {
       return {
@@ -157,7 +168,7 @@
         addNode(this.newNode).then(res => {
           if (res.data.code !== 0) {
             this.$message({
-              message: '节点信息错误！',
+              message: '新增节点失败：' + res.data.message,
               type: 'error'
             })
           } else {

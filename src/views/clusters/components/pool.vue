@@ -8,60 +8,85 @@
              @currentchange="handlecurrentchange"
              style="margin-top: 20px"
              @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增数据池" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form">
-        <div class="label">数据池名称： </div>
-        <input v-model="newPool.name" placeholder="输入数据池名称"/>
-      </div>
-      <div class="form">
-        <div class="label">对象组数量： </div>
-        <input v-model="newPool.pgNum" placeholder="输入对象组"/>
-      </div>
-      <div class="form">
-        <div class="label">冗余方式： </div>
-        <el-radio v-model="type" label="replicated" @change="replicatedmode">副本</el-radio>
-        <el-radio v-model="type" label="erasure" @change="erasuremode">纠删码</el-radio>
-      </div>
-      <div class="form">
-        <div class="label">映射规则： </div>
-        <select id="rule">
-          <option v-for="rule in ruleName" :key="rule" :value="rule" :label="rule"></option>
-        </select>
-      </div>
-      <div class="form" v-show="type === 'erasure'">
-        <div class="label">纠删码规则： </div>
-        <select id="ecProfile">
-          <option v-for="ec in ecProfile" :key="ec" :value="ec" :label="ec"></option>
-        </select>
-      </div>
-    </i-dialog>
 
-    <i-dialog title="配置数据池" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <div class="form">
-        <div class="label">数据池名称： </div>
-        <div class="label" id="poolName" style="text-align: left">{{poolName}}</div>
-      </div>
-      <div class="form">
-        <div class="label">副本数： </div>
-        <input id="size" v-model="size"/>
-      </div>
-      <div class="form">
-        <div class="label">对象组数量： </div>
-        <input id="pg_num" v-model="pg_num"/>
-      </div>
-      <div class="form">
-        <div class="label">pgs： </div>
-        <input id="pgp_num" v-model="pgp_num"/>
-      </div>
-      <div class="form">
-        <div class="label">配额： </div>
-        <input id="max_bytes" v-model="max_bytes"/>
-      </div>
-    </i-dialog>
+    <el-dialog
+      :show-close="false"
+      title="新增数据池"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="90px" size="mini"
+               v-loading="loading"
+               element-loading-text="新增数据池..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="数据池名称">
+          <el-input v-model="newPool.name"></el-input>
+        </el-form-item>
+        <el-form-item label="对象组数量">
+          <el-input v-model="newPool.pgNum"></el-input>
+        </el-form-item>
+        <el-form-item label="冗余方式">
+          <el-radio v-model="type" label="replicated" @change="replicatedmode">副本</el-radio>
+          <el-radio v-model="type" label="erasure" @change="erasuremode">纠删码</el-radio>
+        </el-form-item>
+        <el-form-item label="映射规则">
+          <el-select v-model="newPool.ruleName" placeholder="请选择">
+            <el-option
+              v-for="item in ruleName"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="映射规则" v-show="type === 'erasure'">
+          <el-select v-model="newPool.ecProfile" placeholder="请选择">
+            <el-option
+              v-for="item in ecProfile"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="配置数据池"
+      :visible.sync="dialogVisible2"
+      width="450px"
+      center>
+      <el-form label-width="90px" size="mini"
+               v-loading = "loading"
+               element-loading-text="配置数据池..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="数据池名称">
+          <p style="text-align: center">{{poolName}}</p>
+        </el-form-item>
+        <el-form-item label="副本数">
+          <el-input v-model="size"></el-input>
+        </el-form-item>
+        <el-form-item label="对象组数量">
+          <el-input v-model="pg_num"></el-input>
+        </el-form-item>
+        <el-form-item label="pgs">
+          <el-input v-model="pgp_num"></el-input>
+        </el-form-item>
+        <el-form-item label="配额">
+          <el-input v-model="max_bytes"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -78,6 +103,7 @@
     },
     data() {
       return {
+        loading: false,
         edit: '编辑',
         type: 'replicated',
         ecProfile: [],
@@ -185,12 +211,12 @@
         })
       },
       confirmClicked1() {
-        this.dialogVisible1 = false
-        this.newPool.ecProfile = document.getElementById('ecProfile').value
-        this.newPool.ruleName = document.getElementById('rule').value
+        this.loading = true
         this.newPool.pgpNum = this.newPool.pgNum
         createPool(this.newPool).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
+            this.dialogVisible1 = false
             this.$message({
               message: '新增Pool成功！',
               type: 'success'
@@ -212,15 +238,16 @@
         console.log(row)
       },
       confirmClicked2() {
-        this.dialogVisible2 = false
+        this.loading = true
         this.tabledata.forEach(item => {
+          this.loading = false
+          this.dialogVisible2 = false
           if (item.name === this.poolName) {
             if (item.size !== this.size) {
               let params = {
                 size: this.size
               }
               changePool(this.poolName, params).then(res => {
-                console.log(res.data)
                 if (res.data.code === 0) {
                   this.$message({
                     message: 'Pool配置成功！',

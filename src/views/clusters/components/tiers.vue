@@ -8,35 +8,80 @@
              @currentchange="handlecurrentchange"
              style="margin-top: 20px"
              @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增缓存池" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form">
-        <div class="label">数据池名称： </div>
-        <select id="pool" @change="handleSelect()">
-          <option v-for="pool in pools" :key="pool"
-                  :value="pool" :label="pool"></option>
-        </select>
-      </div>
-      <div class="form">
-        <div class="label">缓存池： </div>
-        <select id="cachepool">
-          <option v-for="pool in pools" :key="pool"
-                  :disabled="pool === selected"
-                  :value="pool" :label="pool"></option>
-        </select>
-      </div>
-      <div class="form">
-        <div class="label"></div>
-        <span>数据池与缓存池不能相同</span>
-      </div>
-      <div class="form">
-        <div class="label">缓存模式： </div>
-        <select id="mode">
-          <option value="writeback" label="writeback"></option>
-        </select>
-      </div>
-    </i-dialog>
+    <!--<i-dialog title="新增缓存池" :show="dialogVisible1"-->
+              <!--@confirmClicked="confirmClicked1"-->
+              <!--@cancelClicked="cancelClicked1">-->
+      <!--<div class="form">-->
+        <!--<div class="label">数据池名称： </div>-->
+        <!--<select id="pool" @change="handleSelect()">-->
+          <!--<option v-for="pool in pools" :key="pool"-->
+                  <!--:value="pool" :label="pool"></option>-->
+        <!--</select>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">缓存池： </div>-->
+        <!--<select id="cachepool">-->
+          <!--<option v-for="pool in pools" :key="pool"-->
+                  <!--:disabled="pool === selected"-->
+                  <!--:value="pool" :label="pool"></option>-->
+        <!--</select>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label"></div>-->
+        <!--<span>数据池与缓存池不能相同</span>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">缓存模式： </div>-->
+        <!--<select id="mode">-->
+          <!--<option value="writeback" label="writeback"></option>-->
+        <!--</select>-->
+      <!--</div>-->
+    <!--</i-dialog>-->
+
+    <el-dialog
+      :show-close="false"
+      title="新增缓存池"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form label-width="80px" size="mini"
+               v-loading = "loading"
+               element-loading-text="新增缓存池..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="数据池">
+          <el-select v-model="newtier.pool" placeholder="请选择" @change="handleSelect()">
+            <el-option
+              v-for="item in pools"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="缓存池">
+          <el-select v-model="newtier.cachePool" placeholder="请选择">
+            <el-option
+              v-for="item in pools"
+              :disabled="item === selected"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="缓存模式">
+          <el-select v-model="newtier.cacheMode" placeholder="请选择">
+            <el-option label="writeback" value="writeback">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -52,6 +97,7 @@
     },
     data() {
       return {
+        loading: false,
         selected: '',
         dialogVisible1: false,
         dialogVisible2: false,
@@ -88,7 +134,6 @@
         this.pools = []
         getList().then(res => {
           let data = res.data.data.pools
-          console.log(data)
           data.forEach(pool => {
             if (pool.tier_of !== -1) {
               this.tiers.push({
@@ -100,7 +145,6 @@
             }
             this.pools.push(pool.pool_name)
           })
-          console.log(this.tiers)
           if (this.tiers.length > 0) {
             this.tiers.forEach(item => {
               data.forEach(pool => {
@@ -118,36 +162,41 @@
         })
       },
       handleSelect() {
-        if (document.getElementById('pool')) {
-          this.selected = document.getElementById('pool').value
-          console.log(document.getElementById('pool').value)
-        }
+        this.selected = this.newtier.pool
       },
       refreshdata() {
         this.fetchData()
       },
       confirmClicked1() {
-        this.dialogVisible1 = false
-        this.newtier.pool = document.getElementById('pool').value
-        this.newtier.cachePool = document.getElementById('cachepool').value
-        this.newtier.cacheMode = document.getElementById('mode').value
-        createtier(this.newtier).then(res => {
-          if (res.data.code === 0) {
-            this.$message({
-              message: '添加成功！',
-              type: 'success'
-            })
-            this.fetchData()
-            this.newtier.pool = ''
-            this.newtier.cacheMode = ''
-            this.newtier.cachePoo = ''
-          } else {
-            this.$message({
-              message: '添加出错，请确认后重试！',
-              type: 'error'
-            })
-          }
-        })
+        if (this.newtier.pool === this.newtier.cachePool) {
+          this.newtier.pool = ''
+          this.newtier.cachePool = ''
+          this.$message({
+            message: '数据池与缓存池不能相同！',
+            type: 'error'
+          })
+        } else {
+          this.loading = true
+          createtier(this.newtier).then(res => {
+            this.loading = false
+            if (res.data.code === 0) {
+              this.dialogVisible1 = false
+              this.$message({
+                message: '添加成功！',
+                type: 'success'
+              })
+              this.fetchData()
+              this.newtier.pool = ''
+              this.newtier.cacheMode = ''
+              this.newtier.cachePoo = ''
+            } else {
+              this.$message({
+                message: '添加出错，请确认后重试！',
+                type: 'error'
+              })
+            }
+          })
+        }
       },
       cancelClicked1() {
         this.dialogVisible1 = false

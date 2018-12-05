@@ -26,20 +26,21 @@
     <el-button type="primary" class="my-button" icon="el-icon-plus" @click="dialogVisible3=true" size="medium">创建镜像</el-button>
     <el-button type="danger" size="medium" :disabled="isImage" @click="handleDeleteImage" icon="el-icon-close">删除镜像</el-button>
     <el-table
-      v-loading="loading"
+      v-loading="tableLoading"
       border
       stripe
       highlight-current-row
       @current-change="handleCurrentChange"
       :data="tableData"
+      ref="imageTable"
       style="width: 100%;margin-top: 20px">
       <el-table-column
-        prop="hostname"
-        label="主机">
+        prop="pool"
+        label="存储池">
       </el-table-column>
       <el-table-column
-        prop="ip"
-        label="IP">
+        prop="image"
+        label="镜像">
       </el-table-column>
       <el-table-column
         prop="status"
@@ -49,7 +50,7 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status.includes('inactive') ? '开启' : '关闭'}}</el-button>
+            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status === '失效' ? '开启' : '关闭'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -101,19 +102,22 @@
                v-loading="loading"
                element-loading-text="创建镜像..."
                element-loading-spinner="el-icon-loading">
-        <el-form-item label="缓存池">
-          <el-select v-model="newRbd" placeholder="请选择">
+        <el-form-item label="存储池">
+          <el-select v-model="newImage.pool" placeholder="请选择">
             <el-option
-              v-for="item in pools"
+              v-for="item in rbdPools"
               :key="item"
               :label="item"
               :value="item">
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="镜像名">
+          <el-input v-model="newImage.image"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer">
-            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button @click="dialogVisible3 = false" size="small">取 消</el-button>
             <el-button type="primary" @click="handleAddImage" size="small">确 定</el-button>
           </span>
     </el-dialog>
@@ -130,6 +134,7 @@
       return {
         isImage: true,
         loading: false,
+        tableLoading: false,
         dialogVisible1: false,
         dialogVisible2: false,
         dialogVisible3: false,
@@ -139,7 +144,14 @@
         pools: [],
         rbdPools: [],
         deletePool: '',
-        newRbd: ''
+        newRbd: '',
+        newImage: {
+          pool: '',
+          image: '',
+          size: 102400
+        },
+        tableData: [],
+        currentImage: {}
       }
     },
     mounted() {
@@ -147,11 +159,23 @@
     },
     methods: {
       fetchData() {
+        this.isImage = true
         apiRbd.getRbd().then(res => {
           console.log(res)
           console.log(res.data)
+          this.tableData = []
           if (res.data.code === 0) {
-            this.rbdPools = res.data.data.map(item => item.pool)
+            const data = res.data.data
+            this.rbdPools = data.map(item => item.pool)
+            data.forEach(pool => {
+              pool.images.forEach(image => {
+                this.tableData.push({
+                  pool: pool.pool,
+                  image: image.image,
+                  status: image.isTarget ? '生效' : '失效'
+                })
+              })
+            })
           }
         })
         getData().then(res => {
@@ -189,10 +213,30 @@
         })
       },
 
-      handleAddImage() {},
+      handleAddImage() {
+        this.loading = true
+        apiRbd.addImage(this.newImage).then(res => {
+          this.loading = false
+          this.newImage.image = ''
+          this.newImage.pool = ''
+          if (res.data.code === 0) {
+            this.fetchData()
+            this.dialogVisible3 = false
+            this.$message({
+              message: '创建镜像成功！',
+              type: 'success'
+            })
+          } else {
+            this.fetchData()
+            this.$message({
+              message: '创建镜像失败： ' + res.data.message,
+              type: 'error'
+            })
+          }
+        })
+      },
 
       handleDeletePool() {
-        console.log(this.deletePool)
         apiRbd.deleteRbd(this.deletePool).then(res => {
           this.deletePool = ''
           if (res.data.code === 0) {
@@ -213,30 +257,48 @@
       },
 
       handleDeleteImage() {
-        console.log(this.deletePool)
-        apiRbd.deleteImage(this.deletePool).then(res => {
-          this.deletePool = ''
+        this.tableLoading = true
+        apiRbd.deleteImage(this.currentImage.pool, this.currentImage.image).then(res => {
+          this.tableLoading = false
           if (res.data.code === 0) {
             this.fetchData()
-            this.dialogVisible1 = false
             this.$message({
-              message: '销毁RBD缓存池成功！',
+              message: '删除镜像成功！',
               type: 'success'
             })
           } else {
             this.fetchData()
             this.$message({
-              message: '销毁RBD缓存池失败： ' + res.data.message,
+              message: '删除镜像失败： ' + res.data.message,
               type: 'error'
             })
           }
         })
       },
 
-      showInput() {
-        this.inputVisible = true
-        this.$nextTick(_ => {
-          this.$refs.saveTagInput.$refs.input.focus()
+      handleEdit(index, row) {
+        this.tableLoading = true
+        console.log(row)
+        const params = {
+          method: row.status === '失效' ? 'addTarget' : 'removeTarget',
+          pool: row.pool,
+          image: row.image
+        }
+        apiRbd.setImageTarget(params).then(res => {
+          this.tableLoading = false
+          if (res.data.code === 0) {
+            this.fetchData()
+            this.$message({
+              message: '镜像状态修改成功！',
+              type: 'success'
+            })
+          } else {
+            this.fetchData()
+            this.$message({
+              message: '镜像状态修改失败： ' + res.data.message,
+              type: 'error'
+            })
+          }
         })
       },
 
@@ -252,6 +314,7 @@
       handleCurrentChange(val) {
         if (val) {
           this.isImage = false
+          this.currentImage = val
         }
       }
     }

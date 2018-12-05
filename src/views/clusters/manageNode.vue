@@ -18,34 +18,57 @@
       <div style="margin-top: 50px;margin-left: 15%">
       </div>
     </div>
-    <i-dialog title="新增管理节点" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form">
-        <div class="label">节点名： </div>
-        <input v-model="newNode.hostname" placeholder="输入节点名"/>
-      </div>
-      <div class="form">
-        <div class="label">IP： </div>
-        <input v-model="newNode.ip" placeholder="输入IP"/>
-      </div>
-    </i-dialog>
-    <i-dialog title="配置管理节点" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <div class="form">
-        <div class="label">节点名： </div>
-        <input v-model="currentnode.hostname"/>
-      </div>
-      <div class="form">
-        <div class="label">IP： </div>
-        <input v-model="currentnode.ip"/>
-      </div>
-      <div class="form"  style="text-align: center">
-        <el-radio v-model="state" label="sandby" >开启</el-radio>
-        <el-radio v-model="state" label="stop" >关闭</el-radio>
-      </div>
-    </i-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="新增管理节点"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="60px" size="mini"
+               v-loading="loading"
+               element-loading-text="新增管理节点..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="节点名">
+          <el-input v-model="newNode.hostname"></el-input>
+        </el-form-item>
+        <el-form-item label="IP">
+          <el-input v-model="newNode.ip"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="配置管理节点"
+      :visible.sync="dialogVisible2"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="60px" size="mini"
+               v-loading="loading"
+               element-loading-text="配置管理节点..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="节点名">
+          <el-input v-model="currentnode.hostname"></el-input>
+        </el-form-item>
+        <el-form-item label="IP">
+          <el-input v-model="currentnode.ip"></el-input>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-radio v-model="state" label="sandby" >开启</el-radio>
+          <el-radio v-model="state" label="stop" >关闭</el-radio>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -67,6 +90,7 @@
           hostname: '',
           ip: ''
         },
+        loading: false,
         isNode: true,
         state: 'sandby',
         ip: '192.168.3.12',
@@ -157,8 +181,10 @@
         })
       },
       confirmClicked1() {
-        this.dialogVisible1 = false
+        this.loading = true
         addmgrNode(this.newNode).then(res => {
+          this.loading = false
+          this.dialogVisible1 = false
           if (res.data.code !== 0) {
             this.$message({
               message: '管理节点添加失败，请确认后重试！',
@@ -181,19 +207,28 @@
       EditClicked(index, row) {
         this.dialogVisible2 = true
         console.log(index, row)
-        this.state = row.state
+        this.state = row.state === 'running' ? 'sandby' : 'stop'
         this.currentnode.hostname = row.hostname
         this.currentnode.ip = row.ip
       },
       confirmClicked2() {
         console.log(this.state)
+        this.loading = true
         changeState(this.currentnode.ip, this.state).then(res => {
-          this.$message({
-            message: '节点配置成功！',
-            type: 'success'
-          })
+          this.loading = false
+          if (res.data.code === 0) {
+            this.dialogVisible2 = false
+            this.$message({
+              message: '节点配置成功！',
+              type: 'success'
+            })
+          } else {
+            this.$message({
+              message: '节点配置失败！',
+              type: 'error'
+            })
+          }
         })
-        this.dialogVisible2 = false
       },
       cancelClicked2() {
         this.dialogVisible2 = false

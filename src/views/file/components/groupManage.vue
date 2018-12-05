@@ -7,16 +7,30 @@
              edit="配置"
              style="margin-bottom: 20px; margin-top: 20px"
              @currentchange="handleCurrentChange"
-             @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增用户组" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-          <div class="form">
-            <div class="label">名称： </div>
-            <input v-model="newGroup.groupName"/>
-          </div>
-    </i-dialog>
-    <i-dialog title="修改用户组成员" :show="dialogVisible2"
+             @clickEdit="EditClicked">
+    </i-table>
+
+    <el-dialog
+      :show-close="false"
+      title="新增用户组"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="60px" size="mini"
+               v-loading="loading"
+               element-loading-text="新增用户组..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="名称">
+          <el-input v-model="newGroup.groupName"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <i-dialog title="修改用户组成员" :show="dialogVisible3"
               @confirmClicked="confirmClicked2"
               @cancelClicked="cancelClicked2">
           <div style="max-height: 300px;overflow:auto">
@@ -31,6 +45,32 @@
             </el-tree>
           </div>
     </i-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="修改用户组成员"
+      :visible.sync="dialogVisible2"
+      width="400px"
+      center>
+      <div style="max-height: 300px;overflow:auto">
+        <el-tree
+          v-loading="loading"
+          element-loading-text="修改用户组成员..."
+          element-loading-spinner="el-icon-loading"
+          :data="userList"
+          show-checkbox
+          node-key="id"
+          ref="groupList"
+          :default-checked-keys="checkedUser"
+          @check="getCheckedKeys"
+          :props="defaultProps">
+        </el-tree>
+      </div>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -46,6 +86,7 @@ import iTable from './../../../components/Table/index'
     },
     data() {
       return {
+        loading: false,
         hasGroup: true,
         newGroup: {
           groupName: ''
@@ -74,6 +115,7 @@ import iTable from './../../../components/Table/index'
         edit: '编辑',
         dialogVisible1: false,
         dialogVisible2: false,
+        dialogVisible3: false,
         tabledata: [],
         labels: [
           {
@@ -97,13 +139,11 @@ import iTable from './../../../components/Table/index'
               }
             })
           }
-          console.log(this.userList)
         })
         getGroupList().then(res => {
           if (res.data.code === 0) {
             if (res.data.data && res.data.data.length > 0) {
               let groupList = res.data.data
-              console.log(groupList)
               groupList.forEach(item => {
                 let userStr = ''
                 if (item.isSystem === false) {
@@ -133,13 +173,13 @@ import iTable from './../../../components/Table/index'
           // this.newGroup.groups.push(item.label)
           this.currentGroup.users.push(item.label)
         })
-        console.log(this.currentGroup)
       },
       confirmClicked1() {
-        this.dialogVisible1 = false
-        console.log(this.newGroup)
+        this.loading = true
         addGroup(this.newGroup).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
+            this.dialogVisible1 = false
             this.$message({
               message: '用户组添加成功！',
               type: 'success'
@@ -162,12 +202,10 @@ import iTable from './../../../components/Table/index'
       },
       EditClicked(index, row) {
         this.dialogVisible2 = true
-        console.log(row)
         this.currentGroup.groupName = row.groupName
         this.checkedUser = []
         this.$refs.groupList.setCheckedKeys([])
         getGroupInfo(row.groupName).then(res => {
-          console.log(res)
           if (res.data.code === 0) {
             if (res.data.data.users && res.data.data.users.length > 0) {
               let users = res.data.data.users
@@ -175,7 +213,6 @@ import iTable from './../../../components/Table/index'
                 this.userList.forEach(item => {
                   if (user === item.label) {
                     this.checkedUser.push(item.id)
-                    console.log(this.checkedUser)
                     this.$refs.groupList.setCheckedKeys(this.checkedUser)
                   }
                 })
@@ -185,12 +222,14 @@ import iTable from './../../../components/Table/index'
         })
       },
       confirmClicked2() {
-        this.dialogVisible2 = false
+        this.loading = true
         this.currentGroup.users = this.$refs.groupList.getCheckedNodes().map(item => {
           return item.label
         })
         setGroup(this.currentGroup).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
+            this.dialogVisible2 = false
             this.$message({
               message: '用户组成员修改成功！',
               type: 'success'
@@ -216,7 +255,6 @@ import iTable from './../../../components/Table/index'
         console.log(tab, event)
       },
       handleDelete() {
-        console.log(this.currentGroup)
         deleteGroup(this.currentGroup).then(res => {
           if (res.data.code === 0) {
             this.$message({
@@ -234,7 +272,6 @@ import iTable from './../../../components/Table/index'
       },
       handleCurrentChange(val) {
         if (val) {
-          console.log(val)
           // this.current.name = val.groupName
           this.data2[0].children = []
           this.hasGroup = false

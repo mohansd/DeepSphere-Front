@@ -5,70 +5,81 @@
     <i-table :tabledata="tabledata" :labels="labels"
              @currentchange="currentchange"
              style="margin-top: 20px"
-             edit="配置" @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增共享文件夹" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form">
-        <div class="label">名称： </div>
-        <input v-model="newShare.directory"/>
-      </div>
-      <div class="form">
-        <div class="label">浏览器中访问： </div>
-        <el-switch v-model="isBrowseable"></el-switch>
-        <span>{{showBrowseable}}</span>
-      </div>
-      <div class="form">
-        <div class="label">路径： </div>
-        <input v-model="newShare.path"/>
-      </div>
-      <div class="form">
-        <div class="label">匿名访问： </div>
-        <el-switch v-model="isPublic"></el-switch>
-        <span>{{showPublic}}</span>
-      </div>
-      <div class="form">
-        <div class="label">资源可用： </div>
-        <el-switch v-model="isAvailable"></el-switch>
-        <span>{{showAvailable}}</span>
-      </div>
-      <div class="form">
-        <div class="label">注释： </div>
-        <input v-model="newShare.comment"/>
-      </div>
-    </i-dialog>
-    <i-dialog title="配置共享文件夹" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <el-tabs v-model="activeName" type="card" style="margin-top: -20px;">
+             edit="配置" @clickEdit="EditClicked">
+    </i-table>
+
+    <el-dialog
+      :show-close="false"
+      title="新增共享文件夹"
+      :visible.sync="dialogVisible1"
+      width="450px"
+      center>
+      <el-form ref="form" label-width="100px" size="mini"
+               v-loading="loading"
+               element-loading-text="新增共享文件夹..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="名称">
+          <el-input v-model="newShare.directory"></el-input>
+        </el-form-item>
+        <el-form-item label="浏览器中访问">
+          <el-switch v-model="isBrowseable"></el-switch>
+          <span>{{showBrowseable}}</span>
+        </el-form-item>
+        <el-form-item label="路径">
+          <el-input v-model="newShare.path"></el-input>
+        </el-form-item>
+        <el-form-item label="匿名访问">
+          <el-switch v-model="isPublic"></el-switch>
+          <span>{{showPublic}}</span>
+        </el-form-item>
+        <el-form-item label="资源可用">
+          <el-switch v-model="isAvailable"></el-switch>
+          <span>{{showAvailable}}</span>
+        </el-form-item>
+        <el-form-item label="注释">
+          <el-input v-model="newShare.comment"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="配置共享文件夹"
+      :visible.sync="dialogVisible2"
+      width="450px"
+      center>
+      <el-tabs v-model="activeName" type="card" style="margin-top: -20px;margin-left: -20px">
         <el-tab-pane label="文件夹信息" name="first">
-          <div class="form">
-            <div class="label">名称： </div>
-            <input v-model="currentShare.directory"/>
-          </div>
-          <div class="form">
-            <div class="label">浏览器中访问： </div>
-            <el-switch v-model="currentBrowseable"></el-switch>
-            <span>{{showCurrentBrowseable}}</span>
-          </div>
-          <div class="form">
-            <div class="label">路径： </div>
-            <input v-model="currentShare.path"/>
-          </div>
-          <div class="form">
-            <div class="label">匿名访问： </div>
-            <el-switch v-model="currentPublic"></el-switch>
-            <span>{{showCurrentPublic}}</span>
-          </div>
-          <div class="form">
-            <div class="label">资源可用： </div>
-            <el-switch v-model="currentAvailable"></el-switch>
-            <span>{{showCurrentAvailable}}</span>
-          </div>
-          <div class="form">
-            <div class="label">注释： </div>
-            <input v-model="currentShare.comment"/>
-          </div>
+      <el-form ref="form" label-width="100px" size="mini"
+               v-loading="loading"
+               element-loading-text="配置共享文件夹..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="名称">
+          <el-input v-model="currentShare.directory"></el-input>
+        </el-form-item>
+        <el-form-item label="浏览器中访问">
+          <el-switch v-model="currentBrowseable"></el-switch>
+          <span>{{showCurrentBrowseable}}</span>
+        </el-form-item>
+        <el-form-item label="路径">
+          <el-input v-model="currentShare.path"></el-input>
+        </el-form-item>
+        <el-form-item label="匿名访问">
+          <el-switch v-model="currentPublic"></el-switch>
+          <span>{{showCurrentPublic}}</span>
+        </el-form-item>
+        <el-form-item label="资源可用">
+          <el-switch v-model="currentAvailable"></el-switch>
+          <span>{{showCurrentAvailable}}</span>
+        </el-form-item>
+        <el-form-item label="注释">
+          <el-input v-model="currentShare.comment"></el-input>
+        </el-form-item>
+      </el-form>
         </el-tab-pane>
         <el-tab-pane label="权限" name="second" style="margin-top: 0">
           <div style="max-height: 300px; overflow: auto">
@@ -102,7 +113,12 @@
           </div>
         </el-tab-pane>
       </el-tabs>
-    </i-dialog>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -149,6 +165,7 @@
 
     data() {
       return {
+        loading: false,
         check: 'checked',
         showUserList: false,
         showGroupList: false,
@@ -333,9 +350,11 @@
         })
       },
       confirmClicked1() {
-        this.dialogVisible1 = false
+        this.loading = true
         createShare(this.newShare).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
+            this.dialogVisible1 = false
             this.$message({
               message: '新增共享文件夹成功！',
               type: 'success'
@@ -409,11 +428,11 @@
         }
       },
       confirmClicked2() {
-        this.dialogVisible2 = false
         this.currentShare.readUsers = []
         this.currentShare.writeUsers = []
         this.currentShare.readGroups = []
         this.currentShare.writeGroups = []
+        this.loading = true
         this.userList.forEach(item => {
           if (item.read === 'checked') {
             this.currentShare.readUsers.push(item.name)
@@ -433,7 +452,9 @@
         console.log(this.currentShare)
         // console.log(this.userList)
         setShare(this.currentShare).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
+            this.dialogVisible2 = false
             this.$message({
               message: '共享文件夹配置成功！',
               type: 'success'

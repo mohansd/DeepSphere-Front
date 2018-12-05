@@ -6,20 +6,33 @@
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
              style="margin-top: 20px"
-             @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增用户" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-          <div class="form">
-            <div class="label">名称： </div>
-            <input v-model="newuser.userName"/>
-          </div>
-          <div class="form">
-            <div class="label">密码： </div>
-            <input v-model="newuser.passWD"/>
-          </div>
-    </i-dialog>
-    <i-dialog title="修改用户组" :show="dialogVisible2"
+             @clickEdit="EditClicked">
+    </i-table>
+
+    <el-dialog
+      :show-close="false"
+      title="新增用户"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="60px" size="mini"
+               v-loading="loading"
+               element-loading-text="新增用户..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="名称">
+          <el-input v-model="newuser.userName"></el-input>
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="newuser.passWD"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <i-dialog title="修改用户组" :show="dialogVisible3"
               @confirmClicked="confirmClicked2"
               @cancelClicked="cancelClicked2">
         <div style="max-height: 300px;overflow:auto">
@@ -34,6 +47,31 @@
           </el-tree>
         </div>
     </i-dialog>
+    <el-dialog
+      :show-close="false"
+      title="修改用户组"
+      :visible.sync="dialogVisible2"
+      width="400px"
+      center>
+      <div style="max-height: 300px;overflow:auto">
+        <el-tree
+          v-loading="loading"
+          element-loading-text="修改用户组..."
+          element-loading-spinner="el-icon-loading"
+          :data="data"
+          show-checkbox
+          node-key="id"
+          ref="tree"
+          :props="defaultProps"
+          :default-checked-keys="checkeduser"
+          @check="getCheckedKeys">
+        </el-tree>
+      </div>
+      <span slot="footer">
+            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -49,6 +87,7 @@
     },
     data() {
       return {
+        loading: false,
         hasUser: true,
         currentKey: null,
         checkeduser: [],
@@ -157,9 +196,11 @@
         })
       },
       confirmClicked1() {
-        this.dialogVisible1 = false
+        this.loading = true
         addUser(this.newuser).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
+            this.dialogVisible1 = false
             this.$message({
               message: '用户添加成功！',
               type: 'success'
@@ -171,7 +212,7 @@
             this.fetchData()
           } else {
             this.$message({
-              message: '用户添加失败！',
+              message: '用户添加失败:' + res.data.message,
               type: 'error'
             })
           }
@@ -187,6 +228,7 @@
           row.group.forEach(item => {
             if (item === group.label) {
               this.checkeduser.push(group.id)
+              console.log(this.$refs.tree)
               this.$refs.tree.setCheckedKeys(this.checkeduser)
             }
           })
@@ -194,7 +236,7 @@
         this.dialogVisible2 = true
       },
       confirmClicked2() {
-        this.dialogVisible2 = false
+        this.loading = true
         let params = {
           userName: this.currentuser.userName,
           groups: []
@@ -202,9 +244,10 @@
         params.groups = this.$refs.tree.getCheckedNodes().map(item => {
           return item.label
         })
-        console.log(params)
         setUser(params).then(res => {
+          this.loading = false
           if (res.data.code === 0) {
+            this.dialogVisible2 = false
             this.$message({
               message: '用户组修改成功！',
               type: 'success'
