@@ -96,7 +96,7 @@
         <el-form-item label="设备类型">
           <el-select v-model="device" placeholder="请选择">
             <el-option value="hdd" label="hdd"></el-option>
-            <el-option value="ssd" label="hdd"></el-option>
+            <el-option value="ssd" label="ssd"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
