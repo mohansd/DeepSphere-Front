@@ -61,7 +61,7 @@
 </template>
 
 <script>
-  import { sambaSetting, setSMB, restartSMB, getStat, nfsFreshShare, nfsRestart, nfsStop } from '@/api/file/nas'
+  import { sambaSetting, setSMB, restartSMB, nfsFreshShare, nfsRestart, nfsStop } from '@/api/file/nas'
   import iTabs from './../../components/Tabs/index'
   export default {
     name: 'NAS',
@@ -126,11 +126,11 @@
             })
           }
         })
-        getStat().then(res => {
-          if (res.data.code === 0) {
-            this.nfsState = res.data.data.isStart
-          }
-        })
+        // getStat().then(res => {
+        //   if (res.data.code === 0) {
+        //     this.nfsState = res.data.data.isStart
+        //   }
+        // })
       },
       setnfsStat() {
         if (this.nfsState) {

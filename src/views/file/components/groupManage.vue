@@ -28,7 +28,7 @@
         label="编辑"
         width="180">
         <template slot-scope="scope">
-          <el-button @click="EditClicked(scope.$index, scope.row)" size="small">配置</el-button>
+          <el-button @click="EditClicked(scope.$index, scope.row)" size="small" type="primary">配置</el-button>
           <el-button size="small" @click="dialogVisible3 = true">配额</el-button>
         </template>
       </el-table-column>

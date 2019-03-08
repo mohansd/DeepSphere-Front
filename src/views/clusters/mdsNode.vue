@@ -26,7 +26,7 @@
         <template slot-scope="scope">
           <el-button
             size="mini"
-            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status.includes('inactive') ? '开启' : '关闭'}}</el-button>
+            @click="handleEdit(scope.$index, scope.row)">{{scope.row.status.includes('failed') ? '开启' : '关闭'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
