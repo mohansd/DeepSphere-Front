@@ -25,9 +25,6 @@
           <el-switch v-model="isBrowseable"></el-switch>
           <span>{{showBrowseable}}</span>
         </el-form-item>
-        <el-form-item label="路径">
-          <el-input v-model="newShare.path"></el-input>
-        </el-form-item>
         <el-form-item label="匿名访问">
           <el-switch v-model="isPublic"></el-switch>
           <span>{{showPublic}}</span>
@@ -64,9 +61,6 @@
         <el-form-item label="浏览器中访问">
           <el-switch v-model="currentBrowseable"></el-switch>
           <span>{{showCurrentBrowseable}}</span>
-        </el-form-item>
-        <el-form-item label="路径">
-          <el-input v-model="currentShare.path"></el-input>
         </el-form-item>
         <el-form-item label="匿名访问">
           <el-switch v-model="currentPublic"></el-switch>

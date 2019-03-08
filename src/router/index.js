@@ -128,10 +128,10 @@ export const asyncRouterMap = [
         meta: { title: '文件系统管理', roles: ['user'] }
       },
       {
-        path: 'nas',
-        name: 'NAS',
-        component: () => import('@/views/file/NAS'),
-        meta: { title: 'NAS管理', roles: ['user'] }
+        path: 'protocol',
+        name: 'Protocol',
+        component: () => import('@/views/file/protocol'),
+        meta: { title: '协议管理', roles: ['user'] }
       },
       {
         path: 'fileshare',
@@ -144,6 +144,12 @@ export const asyncRouterMap = [
         name: 'User',
         component: () => import('@/views/file/userManage'),
         meta: { title: '用户管理', roles: ['user'] }
+      },
+      {
+        path: 'nas',
+        name: 'NAS',
+        component: () => import('@/views/file/NAS'),
+        meta: { title: 'NAS管理', roles: ['user'] }
       }
     ]
   },

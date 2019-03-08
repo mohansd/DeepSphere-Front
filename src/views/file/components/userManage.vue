@@ -3,11 +3,38 @@
     <el-button class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" type="primary">新增用户</el-button>
     <el-button type="primary" @click.native="refresh" icon="el-icon-refresh">刷新</el-button>
     <el-button type="danger" @click="deleteUser" icon="el-icon-close" :disabled="hasUser">删除</el-button>
-    <i-table :tabledata="tabledata" :labels="labels" edit="配置"
-             @currentchange="currentchange"
-             style="margin-top: 20px"
-             @clickEdit="EditClicked">
-    </i-table>
+    <!--<i-table :tabledata="tabledata" :labels="labels" edit="配置"-->
+             <!--@currentchange="currentchange"-->
+             <!--style="margin-top: 20px"-->
+             <!--@clickEdit="EditClicked">-->
+    <!--</i-table>-->
+
+    <el-table
+      v-loading="loading"
+      style="margin-top: 20px"
+      :data="tabledata"
+      border
+      highlight-current-row
+      @current-change="handleCurrentChange"
+      stripe>
+      <el-table-column
+        label="用户"
+        prop="userName">
+      </el-table-column>
+      <el-table-column
+        label="用户组"
+        prop="groups">
+      </el-table-column>
+      <el-table-column
+        label="编辑"
+        width="180">
+        <template slot-scope="scope">
+          <el-button @click="EditClicked(scope.$index, scope.row)" size="small">配置</el-button>
+          <el-button size="small" @click="dialogVisible3 = true">配额</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
 
     <el-dialog
       :show-close="false"
@@ -32,21 +59,6 @@
           </span>
     </el-dialog>
 
-    <i-dialog title="修改用户组" :show="dialogVisible3"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-        <div style="max-height: 300px;overflow:auto">
-          <el-tree
-            :data="data"
-            show-checkbox
-            node-key="id"
-            ref="tree"
-            :props="defaultProps"
-            :default-checked-keys="checkeduser"
-            @check="getCheckedKeys">
-          </el-tree>
-        </div>
-    </i-dialog>
     <el-dialog
       :show-close="false"
       title="修改用户组"
@@ -67,11 +79,40 @@
           @check="getCheckedKeys">
         </el-tree>
       </div>
-      <span slot="footer">
+      <div slot="footer">
             <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
             <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="配额管理"
+      :visible.sync="dialogVisible3"
+      width="400px"
+      center>
+      <el-form label-width="100px" size="mini"
+               v-model="userQuota"
+               v-loading="loading"
+               element-loading-text="配置用户配额..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="用户名">
+          <span>{{userQuota.userName}}</span>
+        </el-form-item>
+        <el-form-item label="容量配额">
+          <el-input v-model="userQuota.quotaBytes" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="文件数配额">
+          <el-input v-model="userQuota.quotaFiles" type="number"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible3 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked3" size="small">确 定</el-button>
           </span>
     </el-dialog>
+
+
   </div>
 </template>
 
@@ -87,6 +128,11 @@
     },
     data() {
       return {
+        userQuota: {
+          userName: '',
+          quotaBytes: 0,
+          quotaFiles: 0
+        },
         loading: false,
         hasUser: true,
         currentKey: null,
@@ -161,6 +207,7 @@
       fetchData() {
         this.tabledata = []
         this.data = []
+        this.loading = true
         getUserList().then(res => {
           console.log(res)
           res.data.data.forEach(user => {
@@ -182,6 +229,7 @@
               })
             }
           })
+          this.loading = false
         })
         getGroupList().then(res => {
           console.log(res)
@@ -224,12 +272,15 @@
       EditClicked(index, row) {
         console.log(index, row)
         this.checkeduser = []
+        this.dialogVisible2 = true
         this.data.forEach(group => {
           row.group.forEach(item => {
             if (item === group.label) {
               this.checkeduser.push(group.id)
               console.log(this.$refs.tree)
-              this.$refs.tree.setCheckedKeys(this.checkeduser)
+              if (this.$refs.tree) {
+                this.$refs.tree.setCheckedKeys(this.checkeduser)
+              }
             }
           })
         })
@@ -267,6 +318,7 @@
       },
       confirmClicked3() {
         this.dialogVisible3 = false
+        console.log(this.userQuota)
       },
       cancelClicked3() {
         this.dialogVisible3 = false
@@ -274,11 +326,16 @@
       handleClick(tab, event) {
         console.log(tab, event)
       },
-      currentchange(val) {
+      handleCurrentChange(val) {
         if (val) {
           console.log(val)
           this.hasUser = false
           this.currentuser.userName = val.userName
+          this.userQuota = {
+            userName: val.userName,
+            quotaBytes: val.quotaBytes ? val.quotaBytes : 0,
+            quotaFiles: val.quotaFiles ? val.quotaFiles : 0
+          }
         } else {
           this.hasUser = true
         }

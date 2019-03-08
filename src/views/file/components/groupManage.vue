@@ -3,12 +3,36 @@
     <el-button class="my-button" icon="el-icon-plus" @click="dialogVisible1=true" type="primary">新增用户组</el-button>
     <el-button type="primary" @click="fetchData" icon="el-icon-refresh">刷新</el-button>
     <el-button type="danger" icon="el-icon-close" :disabled="hasGroup" @click="handleDelete">删除</el-button>
-    <i-table :tabledata="tabledata" :labels="labels"
-             edit="配置"
-             style="margin-bottom: 20px; margin-top: 20px"
-             @currentchange="handleCurrentChange"
-             @clickEdit="EditClicked">
-    </i-table>
+    <!--<i-table :tabledata="tabledata" :labels="labels"-->
+             <!--edit="配置"-->
+             <!--style="margin-bottom: 20px; margin-top: 20px"-->
+             <!--@currentchange="handleCurrentChange"-->
+             <!--@clickEdit="EditClicked">-->
+    <!--</i-table>-->
+    <el-table
+      style="margin-top: 20px"
+      :data="tabledata"
+      border
+      highlight-current-row
+      @current-change="handleCurrentChange"
+      stripe>
+      <el-table-column
+        label="用户组"
+        prop="groupName">
+      </el-table-column>
+      <el-table-column
+        label="成员"
+        prop="users">
+      </el-table-column>
+      <el-table-column
+        label="编辑"
+        width="180">
+        <template slot-scope="scope">
+          <el-button @click="EditClicked(scope.$index, scope.row)" size="small">配置</el-button>
+          <el-button size="small" @click="dialogVisible3 = true">配额</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
 
     <el-dialog
       :show-close="false"
@@ -30,22 +54,6 @@
           </span>
     </el-dialog>
 
-    <i-dialog title="修改用户组成员" :show="dialogVisible3"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-          <div style="max-height: 300px;overflow:auto">
-            <el-tree
-              :data="userList"
-              show-checkbox
-              node-key="id"
-              ref="groupList"
-              :default-checked-keys="checkedUser"
-              @check="getCheckedKeys"
-              :props="defaultProps">
-            </el-tree>
-          </div>
-    </i-dialog>
-
     <el-dialog
       :show-close="false"
       title="修改用户组成员"
@@ -66,9 +74,36 @@
           :props="defaultProps">
         </el-tree>
       </div>
+      <div slot="footer">
+        <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
+        <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="配额管理"
+      :visible.sync="dialogVisible3"
+      width="400px"
+      center>
+      <el-form label-width="100px" size="mini"
+               v-model="groupQuota"
+               v-loading="loading"
+               element-loading-text="配置用户组配额..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="用户组名">
+          <span>{{groupQuota.groupName}}</span>
+        </el-form-item>
+        <el-form-item label="容量配额">
+          <el-input v-model="groupQuota.quotaBytes" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="文件数配额">
+          <el-input v-model="groupQuota.quotaFiles" type="number"></el-input>
+        </el-form-item>
+      </el-form>
       <span slot="footer">
-            <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
-            <el-button type="primary" @click="confirmClicked2" size="small">确 定</el-button>
+            <el-button @click="dialogVisible3 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked3" size="small">确 定</el-button>
           </span>
     </el-dialog>
   </div>
@@ -86,6 +121,11 @@ import iTable from './../../../components/Table/index'
     },
     data() {
       return {
+        groupQuota: {
+          groupName: '',
+          quotaBytes: 0,
+          quotaFiles: 0
+        },
         loading: false,
         hasGroup: true,
         newGroup: {
@@ -166,6 +206,7 @@ import iTable from './../../../components/Table/index'
           }
         })
       },
+
       getCheckedKeys(value1, value2) {
         // this.newuser.groups = []
         this.currentGroup.users = []
@@ -197,22 +238,27 @@ import iTable from './../../../components/Table/index'
           this.fetchData()
         })
       },
+
       cancelClicked1() {
         this.dialogVisible1 = false
       },
+
       EditClicked(index, row) {
         this.dialogVisible2 = true
         this.currentGroup.groupName = row.groupName
         this.checkedUser = []
-        this.$refs.groupList.setCheckedKeys([])
+        if (this.$refs.groupList) {
+          this.$refs.groupList.setCheckedKeys([])
+        }
         getGroupInfo(row.groupName).then(res => {
           if (res.data.code === 0) {
             if (res.data.data.users && res.data.data.users.length > 0) {
               let users = res.data.data.users
               users.forEach((user, index) => {
                 this.userList.forEach(item => {
-                  if (user === item.label) {
+                  if (user === item.label && this.$refs.groupList) {
                     this.checkedUser.push(item.id)
+                    console.log(this.checkedUser)
                     this.$refs.groupList.setCheckedKeys(this.checkedUser)
                   }
                 })
@@ -255,6 +301,7 @@ import iTable from './../../../components/Table/index'
         console.log(tab, event)
       },
       handleDelete() {
+        console.log(this.currentGroup)
         deleteGroup(this.currentGroup).then(res => {
           if (res.data.code === 0) {
             this.$message({
@@ -275,9 +322,19 @@ import iTable from './../../../components/Table/index'
           // this.current.name = val.groupName
           this.data2[0].children = []
           this.hasGroup = false
+          this.currentGroup = val
+          this.groupQuota = {
+            groupName: val.groupName,
+            quotaBytes: val.quotaBytes ? val.quotaBytes : 0,
+            quotaFiles: val.quotaFiles ? val.quotaFiles : 0
+          }
         } else {
           this.hasGroup = true
         }
+      },
+      confirmClicked3() {
+        this.dialogVisible3 = false
+        console.log(this.groupQuota)
       }
     },
     mounted() {

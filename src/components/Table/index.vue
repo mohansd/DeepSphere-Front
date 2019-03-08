@@ -90,5 +90,6 @@
   width: 90%
   background #fff
   padding-bottom 50px
+  min-width 820px
 </style>
 

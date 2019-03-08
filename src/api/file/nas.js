@@ -73,3 +73,47 @@ export function nfsStop() {
     }
   })
 }
+
+export function getNasNodes() {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbGetHost',
+      params: null
+    }
+  })
+}
+
+export function addNasNode(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbAddHost',
+      params: params
+    }
+  })
+}
+
+export function removeNasNode(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbRemoveHost',
+      params: params
+    }
+  })
+}
+
+export function setServives(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbSetServices',
+      params: params
+    }
+  })
+}
