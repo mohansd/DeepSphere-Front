@@ -117,7 +117,7 @@
 </template>
 
 <script>
-  import { getUserList, addUser, deleteUser, getGroupList, setUser } from '@/api/file/user'
+  import { getUserList, addUser, deleteUser, getGroupList, setUser, setUserQuota } from '@/api/file/user'
   import iTable from './../../../components/Table/index'
   import iButton from './../../../components/Button/iButton'
   export default {
@@ -225,7 +225,9 @@
               this.tabledata.push({
                 group: user.groups,
                 userName: user.userName,
-                groups: group
+                groups: group,
+                quotaBytes: user.quotaBytes,
+                quotaFiles: user.quotaFiles
               })
             }
           })
@@ -318,7 +320,17 @@
       },
       confirmClicked3() {
         this.dialogVisible3 = false
+        this.userQuota.quotaFiles = parseInt(this.userQuota.quotaFiles)
+        this.userQuota.quotaBytes = parseInt(this.userQuota.quotaBytes)
         console.log(this.userQuota)
+        setUserQuota(this.userQuota).then(res => {
+          if (res.data.code === 0) {
+            this.$message.success('用户配额设置成功')
+            console.log(res)
+          } else {
+            this.$message.error('用户配额设置失败')
+          }
+        })
       },
       cancelClicked3() {
         this.dialogVisible3 = false

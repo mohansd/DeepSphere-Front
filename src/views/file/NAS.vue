@@ -25,7 +25,7 @@
         :data="tableData"
         style="width: 100%;margin-top: 20px">
         <el-table-column
-          prop="hostname"
+          prop="hostName"
           label="主机">
         </el-table-column>
         <el-table-column
@@ -35,20 +35,24 @@
         <el-table-column
           label="smb">
           <template slot-scope="scope">
-            <el-button :type="scope.row.smb ? 'success' : 'danger'" circle @click="handleSetService('smb', scope.row)"></el-button>
+            <el-button :type="scope.row.status.smb ? 'success' : 'danger'" circle @click="handleSetService('smb', scope.row)"></el-button>
           </template>
         </el-table-column>
         <el-table-column
           label="nfs">
           <template slot-scope="scope">
-            <el-button :type="scope.row.nfs ? 'success' : 'danger'" circle @click="handleSetService('nfs', scope.row)"></el-button>
+            <el-button :type="scope.row.status.nfs ? 'success' : 'danger'" circle @click="handleSetService('nfs', scope.row)"></el-button>
           </template>
         </el-table-column>
         <el-table-column label="配置">
           <template slot-scope="scope">
             <el-button
               size="mini"
-              @click="handleEdit(scope.$index, scope.row)">关闭</el-button>
+              type="primary"
+              @click="handleEdit(scope.row, 'start')">开启</el-button>
+            <el-button
+              size="mini"
+              @click="handleEdit(scope.row, 'stop')">关闭</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -82,12 +86,7 @@
     name: 'nfs',
     data() {
       return {
-        tableData: [{
-          hostname: 'node',
-          ip: '192.168.3.126',
-          smb: true,
-          nfs: false
-        }],
+        tableData: [],
         newNode: {
           ip: ''
         },
@@ -104,12 +103,19 @@
       fetchData() {
         apiNas.getNasNodes().then(res => {
           console.log(res)
+          if (res.data.data) {
+            this.tableData = res.data.data
+          }
         })
       },
       addNasNode() {
         console.log(this.newNode)
         apiNas.addNasNode(this.newNode).then(res => {
-          console.log(res)
+          if (res.data && res.data.code === 0) {
+            this.$message.success('节点添加成功')
+          } else {
+            this.$message.error('节点添加失败')
+          }
         })
       },
 
@@ -117,14 +123,46 @@
         console.log(row)
         const params = {
           ip: row.ip,
-          method: row[service] ? 'stop' : 'start',
+          method: row.status[service] ? 'stop' : 'start',
           service: service
         }
         console.log(params)
+        apiNas.setServives(params).then(res => {
+          if (res.data.code === 0) {
+            this.$message.success(`${params.service}${row.status[service] ? '关闭' : '开启'}成功`)
+          } else {
+            this.$message.error(`${params.service}${row.status[service] ? '关闭' : '开启'}失败`)
+          }
+        })
       },
 
-      handleEdit(index, row) {
-        console.log(index)
+      handleEdit(row, method) {
+        const smbParams = {
+          ip: row.ip,
+          method: method,
+          service: 'smb'
+        }
+        const nfsParams = {
+          ip: row.ip,
+          method: method,
+          service: 'nfs'
+        }
+        apiNas.setServives(smbParams).then(res => {
+          this.fetchData()
+          if (res.data.code === 0) {
+            this.$message.success(`smb设置成功`)
+          } else {
+            this.$message.error(`smb设置失败`)
+          }
+        })
+        apiNas.setServives(nfsParams).then(res => {
+          this.fetchData()
+          if (res.data.code === 0) {
+            this.$message.success(`nfs设置成功`)
+          } else {
+            this.$message.error(`nfs设置失败`)
+          }
+        })
       },
       handleDelete() {
         console.log(this.currentRow)

@@ -198,7 +198,9 @@ import iTable from './../../../components/Table/index'
                   }
                   this.tabledata.push({
                     groupName: item.groupName,
-                    users: userStr
+                    users: userStr,
+                    quotaBytes: item.quotaBytes,
+                    quotaFiles: item.quotaFiles
                   })
                 }
               })
@@ -334,6 +336,8 @@ import iTable from './../../../components/Table/index'
       },
       confirmClicked3() {
         this.dialogVisible3 = false
+        this.groupQuota.quotaFiles = parseInt(this.groupQuota.quotaFiles)
+        this.groupQuota.quotaBytes = parseInt(this.groupQuota.quotaBytes)
         console.log(this.groupQuota)
       }
     },

@@ -100,3 +100,14 @@ export function deleteGroup(params) {
     }
   })
 }
+
+export function setUserQuota(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbSetUserQuota',
+      params: params
+    }
+  })
+}

@@ -69,7 +69,6 @@
     },
     methods: {
       handleLogout() {
-        console.log('tuichu')
         this.$store.dispatch('LogOut').then(() => {
           location.reload()
         })
