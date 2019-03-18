@@ -34,7 +34,7 @@
         </el-table-column>
         <el-table-column
           label="smb">
-          <template slot-scope="scope">
+          <template slot-scope="scope" >
             <el-button :type="scope.row.status.smb ? 'success' : 'danger'" circle @click="handleSetService('smb', scope.row)"></el-button>
           </template>
         </el-table-column>
@@ -127,9 +127,12 @@
           service: service
         }
         console.log(params)
+        this.loading = true
         apiNas.setServives(params).then(res => {
           if (res.data.code === 0) {
+            this.loading = false
             this.$message.success(`${params.service}${row.status[service] ? '关闭' : '开启'}成功`)
+            this.fetchData()
           } else {
             this.$message.error(`${params.service}${row.status[service] ? '关闭' : '开启'}失败`)
           }

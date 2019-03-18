@@ -110,7 +110,7 @@
 </template>
 
 <script>
-  import { getGroupList, getUserList, getGroupInfo, setGroup, addGroup, deleteGroup } from '../../../api/file/user'
+  import { getGroupList, getUserList, getGroupInfo, setGroup, addGroup, deleteGroup, setGroupQuota } from '../../../api/file/user'
 import iTable from './../../../components/Table/index'
   import iButton from './../../../components/Button/iButton'
   export default {
@@ -338,7 +338,14 @@ import iTable from './../../../components/Table/index'
         this.dialogVisible3 = false
         this.groupQuota.quotaFiles = parseInt(this.groupQuota.quotaFiles)
         this.groupQuota.quotaBytes = parseInt(this.groupQuota.quotaBytes)
-        console.log(this.groupQuota)
+        setGroupQuota(this.groupQuota).then(res => {
+          if (res.data.code === 0) {
+            this.$message.success('用户组配额设置成功')
+            this.fetchData()
+          } else {
+            this.$message.error('用户组配额设置失败:' + res.data.message)
+          }
+        })
       }
     },
     mounted() {

@@ -111,3 +111,15 @@ export function setUserQuota(params) {
     }
   })
 }
+
+export function setGroupQuota(params) {
+  return request({
+    url: '/api/smb',
+    method: 'post',
+    data: {
+      method: 'smbSetGroupQuota',
+      params: params
+    }
+  })
+}
+
