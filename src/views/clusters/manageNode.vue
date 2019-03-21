@@ -6,17 +6,30 @@
     <i-table :tabledata="tabledata" :labels="labels" edit="配置"
              @currentchange="currentchange"
              @clickEdit="EditClicked" style="margin-top: 20px;min-width: 600px"></i-table>
-    <div style="font-size:18px;font-weight: 900;margin-top: 20px">模板</div>
-    <div class="templatebox">
-      <el-row style="margin-top: 25px;width: 600px;margin-left: 30px">
-        <el-checkbox-group v-model="enabled_modules" @change="changemodule">
-          <el-col :span="8" v-for="module in modulesList" :key="module" style="margin-top: 10px">
-            <el-checkbox :label="module" style="color: #333;width: 120px"  border></el-checkbox>
-          </el-col>
-        </el-checkbox-group>
-      </el-row>
-      <div style="margin-top: 50px;margin-left: 15%">
-      </div>
+    <div style="font-size:18px;font-weight: 900;margin-top: 20px">模板
+    <el-button style="margin-left: 20px" type="primary" class="my-button" icon="el-icon-document" :disabled="isChanged" @click="setModules" size="medium">保存</el-button>
+    </div>
+    <div class="template-box">
+      <el-table :data="modulesData"
+                v-loading="moduleLoading"
+                border>
+        <el-table-column
+          label="状态"
+          width="60">
+          <template slot-scope="scope">
+            <el-checkbox v-model="scope.row.state" :disabled="scope.row.name === 'dashboard' || scope.row.name ==='prometheus'"></el-checkbox>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="模块名"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="discription"
+          label="描述">
+        </el-table-column>
+      </el-table>
     </div>
 
     <el-dialog
@@ -90,10 +103,14 @@
           hostname: '',
           ip: ''
         },
+        bool: false,
+        moduleLoading: false,
+        fixedData: [],
+        modulesData: [],
         loading: false,
         isNode: true,
         state: 'sandby',
-        ip: '192.168.3.12',
+        ip: '',
         enabled_modules: [],
         modulesList: ['balancer',
           'dashboard',
@@ -126,7 +143,45 @@
           }]
       }
     },
+
+    computed: {
+      isChanged() {
+        this.bool = false
+        this.modulesData.forEach((item, index) => {
+          if (item.state !== this.fixedData[index].state) {
+            this.bool = true
+          }
+        })
+        return !this.bool
+      }
+    },
+
+    watch: {
+      ip(newValue, oldValue) {
+        console.log(this.ip)
+        this.getModule()
+      }
+    },
+
     methods: {
+
+      setModules() {
+        this.moduleLoading = true
+        this.modulesData.forEach((item, index) => {
+          if (item.state !== this.fixedData[index].state) {
+            let action = item.state ? 'enable' : 'disable'
+            updateModules(this.ip, item.name, action).then(res => {
+              if (res.data.code === 0) {
+                this.$message.success('模块配置成功！')
+              } else {
+                this.$message.error('模块配置失败')
+              }
+              this.getModule()
+            })
+          }
+        })
+      },
+
       handleDelete() {
         deletemgrNode(this.currentnode.ip).then(res => {
           if (res.data.code === 0) {
@@ -160,19 +215,33 @@
           })
         })
       },
+
       getModule() {
-        getModules(this.ip).then(res => {
-          this.enabled_modules = res.data.data.enabled_modules
-        })
+        if (this.ip) {
+          this.moduleLoading = true
+          getModules(this.ip).then(res => {
+            this.fixedData = res.data.data.enabled_modules.map(item => Object.assign(item, {
+              state: true
+            }))
+            res.data.data.disabled_modules.forEach(item => {
+              if (item.can_run) {
+                this.fixedData.push(Object.assign(item, {
+                  state: false
+                }))
+              }
+            })
+            this.modulesData = this.fixedData.map(item => {
+              return { ...item }
+            })
+            this.moduleLoading = false
+          })
+        }
       },
-      rowClicked(row) {
-        this.ip = row.ip
-        this.getModule()
-      },
+
       fetchData() {
         getList().then(response => {
-          const data = response.data.data
-          this.tabledata = data
+          this.tabledata = response.data.data
+          console.log(this.tabledata)
           this.tabledata.forEach(item => {
             if (item.state === 'running') {
               this.ip = item.ip
@@ -269,10 +338,10 @@
         display: inline-block
         width: 120px
         text-align: right
-    .templatebox
+    .template-box
       margin-top 10px
+      margin-bottom 20px
       min-width 600px
-      height:300px
       width: 90%
       border: 0.5px solid rgba(190, 190, 190, 0.5)
       background-color: #fff
@@ -286,3 +355,4 @@
         padding-right 10px
         border-radius 5px
 </style>
+
