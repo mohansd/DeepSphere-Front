@@ -73,7 +73,7 @@
         nfsState: true,
         showrestart: false,
         ischange: false,
-        labels: ['NFS设置', 'SAMBA设置'],
+        labels: ['SAMBA设置'],
         sambadata: '',
         samba: {
           enable: false,

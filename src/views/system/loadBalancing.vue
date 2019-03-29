@@ -1,13 +1,13 @@
 <template>
   <div>
-    <el-alert
-      show-icon
-      v-show="hasFix"
-      title="DNS记录已修改，请重启配置文件。若不重启，离开或刷新页面时当前修改将失效。"
-      close-text="立即重启"
-      @close="freshData"
-      type="warning">
-    </el-alert>
+    <!--<el-alert-->
+      <!--show-icon-->
+      <!--v-show="hasFix"-->
+      <!--title="DNS记录已修改，请重启配置文件。若不重启，离开或刷新页面时当前修改将失效。"-->
+      <!--close-text="立即重启"-->
+      <!--@close="freshData"-->
+      <!--type="warning">-->
+    <!--</el-alert>-->
     <p class="title">DNS服务器</p>
     <div class="container">
       <el-button type="primary" @click="dialogVisible1 = true" size="medium">新增</el-button>
@@ -38,10 +38,10 @@
                 {{scope.row.option}}
               </el-button>
             </el-tooltip>
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <!--<el-button-->
+              <!--size="mini"-->
+              <!--type="danger"-->
+              <!--@click="handleDelete(scope.$index, scope.row)">删除</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -51,7 +51,7 @@
       <el-tabs type="border-card">
         <el-tab-pane v-for="record in records" :label="record" :key="record">
           <p style="width: 85%; display: inline-block; margin-bottom: 20px; font-size: 18px">域名： {{recordData[record].domain}}</p>
-          <el-button type="primary" @click="dialogVisible2 = true" size="medium">新增记录</el-button>
+          <!--<el-button type="primary" @click="dialogVisible2 = true" size="medium">新增记录</el-button>-->
           <el-table :data="recordData[record].nodes" border style="width: 100%">
             <el-table-column label="IP" prop="ip"></el-table-column>
             <el-table-column label="状态" prop="enable"></el-table-column>
@@ -72,28 +72,47 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-    <i-dialog title="新增DNS服务器" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div class="form" v-loading="loading" >
-        <div class="label">IP： </div>
-        <input v-model="newIP"/>
-      </div>
-    </i-dialog>
-    <i-dialog title="新增DNS记录" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <div class="form" v-loading="loading2" >
-        <div class="label">IP： </div>
-        <input v-model="newRecord.ip"/>
-      </div>
-      <div class="form" v-loading="loading2" >
-        <div class="label">type： </div>
-        <select style="width: 195px;background-color: #fff;height: 22px" id="recordType">
-          <option v-for="item in records" :key="item" :value="item">{{item}}</option>
-        </select>
-      </div>
-    </i-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="新增DNS服务器"
+      v-loading="loading"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="80px" size="mini">
+        <el-form-item label="IP：">
+          <el-input v-model="newIP"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="cancelClicked1" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+    <!--<i-dialog title="新增DNS服务器" :show="dialogVisible1"-->
+              <!--@confirmClicked="confirmClicked1"-->
+              <!--@cancelClicked="cancelClicked1">-->
+      <!--<div class="form" v-loading="loading" >-->
+        <!--<div class="label">IP： </div>-->
+        <!--<input v-model="newIP"/>-->
+      <!--</div>-->
+    <!--</i-dialog>-->
+    <!--<i-dialog title="新增DNS记录" :show="dialogVisible2"-->
+              <!--@confirmClicked="confirmClicked2"-->
+              <!--@cancelClicked="cancelClicked2">-->
+      <!--<div class="form" v-loading="loading2" >-->
+        <!--<div class="label">IP： </div>-->
+        <!--<input v-model="newRecord.ip"/>-->
+      <!--</div>-->
+      <!--<div class="form" v-loading="loading2" >-->
+        <!--<div class="label">type： </div>-->
+        <!--<select style="width: 195px;background-color: #fff;height: 22px" id="recordType">-->
+          <!--<option v-for="item in records" :key="item" :value="item">{{item}}</option>-->
+        <!--</select>-->
+      <!--</div>-->
+    <!--</i-dialog>-->
   </div>
 </template>
 

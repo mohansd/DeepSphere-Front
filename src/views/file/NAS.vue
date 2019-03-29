@@ -116,6 +116,7 @@
           } else {
             this.$message.error('节点添加失败')
           }
+          this.fetchData()
         })
       },
 
@@ -168,9 +169,8 @@
         })
       },
       handleDelete() {
-        console.log(this.currentRow)
         apiNas.removeNasNode(this.currentRow).then(res => {
-          console.log(res)
+          this.fetchData()
         })
       },
       handleCurrentChange(row) {

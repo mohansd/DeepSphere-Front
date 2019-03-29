@@ -44,7 +44,7 @@
       :visible.sync="dialogVisible1"
       width="400px"
       center>
-      <el-form label-width="80px" size="mini"
+      <el-form label-width="150px" size="mini"
                v-loading = "loading"
                element-loading-text="新增缓存池..."
                element-loading-spinner="el-icon-loading">
@@ -75,6 +75,39 @@
             </el-option>
           </el-select>
         </el-form-item>
+
+        <el-form-item label="hit_set_type">
+          <el-input v-model="newtier.hitSetType"></el-input>
+        </el-form-item>
+
+        <el-form-item label="hit_set_count">
+          <el-input v-model="newtier.hitSetCount" type="number"></el-input>
+        </el-form-item>
+
+        <el-form-item label="target_max_bytes">
+          <el-input v-model="newtier.targetMaxBytes" type="number"></el-input>
+        </el-form-item>
+
+        <el-form-item label="target_max_objects">
+          <el-input v-model="newtier.targetMaxObjects" type="number"></el-input>
+        </el-form-item>
+
+        <el-form-item label="cache_target_dirty_ratio">
+          <el-input v-model="newtier.cacheTargetDirtyRatio" type="number"></el-input>
+        </el-form-item>
+
+        <el-form-item label="cache_target_full_ratio">
+          <el-input v-model="newtier.cacheTargetFullRatio" type="number"></el-input>
+        </el-form-item>
+
+        <el-form-item label="cache_min_evict_age">
+          <el-input v-model="newtier.cacheMinEvictAge" type="number"></el-input>
+        </el-form-item>
+
+        <el-form-item label="cache_min_flush_age">
+          <el-input v-model="newtier.cacheMinFlushAge" type="number"></el-input>
+        </el-form-item>
+
       </el-form>
       <span slot="footer">
             <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
@@ -108,7 +141,15 @@
         newtier: {
           pool: '',
           cachePool: '',
-          cacheMode: ''
+          cacheMode: '',
+          hitSetType: null, //  [string] hit_set_type, 如果未设定, 默认值值为null
+          hitSetCount: null, //  [num] hit_set_count, 如果未设定, 默认值值为null
+          targetMaxBytes: null, //  [num] 参数名:target_max_bytes, 如果未设定, 默认值值为null
+          targetMaxObjects: null, //  [num] 参数名:target_max_objects, 如果未设定, 默认值值为null
+          cacheTargetDirtyRatio: null, //  [num] 参数名:cache_target_dirty_ratio, 如果未设定, 默认值值为null
+          cacheTargetFullRatio: null, //  [num] 参数名:cache_target_full_ratio, 如果未设定, 默认值值为null
+          cacheMinEvictAge: null, //  [num] 参数名:cache_min_evict_age, 如果未设定, 默认值值为null
+          cacheMinFlushAge: null //  [num] 参数名:cache_min_flush_age, 如果未设定, 默认值值为null
         },
         currenttier: {
           pool: '',
@@ -168,6 +209,14 @@
         this.fetchData()
       },
       confirmClicked1() {
+        const keys = Object.keys(this.newtier)
+        keys.forEach(key => {
+          if (this.newtier[key] && Number(this.newtier[key])) {
+            this.newtier[key] = Number(this.newtier[key])
+          } else if (this.newtier[key] === '') {
+            this.newtier[key] = null
+          }
+        })
         if (this.newtier.pool === this.newtier.cachePool) {
           this.newtier.pool = ''
           this.newtier.cachePool = ''
@@ -186,12 +235,12 @@
                 type: 'success'
               })
               this.fetchData()
-              this.newtier.pool = ''
-              this.newtier.cacheMode = ''
-              this.newtier.cachePoo = ''
+              keys.forEach(key => {
+                this.newtier[key] = null
+              })
             } else {
               this.$message({
-                message: '添加出错，请确认后重试！',
+                message: '添加失败，请确认后重试！',
                 type: 'error'
               })
             }

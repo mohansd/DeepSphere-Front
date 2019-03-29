@@ -4,15 +4,33 @@
     <i-button type="refresh" @click.native="refresh"></i-button>
     <i-button type="delete" @click.native="deleteReceiver"></i-button>
     <div class="container">
-      <div class="title">告警发送人： {{mailsender.account}}
+      <div class="title">告警发送人： {{mailSender.auth.user}}
         <el-button type="primary" @click="isnew = !isnew" size="mini" style="margin-left: 150px;">{{text}}</el-button>
       </div>
-      <el-form size="mini" label-width="120px" style="width: 400px;margin-left: 20px;margin-top: 10px;" v-show="isnew">
-        <el-form-item label="发送人邮箱">
-          <el-input v-model="mailsender.account"></el-input>
+      <el-form size="mini"
+               v-model="mailSender"
+               label-width="150px"
+               style="width: 400px;margin-left: 20px;margin-top: 10px;"
+               v-show="isnew">
+        <el-form-item label="smtp服务地址">
+          <el-input v-model="mailSender.host"></el-input>
         </el-form-item>
-        <el-form-item label="Token">
-          <el-input v-model="mailsender.token"></el-input>
+        <el-form-item label="smtp服务地址端口">
+          <el-input v-model="mailSender.port"></el-input>
+        </el-form-item>
+        <el-form-item label="https">
+          <el-switch
+            v-model="mailSender.secure"
+            active-color="#13ce66"
+            inactive-color="#ff4949">
+          </el-switch>
+          <span>{{mailSender.secure ? '启用' : '关闭'}}</span>
+        </el-form-item>
+        <el-form-item label="发送者邮箱">
+          <el-input v-model="mailSender.auth.user"></el-input>
+        </el-form-item>
+        <el-form-item label="授权码">
+          <el-input v-model="mailSender.auth.pass"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="confirmClicked2">确定</el-button>
@@ -25,32 +43,68 @@
     <i-table :tabledata="tabledata" :labels="labels"
              @currentchange="currentchange"
              style="min-width: 500px"
-             :showedit="false" @clickEdit="EditClicked"></i-table>
-    <i-dialog title="新增告警接收人" :show="dialogVisible1"
-              @confirmClicked="confirmClicked1"
-              @cancelClicked="cancelClicked1">
-      <div style="height: 20px;font-size: 12px;line-height:20px;background-color: #bddbf5;margin-left: 50px;margin-right: 60px">当集群出现故障时，系统将会通过邮件的方式通知告警接收人</div>
-      <div class="form">
-        <div class="label">接收人姓名： </div>
-        <input v-model="newreceiver.name"/>
-      </div>
-      <div class="form">
-        <div class="label">邮件地址： </div>
-        <input v-model="newreceiver.account"/>
-      </div>
-    </i-dialog>
-    <i-dialog title="修改发送人信息" :show="dialogVisible2"
-              @confirmClicked="confirmClicked2"
-              @cancelClicked="cancelClicked2">
-      <div class="form">
-        <div class="label">告警发送人： </div>
-        <input v-model="mailsender.token"/>
-      </div>
-      <div class="form">
-        <div class="label">邮件地址： </div>
-        <input v-model="mailsender.account"/>
-      </div>
-    </i-dialog>
+             :showedit="false" ></i-table>
+
+    <el-dialog
+      :show-close="false"
+      title="新增告警接收人"
+      :visible.sync="dialogVisible1"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="120px" size="mini">
+        <el-form-item label="接收人姓名：">
+          <el-input v-model="newreceiver.name"></el-input>
+        </el-form-item>
+        <el-form-item label="邮件地址：">
+          <el-input v-model="newreceiver.account"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="cancelClicked1" size="small">取 消</el-button>
+            <el-button type="primary" @click="confirmClicked1" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
+
+
+    <!--<i-dialog title="新增告警接收人" :show="dialogVisible1"-->
+              <!--@confirmClicked="confirmClicked1"-->
+              <!--@cancelClicked="cancelClicked1">-->
+      <!--<div style="height: 20px;font-size: 12px;line-height:20px;background-color: #bddbf5;margin-left: 50px;margin-right: 60px">当集群出现故障时，系统将会通过邮件的方式通知告警接收人</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">接收人姓名： </div>-->
+        <!--<input v-model="newreceiver.name"/>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">邮件地址： </div>-->
+        <!--<input v-model="newreceiver.account"/>-->
+      <!--</div>-->
+    <!--</i-dialog>-->
+
+
+    <!--<i-dialog title="修改发送人信息" :show="dialogVisible2"-->
+              <!--@confirmClicked="confirmClicked2"-->
+              <!--@cancelClicked="cancelClicked2">-->
+      <!--<div class="form">-->
+        <!--<div class="label">smtp服务地址： </div>-->
+        <!--<input v-model="mailSender.host"/>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">smtp服务地址端口： </div>-->
+        <!--<input v-model="mailSender.port"/>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">https： </div>-->
+        <!--<input v-model="mailSender.secure"/>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">发送者邮箱： </div>-->
+        <!--<input v-model="mailSender.auth.user"/>-->
+      <!--</div>-->
+      <!--<div class="form">-->
+        <!--<div class="label">授权码： </div>-->
+        <!--<input v-model="mailSender.auth.pass"/>-->
+      <!--</div>-->
+    <!--</i-dialog>-->
   </div>
 </template>
 
@@ -74,10 +128,15 @@ export default {
         dialogVisible1: false,
         dialogVisible2: false,
         tabledata: [],
-        mailsender: {
-          account: '',
-          token: '',
-          name: ''
+        mailSender: {
+          host: 'smtp.163.com', //  [string] smtp服务地址
+          port: 25, //  [num] smtp服务地址端口
+          secure: false, //  [bool] 是否启用https, 默认为false
+          auth: {
+            user: 'deepsphere@163.com', //  [string] 发送者邮箱
+            pass: 'deepsphere123' //  [string] 授权码
+          }
+
         },
         newreceiver: {
           name: '',
@@ -115,11 +174,7 @@ export default {
           let data = res.data.data
           if (data) {
             this.text = '修改'
-            this.senderTable[0].name = data.description
-            this.senderTable[0].email = data.config.account
-            this.mailsender.name = data.description
-            this.mailsender.token = data.config.token
-            this.mailsender.account = data.config.account
+            this.mailSender = Object.assign(data, {})
           } else {
             this.text = '新增'
           }
@@ -164,15 +219,15 @@ export default {
           console.log(this.newreceiver)
           addmailReceiver(this.newreceiver).then(res => {
             console.log(res)
-            if (res.data.code === 5) {
-              this.$message({
-                message: '请填写正确的邮箱！',
-                type: 'error'
-              })
-            } else {
+            if (res.data.code === 0) {
               this.$message({
                 message: '告警接收人添加成功！',
                 type: 'success'
+              })
+            } else {
+              this.$message({
+                message: '告警接收人添加失败！',
+                type: 'error'
               })
               this.fetchData()
               this.newreceiver.name = ''
@@ -190,7 +245,7 @@ export default {
       },
       confirmClicked2() {
         this.dialogVisible2 = false
-        setmailSender(this.mailsender).then(res => {
+        setmailSender(this.mailSender).then(res => {
           console.log(res)
           if (res.data.code === 0) {
             this.$message({
