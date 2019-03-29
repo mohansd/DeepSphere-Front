@@ -38,10 +38,10 @@
                 {{scope.row.option}}
               </el-button>
             </el-tooltip>
-            <!--<el-button-->
-              <!--size="mini"-->
-              <!--type="danger"-->
-              <!--@click="handleDelete(scope.$index, scope.row)">删除</el-button>-->
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -62,10 +62,10 @@
                   @click="handleDNSRcordState(scope.$index, record, scope.row)">
                   {{scope.row.enable==='开启' ? '关闭' : '开启'}}
                 </el-button>
-                <el-button
-                  size="mini"
-                  type="danger"
-                  @click="handleDeleteRecord(scope.$index, record, scope.row)">删除</el-button>
+                <!--<el-button-->
+                  <!--size="mini"-->
+                  <!--type="danger"-->
+                  <!--@click="handleDeleteRecord(scope.$index, record, scope.row)">删除</el-button>-->
               </template>
             </el-table-column>
           </el-table>
