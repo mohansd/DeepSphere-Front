@@ -340,6 +340,7 @@
         this.dialogVisible1 = false
       },
       handleCurrentChange(val) {
+        console.log(val)
         if (val) {
           this.currentosd.id = val.id
           this.currentosd.ip = val.ip
@@ -355,11 +356,6 @@
         } else {
           this.state = true
         }
-      },
-      handleDelete(val) {
-        this.dialogVisible2 = true
-        this.currentosd.ip = val.ip
-        this.currentosd.name = val.id
       },
       confirmClicked2() {
         this.dialogVisible2 = false

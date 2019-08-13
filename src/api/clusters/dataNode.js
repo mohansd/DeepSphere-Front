@@ -26,7 +26,7 @@ export function createOSD(newNode) {
 
 export function deleteOSD(params) {
   return request({
-    url: '/api/ceph/dataNode/' + params.name,
+    url: '/api/ceph/dataNode/' + params.id,
     method: 'delete',
     data: {
       ip: params.ip
