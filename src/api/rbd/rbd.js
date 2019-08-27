@@ -52,3 +52,28 @@ export function setImageTarget(params) {
     data: params
   })
 }
+
+// 获取镜像对应的快照列表
+export function getsnap(params) {
+  return request({
+    url: `/api/cephRbd/snap/${params.pool}/${params.image}`,
+    method: 'get'
+  })
+}
+
+// 创建快照
+export function createsnap(data) {
+  return request({
+    url: '/api/cephRbd/snap',
+    method: 'post',
+    data: data
+  })
+}
+
+// 删除快照
+export function deletesnap(params) {
+  return request({
+    url: `/api/cephRbd/snap/${params.pool}/${params.image}/${params.snap}`,
+    method: 'delete'
+  })
+}

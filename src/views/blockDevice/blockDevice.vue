@@ -54,6 +54,45 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div  style="margin-top: 20px" v-show="currentImage.pool">
+      <el-button type="primary" class="my-button" icon="el-icon-plus" size="medium" @click="dialogVisible4 = true">创建快照</el-button>
+      <el-button type="danger" size="medium" :disabled="isSnap" @click="deleteSnap" icon="el-icon-close">删除快照</el-button>
+      <el-table
+        style="margin-top: 20px"
+        v-loading="snapLoading"
+        border
+        stripe
+        highlight-current-row
+        @current-change="handleCurrentSnapChange"
+        :data="snapData"
+        ref="snapTable">
+        <el-table-column
+          prop="id"
+          label="ID">
+        </el-table-column>
+        <el-table-column
+          prop="snap"
+          label="snap">
+        </el-table-column>
+        <el-table-column
+          prop="size"
+          label="size">
+        </el-table-column>
+        <el-table-column
+          prop="createdTime"
+          label="createdTime">
+        </el-table-column>
+        <el-table-column label="编辑">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="handleSnap(scope.$index, scope.row)">恢复</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
     <el-dialog
       :show-close="false"
       title="初始化RBD缓存池"
@@ -121,6 +160,32 @@
             <el-button type="primary" @click="handleAddImage" size="small">确 定</el-button>
           </span>
     </el-dialog>
+
+    <el-dialog
+      :show-close="false"
+      title="创建快照"
+      :visible.sync="dialogVisible4"
+      width="400px"
+      center>
+      <el-form ref="form" label-width="60px" size="mini"
+               v-loading="loading"
+               element-loading-text="创建镜像..."
+               element-loading-spinner="el-icon-loading">
+        <el-form-item label="存储池">
+          <el-input v-model="newSnap.pool" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="镜像名">
+          <el-input v-model="newSnap.image" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="快照">
+          <el-input v-model="newSnap.snap"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+            <el-button @click="dialogVisible4 = false" size="small">取 消</el-button>
+            <el-button type="primary" @click="createSnap" size="small">确 定</el-button>
+          </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -138,6 +203,7 @@
         dialogVisible1: false,
         dialogVisible2: false,
         dialogVisible3: false,
+        dialogVisible4: false,
         dynamicTags: ['标签一', '标签二', '标签三'],
         inputVisible: false,
         inputValue: '',
@@ -151,7 +217,16 @@
           size: 102400
         },
         tableData: [],
-        currentImage: {}
+        currentImage: {},
+        snapData: [],
+        snapLoading: false,
+        newSnap: {
+          pool: '',
+          image: '',
+          snap: ''
+        },
+        isSnap: true,
+        currentSnap: {}
       }
     },
     mounted() {
@@ -161,8 +236,6 @@
       fetchData() {
         this.isImage = true
         apiRbd.getRbd().then(res => {
-          console.log(res)
-          console.log(res.data)
           this.tableData = []
           if (res.data.code === 0) {
             const data = res.data.data
@@ -179,7 +252,6 @@
           }
         })
         getData().then(res => {
-          console.log(res)
           if (res.data.code === 0) {
             this.pools = res.data.data.pools.map(pool => pool.pool_name)
           }
@@ -315,7 +387,67 @@
         if (val) {
           this.isImage = false
           this.currentImage = val
+          this.newSnap.pool = val.pool
+          this.newSnap.image = val.image
+          this.getsnapData()
         }
+      },
+      getsnapData() {
+        const params = {
+          pool: this.currentImage.pool,
+          image: this.currentImage.image
+        }
+        this.snapLoading = true
+        apiRbd.getsnap(params).then(res => {
+          this.snapLoading = false
+          if (res.data && res.data.code === 0) {
+            this.snapData = res.data.data
+            console.log(this.snapData)
+          }
+        })
+      },
+      createSnap() {
+        apiRbd.createsnap(this.newSnap).then(res => {
+          if (res.data && res.data.code === 0) {
+            this.$message.success('快照创建成功')
+            this.dialogVisible4 = false
+            this.newSnap = {
+              pool: '',
+              image: '',
+              snap: ''
+            }
+            this.getsnapData()
+          } else {
+            this.$message.error('快照创建失败')
+          }
+        })
+      },
+      handleCurrentSnapChange(val) {
+        if (val) {
+          console.log(val)
+          this.isSnap = false
+          this.currentSnap = val
+        }
+      },
+      deleteSnap() {
+        console.log(this.currentSnap)
+        const params = {
+          pool: this.currentImage.pool,
+          image: this.currentImage.image,
+          snap: this.currentSnap.snap
+        }
+        apiRbd.deletesnap(params).then(res => {
+          if (res.data && res.data.code === 0) {
+            this.$message.success('快照删除成功')
+            this.currentSnap = {}
+            this.getsnapData()
+          } else {
+            this.$message.error('快照删除失败')
+          }
+        })
+      },
+      handleSnap(index, row) {
+        console.log(row)
       }
     }
   }
