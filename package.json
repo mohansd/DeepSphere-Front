@@ -23,8 +23,10 @@
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "screenfull": "3.3.2",
+    "socket.io-client": "^2.2.0",
     "vue": "2.5.10",
     "vue-router": "3.0.1",
+    "vue-socket.io": "^3.0.7",
     "vuex": "3.0.1"
   },
   "devDependencies": {

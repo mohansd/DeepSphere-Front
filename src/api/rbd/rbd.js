@@ -77,3 +77,11 @@ export function deletesnap(params) {
     method: 'delete'
   })
 }
+
+// 快照恢复
+export function rollbacksnap(params) {
+  return request({
+    url: `/api/cephRbd/snap/${params.pool}/${params.image}/${params.snap}`,
+    method: 'put'
+  })
+}

@@ -1,5 +1,20 @@
 <template>
   <div class="container">
+
+    <!--<el-alert-->
+      <!--style="height: 50px; margin-bottom: 20px"-->
+      <!--v-show="showAlert"-->
+      <!--:title="alert.message"-->
+      <!--:type="alert.type">-->
+    <!--</el-alert>-->
+
+    <div class="alert" :class="`alert-${alert.type}`" v-show="showAlert">
+      {{alert.message}}
+      <span>
+        <i class="el-icon-close" @click="showAlert = false"></i>
+      </span>
+    </div>
+
     <div class="title">RBD存储池</div>
     <div class="tag-container">
       <el-tag
@@ -49,7 +64,6 @@
       <el-table-column label="编辑">
         <template slot-scope="scope">
           <el-button
-            size="mini"
             @click="handleEdit(scope.$index, scope.row)">{{scope.row.status === '失效' ? '开启' : '关闭'}}</el-button>
         </template>
       </el-table-column>
@@ -85,8 +99,11 @@
         </el-table-column>
         <el-table-column label="编辑">
           <template slot-scope="scope">
-            <el-button
-              size="mini"
+              <el-button
+              v-loading="rollbackLoading"
+              element-loading-text="正在恢复"
+              element-loading-spinner="el-icon-loading"
+              customClass="customClass"
               @click="handleSnap(scope.$index, scope.row)">恢复</el-button>
           </template>
         </el-table-column>
@@ -192,11 +209,17 @@
 <script>
   import * as apiRbd from '../../api/rbd/rbd'
   import { getData } from '@/api/overview/overview'
+  import io from 'socket.io-client'
 
   export default {
     name: 'blockDevice',
     data() {
       return {
+        showAlert: false,
+        alert: {
+          type: '',
+          message: ''
+        },
         isImage: true,
         loading: false,
         tableLoading: false,
@@ -226,10 +249,29 @@
           snap: ''
         },
         isSnap: true,
-        currentSnap: {}
+        currentSnap: {},
+        rollbackLoading: false
       }
     },
     mounted() {
+      const socket = io(`${process.env.BASE_API}/rbd`)
+      socket.on('callback', data => {
+        this.rollbackLoading = false
+        this.showAlert = true
+        this.alert.type = data.code === 0 ? 'success' : 'error'
+        this.alert.message = data.message
+        // if (data.code === 0) {
+        //   this.$notify.success({
+        //     title: '快照恢复成功',
+        //     message: data.message
+        //   })
+        // } else {
+        //   this.$notify.error({
+        //     title: '快照恢复失败',
+        //     message: data.message
+        //   })
+        // }
+      })
       this.fetchData()
     },
     methods: {
@@ -350,7 +392,6 @@
 
       handleEdit(index, row) {
         this.tableLoading = true
-        console.log(row)
         const params = {
           method: row.status === '失效' ? 'addTarget' : 'removeTarget',
           pool: row.pool,
@@ -402,12 +443,13 @@
           this.snapLoading = false
           if (res.data && res.data.code === 0) {
             this.snapData = res.data.data
-            console.log(this.snapData)
           }
         })
       },
       createSnap() {
+        this.snapLoading = true
         apiRbd.createsnap(this.newSnap).then(res => {
+          this.snapLoading = false
           if (res.data && res.data.code === 0) {
             this.$message.success('快照创建成功')
             this.dialogVisible4 = false
@@ -424,19 +466,19 @@
       },
       handleCurrentSnapChange(val) {
         if (val) {
-          console.log(val)
           this.isSnap = false
           this.currentSnap = val
         }
       },
       deleteSnap() {
-        console.log(this.currentSnap)
+        this.snapLoading = true
         const params = {
           pool: this.currentImage.pool,
           image: this.currentImage.image,
           snap: this.currentSnap.snap
         }
         apiRbd.deletesnap(params).then(res => {
+          this.snapLoading = false
           if (res.data && res.data.code === 0) {
             this.$message.success('快照删除成功')
             this.currentSnap = {}
@@ -447,7 +489,20 @@
         })
       },
       handleSnap(index, row) {
-        console.log(row)
+        const params = {
+          pool: this.currentImage.pool,
+          image: this.currentImage.image,
+          snap: row.snap
+        }
+        this.rollbackLoading = true
+        apiRbd.rollbacksnap(params).then(res => {
+          if (res.data && res.data.code === 0) {
+            this.$message.error('快照恢复中')
+          } else {
+            this.$message.error('快照恢复失败')
+            this.rollbackLoading = false
+          }
+        })
       }
     }
   }
@@ -458,6 +513,19 @@
     padding-top 20px
     margin-left 51px
     margin-right 48px
+    .alert
+      padding 10px 20px
+      border-radius 4px
+      margin-bottom 20px
+      span
+        float right
+        cursor pointer
+    .alert-success
+      background-color #f0f9eb
+      color #67c23a
+    .alert-error
+      background-color #fef0f0
+      color #f56c6c
     .title
       margin-bottom 10px
       font-weight bolder

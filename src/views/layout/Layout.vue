@@ -1,8 +1,6 @@
 <template>
   <div class="app-wrapper">
     <header>
-      <img :src="titleImg" style="margin-top: 20px;margin-left: 20px">
-      <img :src="logoImg" style="position: absolute;height: 50px;right: 16px;top: 10px">
       <div class="button">
         <svg-icon icon-class="user"></svg-icon>
         {{username}}
@@ -94,6 +92,7 @@
     width: 100%
     height: 100px
     .button
+      line-height 180px
       color: #fff
       position: absolute
       right: 100px
