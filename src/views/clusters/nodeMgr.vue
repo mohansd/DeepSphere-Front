@@ -35,7 +35,7 @@
       :visible.sync="dialogVisible2"
       width="400px"
       center>
-      <p>确定删除集群: {{deletePool}}?</p>
+      <p>确定删除集群?</p>
       <span slot="footer">
             <el-button @click="dialogVisible2 = false" size="small">取 消</el-button>
             <el-button type="primary" @click="handleDeleteCluster" size="small">确 定</el-button>
@@ -47,6 +47,7 @@
 <script>
   import { getNodeList, addNode, deleteNode, deleteCluster } from '@/api/clusters/pNode'
   import iTable from './../../components/Table/index'
+  import io from 'socket.io-client'
   export default {
     name: 'shelfManage',
     components: {
@@ -93,8 +94,29 @@
           }, {
             label: 'OSDS',
             prop: 'osds'
+          }, {
+            label: 'CPU使用率',
+            prop: 'cpu'
+          }, {
+            label: '内存使用',
+            prop: 'mem'
           }]
       }
+    },
+    mounted() {
+      this.fetchData()
+      const socket = io(`${process.env.BASE_API}/systemMonitor`)
+      socket.on('interval', data => {
+        this.tabledata = this.tabledata.map(item => {
+          if (item.ip === data.ip) {
+            return Object.assign(item, {
+              cpu: data.cpu,
+              mem: `${data.memUsed}/${data.memTotal}`
+            })
+          }
+          return item
+        })
+      })
     },
     methods: {
       handleDeleteCluster() {
@@ -186,9 +208,6 @@
       cancelClicked1() {
         this.dialogVisible1 = false
       }
-    },
-    mounted() {
-      this.fetchData()
     }
   }
 </script>
